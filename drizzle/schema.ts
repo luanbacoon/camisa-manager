@@ -108,7 +108,10 @@ export const sales = mysqlTable("sales", {
   ]).notNull(),
   total: decimal("total", { precision: 12, scale: 2 }).notNull(),
   profit: decimal("profit", { precision: 12, scale: 2 }).notNull().default("0.00"),
+  discountValue: decimal("discountValue", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  discountPercent: decimal("discountPercent", { precision: 5, scale: 2 }).notNull().default("0.00"),
   notes: text("notes"),
+  saleDate: timestamp("saleDate"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

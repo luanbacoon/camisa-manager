@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { format, subDays, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Plus, Search, ShoppingCart, X, Trash2, Eye, Edit2, TrendingUp } from "lucide-react";
+import { Plus, Search, ShoppingCart, X, Trash2, Eye, Edit2, TrendingUp, Shirt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -43,6 +43,19 @@ export default function Sales() {
   const [showNew, setShowNew] = useState(false);
   const [showDetail, setShowDetail] = useState<number | null>(null);
 
+  // Modal state
+  const [productSearch, setProductSearch] = useState("");
+  const [saleDate, setSaleDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [customerId, setCustomerId] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<string>("");
+  const [discountValue, setDiscountValue] = useState(0);
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [notes, setNotes] = useState("");
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [selProduct, setSelProduct] = useState<string>("");
+  const [selSize, setSelSize] = useState<string>("");
+  const [selQty, setSelQty] = useState(1);
+
   const utils = trpc.useUtils();
   const { data: sales = [], isLoading } = trpc.sales.list.useQuery({});
   const { data: customers = [] } = trpc.customers.list.useQuery();
@@ -58,15 +71,6 @@ export default function Sales() {
     },
     onError: (e) => toast.error(e.message),
   });
-
-  // Form state
-  const [customerId, setCustomerId] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<string>("");
-  const [notes, setNotes] = useState("");
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [selProduct, setSelProduct] = useState<string>("");
-  const [selSize, setSelSize] = useState<string>("");
-  const [selQty, setSelQty] = useState(1);
 
   const defaultCustomer = useMemo(() => customers.find((c) => c.isDefault), [customers]);
 
@@ -96,15 +100,23 @@ export default function Sales() {
 
   const metrics = useMemo(() => {
     const totalSales = filteredSales.length;
-    const totalItems = 0; // Items são carregados apenas no detalhe
+    const totalItems = 0;
     const totalRevenue = filteredSales.reduce((acc, s) => acc + Number(s.total), 0);
     const totalProfit = filteredSales.reduce((acc, s) => acc + Number(s.profit), 0);
     const totalCost = totalRevenue - totalProfit;
     const avgTicket = totalSales > 0 ? totalRevenue / totalSales : 0;
-    const estimatedProfit = 0; // Calculado no dashboard
+    const estimatedProfit = 0;
 
     return { totalSales, totalItems, totalRevenue, totalProfit, avgTicket, estimatedProfit };
   }, [filteredSales, products]);
+
+  // Filter products for modal
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) =>
+      p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+      (p.team ?? "").toLowerCase().includes(productSearch.toLowerCase())
+    );
+  }, [products, productSearch]);
 
   function openNew() {
     setCustomerId(defaultCustomer ? String(defaultCustomer.id) : "");
@@ -114,6 +126,10 @@ export default function Sales() {
     setSelProduct("");
     setSelSize("");
     setSelQty(1);
+    setProductSearch("");
+    setSaleDate(format(new Date(), "yyyy-MM-dd"));
+    setDiscountValue(0);
+    setDiscountPercent(0);
     setShowNew(true);
   }
 
@@ -149,7 +165,9 @@ export default function Sales() {
     setCart((prev) => prev.filter((_, i) => i !== idx));
   }
 
-  const cartTotal = cart.reduce((acc, i) => acc + i.unitPrice * i.quantity, 0);
+  const cartSubtotal = cart.reduce((acc, i) => acc + i.unitPrice * i.quantity, 0);
+  const cartDiscount = discountValue > 0 ? discountValue : (cartSubtotal * discountPercent) / 100;
+  const cartTotal = Math.max(0, cartSubtotal - cartDiscount);
 
   function confirmSale() {
     if (!customerId) return toast.error("Selecione um cliente");
@@ -159,6 +177,9 @@ export default function Sales() {
     createSale.mutate({
       customerId: Number(customerId),
       paymentMethod: paymentMethod as any,
+      saleDate: new Date(saleDate),
+      discountValue: discountValue > 0 ? discountValue : undefined,
+      discountPercent: discountPercent > 0 ? discountPercent : undefined,
       items: cart,
       notes,
     });
@@ -228,17 +249,6 @@ export default function Sales() {
             <SelectItem value="personalizado">Últimos 30 dias</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40 bg-card border-border">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os Status</SelectItem>
-            <SelectItem value="finalizado">Finalizado</SelectItem>
-            <SelectItem value="pendente">Pendente</SelectItem>
-            <SelectItem value="cancelado">Cancelado</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       {/* Sales Table */}
@@ -279,9 +289,7 @@ export default function Sales() {
                     </td>
                     <td className="font-semibold">{fmt(sale.total)}</td>
                     <td>
-                      <span className="badge-success">
-                        Finalizado
-                      </span>
+                      <span className="badge-success">Finalizado</span>
                     </td>
                     <td className="flex gap-1">
                       <Button
@@ -309,160 +317,265 @@ export default function Sales() {
 
       {/* New Sale Dialog */}
       <Dialog open={showNew} onOpenChange={setShowNew}>
-        <DialogContent className="max-w-2xl bg-card border-border max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl bg-card border-border max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Nova Venda</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 pt-2">
-            {/* Customer Selection */}
-            <div className="space-y-1.5">
-              <Label>Cliente *</Label>
-              <Select value={customerId} onValueChange={setCustomerId}>
-                <SelectTrigger className="bg-muted/50 border-border">
-                  <SelectValue placeholder="Selecione um cliente" />
-                </SelectTrigger>
-                <SelectContent>
-                  {customers.map((c) => (
-                    <SelectItem key={c.id} value={String(c.id)}>
-                      {c.name} {c.isDefault ? "(Padrão)" : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Payment Method */}
-            <div className="space-y-1.5">
-              <Label>Forma de Pagamento *</Label>
-              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                <SelectTrigger className="bg-muted/50 border-border">
-                  <SelectValue placeholder="Selecione a forma de pagamento" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PAYMENT_METHODS.map((m) => (
-                    <SelectItem key={m.value} value={m.value}>
-                      {m.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Product Selection */}
-            <div className="space-y-3 p-3 bg-muted/20 rounded-lg">
-              <p className="text-sm font-semibold">Adicionar Produtos</p>
-              <div className="grid grid-cols-3 gap-2">
-                <div className="space-y-1">
-                  <Label className="text-xs">Produto</Label>
-                  <Select value={selProduct} onValueChange={setSelProduct}>
-                    <SelectTrigger className="bg-muted/50 border-border h-8 text-xs">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {products.map((p) => (
-                        <SelectItem key={p.id} value={String(p.id)}>
-                          {p.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">
+            {/* Left: Products Grid */}
+            <div className="lg:col-span-2 space-y-4">
+              {/* Search and Filters */}
+              <div className="space-y-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar produto..."
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                    className="pl-9 bg-muted/50 border-border"
+                  />
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Tamanho</Label>
-                  <Select value={selSize} onValueChange={setSelSize}>
-                    <SelectTrigger className="bg-muted/50 border-border h-8 text-xs">
-                      <SelectValue placeholder="Tamanho" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SIZES.map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {s}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Qtd</Label>
-                  <div className="flex gap-1 items-center h-8">
-                    <Input
-                      type="number"
-                      min="1"
-                      value={selQty}
-                      onChange={(e) => setSelQty(Math.max(1, Number(e.target.value)))}
-                      className="bg-muted/50 border-border h-8 text-xs p-1"
-                    />
-                    <Button onClick={addToCart} size="sm" className="h-8 px-2 bg-primary text-primary-foreground">
-                      <Plus className="h-3 w-3" />
-                    </Button>
+              </div>
+
+              {/* Products Grid */}
+              <div className="grid grid-cols-2 gap-3 max-h-[500px] overflow-y-auto pr-2">
+                {filteredProducts.length === 0 ? (
+                  <div className="col-span-2 text-center py-8 text-muted-foreground">
+                    <Shirt className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">Nenhum produto encontrado</p>
                   </div>
-                </div>
+                ) : (
+                  filteredProducts.map((product) => (
+                    <div
+                      key={product.id}
+                      className="card-elegant p-3 cursor-pointer hover:border-primary/50 transition-all group"
+                    >
+                      {/* Product Image */}
+                      <div className="aspect-square bg-muted/30 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                        {product.imageUrl ? (
+                          <img
+                            src={product.imageUrl}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        ) : (
+                          <Shirt className="h-8 w-8 text-muted-foreground/30" />
+                        )}
+                      </div>
+
+                      {/* Product Info */}
+                      <div className="space-y-1.5">
+                        {product.team && (
+                          <p className="text-[10px] text-primary font-medium uppercase tracking-wider">{product.team}</p>
+                        )}
+                        <h4 className="text-xs font-semibold line-clamp-2">{product.name}</h4>
+                        <p className="text-sm font-bold text-primary">{fmt(product.price)}</p>
+
+                        {/* Size Selector */}
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] text-muted-foreground">Tamanho</label>
+                          <Select value={selProduct === String(product.id) ? selSize : ""} onValueChange={(size) => {
+                            setSelProduct(String(product.id));
+                            setSelSize(size);
+                          }}>
+                            <SelectTrigger className="h-7 text-xs bg-muted/50 border-border">
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {SIZES.map((s) => (
+                                <SelectItem key={s} value={s}>
+                                  {s}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Add Button */}
+                        <Button
+                          onClick={() => {
+                            if (selProduct === String(product.id) && selSize) {
+                              addToCart();
+                            }
+                          }}
+                          disabled={selProduct !== String(product.id) || !selSize}
+                          className="w-full h-7 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Adicionar
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
-            {/* Cart */}
-            {cart.length > 0 && (
+            {/* Right: Order Summary */}
+            <div className="space-y-4">
+              {/* Customer */}
+              <div className="space-y-1.5">
+                <Label className="text-xs">Cliente *</Label>
+                <Select value={customerId} onValueChange={setCustomerId}>
+                  <SelectTrigger className="bg-muted/50 border-border h-9 text-sm">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {customers.map((c) => (
+                      <SelectItem key={c.id} value={String(c.id)}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Date */}
+              <div className="space-y-1.5">
+                <Label className="text-xs">Data da Venda *</Label>
+                <Input
+                  type="date"
+                  value={saleDate}
+                  onChange={(e) => setSaleDate(e.target.value)}
+                  className="bg-muted/50 border-border h-9 text-sm"
+                />
+              </div>
+
+              {/* Payment Method */}
+              <div className="space-y-1.5">
+                <Label className="text-xs">Forma de Pagamento *</Label>
+                <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                  <SelectTrigger className="bg-muted/50 border-border h-9 text-sm">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PAYMENT_METHODS.map((m) => (
+                      <SelectItem key={m.value} value={m.value}>
+                        {m.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Discounts */}
               <div className="space-y-2 p-3 bg-muted/20 rounded-lg">
-                <p className="text-sm font-semibold">Produtos ({cart.length})</p>
-                {cart.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-sm p-2 bg-muted/30 rounded">
-                    <div>
-                      <p className="font-medium">{item.productName} ({item.size})</p>
-                      <p className="text-xs text-muted-foreground">Qtd: {item.quantity} × {fmt(item.unitPrice)}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">{fmt(item.unitPrice * item.quantity)}</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                        onClick={() => removeFromCart(idx)}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
+                <p className="text-xs font-semibold">Desconto</p>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px]">Valor (R$)</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={discountValue}
+                    onChange={(e) => {
+                      setDiscountValue(Number(e.target.value));
+                      setDiscountPercent(0);
+                    }}
+                    className="bg-muted/50 border-border h-8 text-xs"
+                    placeholder="0,00"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px]">Percentual (%)</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    value={discountPercent}
+                    onChange={(e) => {
+                      setDiscountPercent(Number(e.target.value));
+                      setDiscountValue(0);
+                    }}
+                    className="bg-muted/50 border-border h-8 text-xs"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
+              {/* Cart */}
+              <div className="space-y-2 p-3 bg-muted/20 rounded-lg max-h-[300px] overflow-y-auto">
+                <p className="text-xs font-semibold">Carrinho ({cart.length})</p>
+                {cart.length === 0 ? (
+                  <p className="text-xs text-muted-foreground text-center py-4">Carrinho vazio</p>
+                ) : (
+                  <div className="space-y-1.5">
+                    {cart.map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between text-xs p-2 bg-muted/30 rounded">
+                        <div className="flex-1">
+                          <p className="font-medium line-clamp-1">{item.productName}</p>
+                          <p className="text-muted-foreground">{item.size} × {item.quantity}</p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="font-semibold whitespace-nowrap">{fmt(item.unitPrice * item.quantity)}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-5 w-5 p-0 text-destructive hover:text-destructive"
+                            onClick={() => removeFromCart(idx)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
+              </div>
+
+              {/* Totals */}
+              <div className="space-y-2 p-3 bg-muted/20 rounded-lg">
+                <div className="flex justify-between text-xs">
+                  <span>Subtotal</span>
+                  <span className="font-medium">{fmt(cartSubtotal)}</span>
+                </div>
+                {cartDiscount > 0 && (
+                  <div className="flex justify-between text-xs text-emerald-400">
+                    <span>Desconto</span>
+                    <span className="font-medium">-{fmt(cartDiscount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm font-bold pt-2 border-t border-border">
                   <span>Total</span>
                   <span className="text-primary">{fmt(cartTotal)}</span>
                 </div>
               </div>
-            )}
 
-            {/* Notes */}
-            <div className="space-y-1.5">
-              <Label>Observações</Label>
-              <Textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="bg-muted/50 border-border resize-none"
-                rows={2}
-                placeholder="Adicione observações sobre a venda..."
-              />
-            </div>
+              {/* Notes */}
+              <div className="space-y-1.5">
+                <Label className="text-xs">Observações</Label>
+                <Textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="bg-muted/50 border-border resize-none text-xs"
+                  rows={2}
+                  placeholder="Adicione observações..."
+                />
+              </div>
 
-            {/* Actions */}
-            <div className="flex gap-3 justify-end pt-2">
-              <Button variant="outline" onClick={() => setShowNew(false)}>
-                Cancelar
-              </Button>
-              <Button
-                onClick={confirmSale}
-                disabled={createSale.isPending || cart.length === 0}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
-              >
-                <ShoppingCart className="h-4 w-4" />
-                {createSale.isPending ? "Registrando..." : "Registrar Venda"}
-              </Button>
+              {/* Actions */}
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" onClick={() => setShowNew(false)} className="flex-1 h-9 text-sm">
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={confirmSale}
+                  disabled={createSale.isPending || cart.length === 0}
+                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 h-9 text-sm gap-2"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  {createSale.isPending ? "Registrando..." : "Registrar"}
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Detail Dialog */}
-            {saleDetail && (
+      {saleDetail && (
         <Dialog open={!!showDetail} onOpenChange={() => setShowDetail(null)}>
           <DialogContent className="max-w-md bg-card border-border">
             <DialogHeader>
@@ -471,20 +584,12 @@ export default function Sales() {
             <div className="space-y-3 text-sm">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <p className="text-muted-foreground text-xs">Cliente</p>
-                  <p className="font-medium">{saleDetail.customer?.name ?? "—"}</p>
-                </div>
-                <div>
                   <p className="text-muted-foreground text-xs">Data</p>
                   <p className="font-medium">{format(new Date(saleDetail.createdAt), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Forma de Pagamento</p>
                   <p className="font-medium">{PAYMENT_METHODS.find((m) => m.value === saleDetail.paymentMethod)?.label}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground text-xs">Lucro</p>
-                  <p className="font-medium text-emerald-400">{fmt(saleDetail.profit)}</p>
                 </div>
               </div>
 

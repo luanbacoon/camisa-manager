@@ -196,6 +196,9 @@ export const appRouter = router({
             "transferencia",
             "outro",
           ]),
+          saleDate: z.date().optional(),
+          discountValue: z.number().min(0).optional(),
+          discountPercent: z.number().min(0).max(100).optional(),
           notes: z.string().optional(),
           items: z.array(
             z.object({
@@ -209,17 +212,22 @@ export const appRouter = router({
         })
       )
       .mutation(({ input }) => {
-        const total = input.items.reduce((acc, i) => acc + i.unitPrice * i.quantity, 0);
+        const subtotal = input.items.reduce((acc, i) => acc + i.unitPrice * i.quantity, 0);
+        const discount = input.discountValue ? input.discountValue : (subtotal * (input.discountPercent || 0)) / 100;
+        const total = Math.max(0, subtotal - discount);
         const profit = input.items.reduce(
           (acc, i) => acc + (i.unitPrice - i.unitCost) * i.quantity,
           0
-        );
+        ) - discount;
         return createSale(
           {
             customerId: input.customerId,
             paymentMethod: input.paymentMethod,
             total: String(total),
-            profit: String(profit),
+            profit: String(Math.max(0, profit)),
+            discountValue: String(input.discountValue || 0),
+            discountPercent: String(input.discountPercent || 0),
+            saleDate: input.saleDate,
             notes: input.notes,
           },
           input.items

@@ -91,3 +91,4 @@
 ## Melhorias Solicitadas
 - [x] Botão de envio de pedido para WhatsApp no catálogo público
 - [x] Melhorar página de Vendas com métricas de período, busca, filtros e tabela completa
+- [x] Melhorar modal de nova venda com grid de produtos, imagens, busca, data, desconto e status
