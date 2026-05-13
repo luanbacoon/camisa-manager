@@ -1,15 +1,19 @@
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Plus, Search, Package, Edit2, Eye, ToggleLeft, ToggleRight } from "lucide-react";
+import { Plus, Search, Package, Edit2, Eye, ToggleLeft, ToggleRight, Trash2, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const SIZES = ["PP", "P", "M", "G", "GG", "XGG", "3G", "4G"];
+const GENDERS = ["Masculino", "Feminino", "Infantil", "Unissex"];
+const CATEGORIES = ["Clube", "Seleção", "Retrô", "Casual", "Treino"];
+const VERSIONS = ["Torcedor", "Jogador", "Goleiro", "Feminina"];
 
 function fmt(v: number | string) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(v));
@@ -355,15 +359,42 @@ export default function Products() {
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5">
                 <Label>Gênero</Label>
-                <Input value={gender} onChange={(e) => setGender(e.target.value)} className="bg-muted/50 border-border" placeholder="Ex: Masculino" />
+                <Select value={gender} onValueChange={setGender}>
+                  <SelectTrigger className="bg-muted/50 border-border">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GENDERS.map((g) => (
+                      <SelectItem key={g} value={g}>{g}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1.5">
                 <Label>Categoria</Label>
-                <Input value={category} onChange={(e) => setCategory(e.target.value)} className="bg-muted/50 border-border" placeholder="Ex: Clube" />
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger className="bg-muted/50 border-border">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1.5">
                 <Label>Versão</Label>
-                <Input value={version} onChange={(e) => setVersion(e.target.value)} className="bg-muted/50 border-border" placeholder="Ex: Torcedor" />
+                <Select value={version} onValueChange={setVersion}>
+                  <SelectTrigger className="bg-muted/50 border-border">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {VERSIONS.map((v) => (
+                      <SelectItem key={v} value={v}>{v}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="space-y-1.5">
@@ -474,12 +505,13 @@ export default function Products() {
           <div className="space-y-4 pt-2">
             {/* Upload Section */}
             <div className="space-y-3 border border-border rounded-lg p-4">
-              <Label>Adicionar Nova Foto</Label>
+              <Label>Adicionar Fotos à Galeria</Label>
+              <p className="text-xs text-muted-foreground">Você pode adicionar múltiplas fotos (frente, costas, detalhes)</p>
               <div className="space-y-2">
-                <div className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors">
+                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 transition-colors">
                   {galleryImagePreview ? (
                     <div className="space-y-2">
-                      <img src={galleryImagePreview} alt="Preview" className="w-full h-32 object-cover rounded-lg" />
+                      <img src={galleryImagePreview} alt="Preview" className="w-full h-40 object-cover rounded-lg" />
                       <Button
                         type="button"
                         variant="outline"
@@ -493,8 +525,9 @@ export default function Products() {
                   ) : (
                     <label className="cursor-pointer">
                       <div className="space-y-2">
-                        <Package className="h-8 w-8 mx-auto text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground">Clique para adicionar foto</p>
+                        <ImageIcon className="h-10 w-10 mx-auto text-muted-foreground" />
+                        <p className="text-sm font-medium text-foreground">Clique para adicionar foto</p>
+                        <p className="text-xs text-muted-foreground">ou arraste uma imagem</p>
                       </div>
                       <input type="file" accept="image/*" onChange={handleGalleryImageUpload} className="hidden" disabled={isUploadingGallery} />
                     </label>
@@ -502,13 +535,18 @@ export default function Products() {
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Tipo de Foto</Label>
-                    <select value={galleryImageType} onChange={(e) => setGalleryImageType(e.target.value)} className="w-full px-3 py-2 rounded-lg bg-muted/50 border border-border text-sm">
-                      <option value="frente">Frente</option>
-                      <option value="costas">Costas</option>
-                      <option value="detalhe">Detalhe</option>
-                      <option value="outro">Outro</option>
-                    </select>
+                    <Label className="text-xs">Tipo de Foto *</Label>
+                    <Select value={galleryImageType} onValueChange={setGalleryImageType}>
+                      <SelectTrigger className="bg-muted/50 border-border text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="frente">Frente</SelectItem>
+                        <SelectItem value="costas">Costas</SelectItem>
+                        <SelectItem value="detalhe">Detalhe</SelectItem>
+                        <SelectItem value="outro">Outro</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="flex items-end">
                     <Button
@@ -518,7 +556,7 @@ export default function Products() {
                       className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                       size="sm"
                     >
-                      Adicionar
+                      {addGalleryImage.isPending ? "Adicionando..." : "Adicionar"}
                     </Button>
                   </div>
                 </div>

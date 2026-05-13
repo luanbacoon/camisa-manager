@@ -99,3 +99,5 @@
 
 ## Bugs Reportados
 - [x] Imagens não aparecem no catálogo e no módulo de produtos (corrigido: instalado multer e corrigida rota de upload)
+- [x] Adicionar interface para upload de múltiplas imagens de galeria no modal de novo produto
+- [x] Converter campos Gênero, Categoria e Versão para selects ao invés de inputs de texto
