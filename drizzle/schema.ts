@@ -1,17 +1,18 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import {
+  int,
+  mysqlEnum,
+  mysqlTable,
+  text,
+  timestamp,
+  varchar,
+  decimal,
+  boolean,
+  json,
+} from "drizzle-orm/mysql-core";
 
-/**
- * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
- * Columns use camelCase to match both database fields and generated types.
- */
+// ─── Users (auth) ────────────────────────────────────────────────────────────
 export const users = mysqlTable("users", {
-  /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
-   * Use this for relations between tables.
-   */
   id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
@@ -25,4 +26,159 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+// ─── Store Settings ───────────────────────────────────────────────────────────
+export const storeSettings = mysqlTable("store_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  storeName: varchar("storeName", { length: 255 }).notNull().default("Minha Loja"),
+  ownerName: varchar("ownerName", { length: 255 }),
+  phone: varchar("phone", { length: 30 }),
+  email: varchar("email", { length: 320 }),
+  address: text("address"),
+  logoUrl: text("logoUrl"),
+  instagram: varchar("instagram", { length: 255 }),
+  whatsapp: varchar("whatsapp", { length: 30 }),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type StoreSettings = typeof storeSettings.$inferSelect;
+
+// ─── Products ─────────────────────────────────────────────────────────────────
+export const products = mysqlTable("products", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  team: varchar("team", { length: 255 }),
+  description: text("description"),
+  imageUrl: text("imageUrl"),
+  cost: decimal("cost", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  avgCost: decimal("avgCost", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  active: boolean("active").notNull().default(true),
+  showInCatalog: boolean("showInCatalog").notNull().default(true),
+  totalUnitsReceived: int("totalUnitsReceived").notNull().default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Product = typeof products.$inferSelect;
+export type InsertProduct = typeof products.$inferInsert;
+
+// ─── Product Sizes / Stock ────────────────────────────────────────────────────
+export const productSizes = mysqlTable("product_sizes", {
+  id: int("id").autoincrement().primaryKey(),
+  productId: int("productId").notNull(),
+  size: varchar("size", { length: 20 }).notNull(),
+  stock: int("stock").notNull().default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ProductSize = typeof productSizes.$inferSelect;
+export type InsertProductSize = typeof productSizes.$inferInsert;
+
+// ─── Customers ────────────────────────────────────────────────────────────────
+export const customers = mysqlTable("customers", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 30 }),
+  email: varchar("email", { length: 320 }),
+  address: text("address"),
+  notes: text("notes"),
+  isDefault: boolean("isDefault").notNull().default(false),
+  totalSpent: decimal("totalSpent", { precision: 12, scale: 2 }).notNull().default("0.00"),
+  totalOrders: int("totalOrders").notNull().default(0),
+  lastPurchaseAt: timestamp("lastPurchaseAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Customer = typeof customers.$inferSelect;
+export type InsertCustomer = typeof customers.$inferInsert;
+
+// ─── Sales ────────────────────────────────────────────────────────────────────
+export const sales = mysqlTable("sales", {
+  id: int("id").autoincrement().primaryKey(),
+  customerId: int("customerId").notNull(),
+  paymentMethod: mysqlEnum("paymentMethod", [
+    "dinheiro",
+    "pix",
+    "cartao_credito",
+    "cartao_debito",
+    "transferencia",
+    "outro",
+  ]).notNull(),
+  total: decimal("total", { precision: 12, scale: 2 }).notNull(),
+  profit: decimal("profit", { precision: 12, scale: 2 }).notNull().default("0.00"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Sale = typeof sales.$inferSelect;
+export type InsertSale = typeof sales.$inferInsert;
+
+// ─── Sale Items ───────────────────────────────────────────────────────────────
+export const saleItems = mysqlTable("sale_items", {
+  id: int("id").autoincrement().primaryKey(),
+  saleId: int("saleId").notNull(),
+  productId: int("productId").notNull(),
+  size: varchar("size", { length: 20 }).notNull(),
+  quantity: int("quantity").notNull(),
+  unitPrice: decimal("unitPrice", { precision: 10, scale: 2 }).notNull(),
+  unitCost: decimal("unitCost", { precision: 10, scale: 2 }).notNull().default("0.00"),
+});
+
+export type SaleItem = typeof saleItems.$inferSelect;
+export type InsertSaleItem = typeof saleItems.$inferInsert;
+
+// ─── Supplier Orders ──────────────────────────────────────────────────────────
+export const supplierOrders = mysqlTable("supplier_orders", {
+  id: int("id").autoincrement().primaryKey(),
+  productId: int("productId").notNull(),
+  size: varchar("size", { length: 20 }).notNull(),
+  quantity: int("quantity").notNull(),
+  unitCost: decimal("unitCost", { precision: 10, scale: 2 }).notNull(),
+  totalCost: decimal("totalCost", { precision: 12, scale: 2 }).notNull(),
+  status: mysqlEnum("status", ["pendente", "em_transito", "recebido", "cancelado"])
+    .notNull()
+    .default("pendente"),
+  trackingCode: varchar("trackingCode", { length: 50 }),
+  notes: text("notes"),
+  orderedAt: timestamp("orderedAt").defaultNow().notNull(),
+  receivedAt: timestamp("receivedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SupplierOrder = typeof supplierOrders.$inferSelect;
+export type InsertSupplierOrder = typeof supplierOrders.$inferInsert;
+
+// ─── Stock Adjustments ────────────────────────────────────────────────────────
+export const stockAdjustments = mysqlTable("stock_adjustments", {
+  id: int("id").autoincrement().primaryKey(),
+  productId: int("productId").notNull(),
+  size: varchar("size", { length: 20 }).notNull(),
+  quantityBefore: int("quantityBefore").notNull(),
+  quantityAfter: int("quantityAfter").notNull(),
+  delta: int("delta").notNull(),
+  reason: text("reason").notNull(),
+  type: mysqlEnum("type", ["venda", "pedido_recebido", "ajuste_manual", "devolucao"]).notNull(),
+  referenceId: int("referenceId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type StockAdjustment = typeof stockAdjustments.$inferSelect;
+
+// ─── Catalog Orders (public) ──────────────────────────────────────────────────
+export const catalogOrders = mysqlTable("catalog_orders", {
+  id: int("id").autoincrement().primaryKey(),
+  customerName: varchar("customerName", { length: 255 }).notNull(),
+  customerPhone: varchar("customerPhone", { length: 30 }),
+  customerEmail: varchar("customerEmail", { length: 320 }),
+  items: json("items").notNull(),
+  notes: text("notes"),
+  status: mysqlEnum("status", ["novo", "em_analise", "confirmado", "cancelado"])
+    .notNull()
+    .default("novo"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CatalogOrder = typeof catalogOrders.$inferSelect;
