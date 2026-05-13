@@ -92,3 +92,5 @@
 - [x] Botão de envio de pedido para WhatsApp no catálogo público
 - [x] Melhorar página de Vendas com métricas de período, busca, filtros e tabela completa
 - [x] Melhorar modal de nova venda com grid de produtos, imagens, busca, data, desconto e status
+- [x] Adicionar opção de criar novo cliente no modal de nova venda
+- [x] Adicionar campo de status na venda com 8 opções (aguardando pagamento, pago, aguardando envio, em transito, finalizado, pago 50%, fazer pedido ao fornecedor, pedido feito ao fornecedor)

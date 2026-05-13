@@ -199,6 +199,16 @@ export const appRouter = router({
           saleDate: z.date().optional(),
           discountValue: z.number().min(0).optional(),
           discountPercent: z.number().min(0).max(100).optional(),
+          status: z.enum([
+            "aguardando_pagamento",
+            "pago",
+            "aguardando_envio",
+            "em_transito",
+            "finalizado",
+            "pago_50",
+            "fazer_pedido_fornecedor",
+            "pedido_feito_fornecedor",
+          ]).optional(),
           notes: z.string().optional(),
           items: z.array(
             z.object({
@@ -227,6 +237,7 @@ export const appRouter = router({
             profit: String(Math.max(0, profit)),
             discountValue: String(input.discountValue || 0),
             discountPercent: String(input.discountPercent || 0),
+            status: input.status || "aguardando_pagamento",
             saleDate: input.saleDate,
             notes: input.notes,
           },

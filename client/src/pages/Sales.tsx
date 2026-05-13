@@ -20,6 +20,16 @@ const PAYMENT_METHODS = [
   { value: "transferencia", label: "Transferência" },
   { value: "outro", label: "Outro" },
 ];
+const SALE_STATUSES = [
+  { value: "aguardando_pagamento", label: "Aguardando Pagamento" },
+  { value: "pago", label: "Pago" },
+  { value: "aguardando_envio", label: "Aguardando Envio" },
+  { value: "em_transito", label: "Em Trânsito" },
+  { value: "finalizado", label: "Finalizado" },
+  { value: "pago_50", label: "Pago 50%" },
+  { value: "fazer_pedido_fornecedor", label: "Fazer Pedido ao Fornecedor" },
+  { value: "pedido_feito_fornecedor", label: "Pedido Feito ao Fornecedor" },
+];
 
 function fmt(value: number | string) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(value));
@@ -55,12 +65,30 @@ export default function Sales() {
   const [selProduct, setSelProduct] = useState<string>("");
   const [selSize, setSelSize] = useState<string>("");
   const [selQty, setSelQty] = useState(1);
+  const [saleStatus, setSaleStatus] = useState<string>("aguardando_pagamento");
+  const [showNewCustomer, setShowNewCustomer] = useState(false);
+  const [newCustomerName, setNewCustomerName] = useState("");
+  const [newCustomerPhone, setNewCustomerPhone] = useState("");
+  const [newCustomerEmail, setNewCustomerEmail] = useState("");
 
   const utils = trpc.useUtils();
   const { data: sales = [], isLoading } = trpc.sales.list.useQuery({});
   const { data: customers = [] } = trpc.customers.list.useQuery();
   const { data: products = [] } = trpc.products.list.useQuery({ activeOnly: true });
   const { data: saleDetail } = trpc.sales.get.useQuery({ id: showDetail! }, { enabled: !!showDetail });
+
+  const createCustomer = trpc.customers.create.useMutation({
+    onSuccess: (newCustomerId) => {
+      utils.customers.list.invalidate();
+      setCustomerId(String(newCustomerId));
+      setShowNewCustomer(false);
+      setNewCustomerName("");
+      setNewCustomerPhone("");
+      setNewCustomerEmail("");
+      toast.success("Cliente criado com sucesso!");
+    },
+    onError: (e) => toast.error(e.message),
+  });
 
   const createSale = trpc.sales.create.useMutation({
     onSuccess: () => {
@@ -130,6 +158,7 @@ export default function Sales() {
     setSaleDate(format(new Date(), "yyyy-MM-dd"));
     setDiscountValue(0);
     setDiscountPercent(0);
+    setSaleStatus("aguardando_pagamento");
     setShowNew(true);
   }
 
@@ -169,6 +198,15 @@ export default function Sales() {
   const cartDiscount = discountValue > 0 ? discountValue : (cartSubtotal * discountPercent) / 100;
   const cartTotal = Math.max(0, cartSubtotal - cartDiscount);
 
+  function createNewCustomerHandler() {
+    if (!newCustomerName) return toast.error("Nome do cliente obrigatório");
+    createCustomer.mutate({
+      name: newCustomerName,
+      phone: newCustomerPhone || undefined,
+      email: newCustomerEmail || undefined,
+    });
+  }
+
   function confirmSale() {
     if (!customerId) return toast.error("Selecione um cliente");
     if (!paymentMethod) return toast.error("Selecione a forma de pagamento");
@@ -180,6 +218,7 @@ export default function Sales() {
       saleDate: new Date(saleDate),
       discountValue: discountValue > 0 ? discountValue : undefined,
       discountPercent: discountPercent > 0 ? discountPercent : undefined,
+      status: saleStatus as any,
       items: cart,
       notes,
     });
@@ -416,7 +455,18 @@ export default function Sales() {
             <div className="space-y-4">
               {/* Customer */}
               <div className="space-y-1.5">
-                <Label className="text-xs">Cliente *</Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Cliente *</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-xs text-primary hover:text-primary"
+                    onClick={() => setShowNewCustomer(true)}
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Novo
+                  </Button>
+                </div>
                 <Select value={customerId} onValueChange={setCustomerId}>
                   <SelectTrigger className="bg-muted/50 border-border h-9 text-sm">
                     <SelectValue placeholder="Selecione" />
@@ -440,6 +490,23 @@ export default function Sales() {
                   onChange={(e) => setSaleDate(e.target.value)}
                   className="bg-muted/50 border-border h-9 text-sm"
                 />
+              </div>
+
+              {/* Status */}
+              <div className="space-y-1.5">
+                <Label className="text-xs">Status da Venda</Label>
+                <Select value={saleStatus} onValueChange={setSaleStatus}>
+                  <SelectTrigger className="bg-muted/50 border-border h-9 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SALE_STATUSES.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>
+                        {s.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Payment Method */}
@@ -569,6 +636,61 @@ export default function Sales() {
                   {createSale.isPending ? "Registrando..." : "Registrar"}
                 </Button>
               </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Customer Dialog */}
+      <Dialog open={showNewCustomer} onOpenChange={setShowNewCustomer}>
+        <DialogContent className="max-w-sm bg-card border-border">
+          <DialogHeader>
+            <DialogTitle>Novo Cliente</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Nome *</Label>
+              <Input
+                placeholder="Nome do cliente"
+                value={newCustomerName}
+                onChange={(e) => setNewCustomerName(e.target.value)}
+                className="bg-muted/50 border-border h-9 text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Telefone</Label>
+              <Input
+                placeholder="(11) 99999-9999"
+                value={newCustomerPhone}
+                onChange={(e) => setNewCustomerPhone(e.target.value)}
+                className="bg-muted/50 border-border h-9 text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Email</Label>
+              <Input
+                type="email"
+                placeholder="cliente@email.com"
+                value={newCustomerEmail}
+                onChange={(e) => setNewCustomerEmail(e.target.value)}
+                className="bg-muted/50 border-border h-9 text-sm"
+              />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowNewCustomer(false)}
+                className="flex-1 h-9 text-sm"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={createNewCustomerHandler}
+                disabled={createCustomer.isPending}
+                className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 h-9 text-sm"
+              >
+                {createCustomer.isPending ? "Criando..." : "Criar"}
+              </Button>
             </div>
           </div>
         </DialogContent>

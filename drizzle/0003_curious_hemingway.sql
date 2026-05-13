@@ -1,0 +1,1 @@
+ALTER TABLE `sales` ADD `status` enum('aguardando_pagamento','pago','aguardando_envio','em_transito','finalizado','pago_50','fazer_pedido_fornecedor','pedido_feito_fornecedor') DEFAULT 'aguardando_pagamento' NOT NULL;

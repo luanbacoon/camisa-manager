@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `sales` ADD `status` enum('aguardando_pagamento','pago','aguardando_envio','em_transito','finalizado','pago_50','fazer_pedido_fornecedor','pedido_feito_fornecedor') DEFAULT 'aguardando_pagamento' NOT NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ifPH7viqejjM65.root --database awm2eraPRXUvnHb76ArrUX --execute ALTER TABLE `sales` ADD `status` enum('aguardando_pagamento','pago','aguardando_envio','em_transito','finalizado','pago_50','fazer_pedido_fornecedor','pedido_feito_fornecedor') DEFAULT 'aguardando_pagamento' NOT NULL;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 757
+}
