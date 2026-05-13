@@ -101,3 +101,10 @@
 - [x] Imagens não aparecem no catálogo e no módulo de produtos (corrigido: instalado multer e corrigida rota de upload)
 - [x] Adicionar interface para upload de múltiplas imagens de galeria no modal de novo produto
 - [x] Converter campos Gênero, Categoria e Versão para selects ao invés de inputs de texto
+- [x] Adicionar aba de personalização nas Configurações (nome da loja, cores, logo, banner)
+- [x] Adicionar seletor de produtos para o catálogo público nas Configurações
+- [x] Mostrar todos os tamanhos no catálogo (mesmo sem estoque) para permitir encomendas
+- [x] Implementar personalização funcional do catálogo (nome, cor, logo, banner) com upload e persistência
+- [x] Implementar seletor real de produtos para o catálogo público nas Configurações
+- [x] Aplicar personalizações no Catalog.tsx (logo, banner, cor primária, nome da loja)
+- [x] Corrigir saveProductSelection para persistir showInCatalog para produtos desmarcados

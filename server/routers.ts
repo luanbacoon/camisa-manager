@@ -61,7 +61,9 @@ export const appRouter = router({
           phone: z.string().optional(),
           email: z.string().optional(),
           address: z.string().optional(),
-          logoUrl: z.string().optional(),
+          logoUrl: z.string().nullable().optional(),
+          bannerUrl: z.string().nullable().optional(),
+          primaryColor: z.string().optional(),
           instagram: z.string().optional(),
           whatsapp: z.string().optional(),
         })

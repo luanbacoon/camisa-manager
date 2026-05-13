@@ -35,6 +35,8 @@ export const storeSettings = mysqlTable("store_settings", {
   email: varchar("email", { length: 320 }),
   address: text("address"),
   logoUrl: text("logoUrl"),
+  bannerUrl: text("bannerUrl"),
+  primaryColor: varchar("primaryColor", { length: 7 }).default("#1a472a"),
   instagram: varchar("instagram", { length: 255 }),
   whatsapp: varchar("whatsapp", { length: 30 }),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
