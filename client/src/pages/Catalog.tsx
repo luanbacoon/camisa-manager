@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Search, Package, ShoppingBag, X, Plus, Minus, Send, Shirt, Instagram } from "lucide-react";
+import { Search, Package, ShoppingBag, X, Plus, Minus, Send, Shirt, Instagram, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -103,6 +103,20 @@ export default function Catalog() {
       notes: customerNotes,
       items: cart,
     });
+  }
+
+  function sendToWhatsApp() {
+    if (!customerName.trim()) return toast.error("Informe seu nome");
+    if (!customerPhone.trim()) return toast.error("Informe seu telefone");
+    if (cart.length === 0) return toast.error("Adicione produtos ao pedido");
+    if (!settings?.whatsapp) return toast.error("WhatsApp da loja não configurado");
+
+    const itemsList = cart.map((item) => `${item.productName} (${item.size}) × ${item.quantity} - ${fmt(item.unitPrice * item.quantity)}`).join("\n");
+    const message = `*Novo Pedido via Catálogo*\n\n*Cliente:* ${customerName}\n*Telefone:* ${customerPhone}\n\n*Produtos:*\n${itemsList}\n\n*Total:* ${fmt(cartTotal)}\n\n*Observações:* ${customerNotes || "Nenhuma"}\n\nLink do catálogo: ${window.location.href}`;
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappNumber = settings.whatsapp.replace(/\D/g, "");
+    window.open(`https://wa.me/55${whatsappNumber}?text=${encodedMessage}`, "_blank");
+    toast.success("Abrindo WhatsApp...");
   }
 
   return (
@@ -371,15 +385,22 @@ export default function Catalog() {
               </div>
             </div>
 
-            <div className="flex gap-3 justify-end pt-2">
+            <div className="flex gap-2 justify-end pt-2">
               <Button variant="outline" onClick={() => { setShowOrder(false); setShowCart(true); }}>Voltar</Button>
+              <Button
+                onClick={sendToWhatsApp}
+                className="bg-emerald-600 text-white hover:bg-emerald-700 gap-2"
+              >
+                <MessageCircle className="h-4 w-4" />
+                WhatsApp
+              </Button>
               <Button
                 onClick={sendOrder}
                 disabled={submitOrder.isPending}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
               >
                 <Send className="h-4 w-4" />
-                {submitOrder.isPending ? "Enviando..." : "Enviar Pedido"}
+                {submitOrder.isPending ? "Enviando..." : "Enviar"}
               </Button>
             </div>
           </div>

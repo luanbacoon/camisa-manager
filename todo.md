@@ -86,3 +86,7 @@
 ## Testes
 - [x] Testes unitários para routers principais (14 testes passando)
 - [x] Validação de fluxo de venda e atualização de estoque
+
+
+## Melhorias Solicitadas
+- [x] Botão de envio de pedido para WhatsApp no catálogo público
