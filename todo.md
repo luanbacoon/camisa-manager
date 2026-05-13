@@ -94,3 +94,4 @@
 - [x] Melhorar modal de nova venda com grid de produtos, imagens, busca, data, desconto e status
 - [x] Adicionar opção de criar novo cliente no modal de nova venda
 - [x] Adicionar campo de status na venda com 8 opções (aguardando pagamento, pago, aguardando envio, em transito, finalizado, pago 50%, fazer pedido ao fornecedor, pedido feito ao fornecedor)
+- [x] Melhorar modal de novo produto com upload de foto, preview, e campos adicionais (gênero, categoria, versão)

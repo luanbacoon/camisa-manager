@@ -36,6 +36,28 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
+
+  // File upload endpoint
+  app.post("/api/upload", async (req, res) => {
+    try {
+      const chunks: Buffer[] = [];
+      req.on("data", (chunk: Buffer) => chunks.push(chunk));
+      req.on("end", async () => {
+        try {
+          const buffer = Buffer.concat(chunks);
+          const { storagePut } = await import("../storage");
+          const { url } = await storagePut(`products/${Date.now()}.jpg`, buffer, "image/jpeg");
+          res.json({ url });
+        } catch (err) {
+          console.error("Upload error:", err);
+          res.status(500).json({ error: "Upload failed" });
+        }
+      });
+    } catch (err) {
+      console.error("Upload error:", err);
+      res.status(500).json({ error: "Upload failed" });
+    }
+  });
   // tRPC API
   app.use(
     "/api/trpc",

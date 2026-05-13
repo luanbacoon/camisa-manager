@@ -42,11 +42,19 @@ export default function Products() {
   const [price, setPrice] = useState("");
   const [showInCatalog, setShowInCatalog] = useState(true);
   const [selectedSizes, setSelectedSizes] = useState<Record<string, number>>({});
+  const [imageUrl, setImageUrl] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [gender, setGender] = useState("");
+  const [category, setCategory] = useState("");
+  const [version, setVersion] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
   function openNew() {
     setEditId(null);
     setName(""); setTeam(""); setDescription(""); setCost(""); setPrice("");
     setShowInCatalog(true); setSelectedSizes({});
+    setImageUrl(""); setImagePreview(null);
+    setGender(""); setCategory(""); setVersion("");
     setShowForm(true);
   }
 
@@ -78,6 +86,36 @@ export default function Products() {
     });
   }
 
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setImagePreview(event.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await response.json();
+      if (data.url) setImageUrl(data.url);
+      else toast.error('Erro ao fazer upload da imagem');
+    } catch (err) {
+      toast.error('Erro ao fazer upload');
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  function removeImage() {
+    setImageUrl("");
+    setImagePreview(null);
+  }
+
   function submit() {
     if (!name.trim()) return toast.error("Nome é obrigatório");
     if (!cost || !price) return toast.error("Custo e preço são obrigatórios");
@@ -86,9 +124,13 @@ export default function Products() {
       updateProduct.mutate({
         id: editId, name, team, description,
         cost: Number(cost), price: Number(price), showInCatalog, sizes,
+        imageUrl: imageUrl || undefined, gender: gender || undefined, category: category || undefined, version: version || undefined,
       });
     } else {
-      createProduct.mutate({ name, team, description, cost: Number(cost), price: Number(price), showInCatalog, sizes });
+      createProduct.mutate({
+        name, team, description, cost: Number(cost), price: Number(price), showInCatalog, sizes,
+        imageUrl: imageUrl || undefined, gender: gender || undefined, category: category || undefined, version: version || undefined,
+      });
     }
   }
 
@@ -213,6 +255,41 @@ export default function Products() {
             <DialogTitle>{editId ? "Editar Produto" : "Novo Produto"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
+            {/* Image Upload */}
+            <div className="space-y-1.5">
+              <Label>Foto do Produto</Label>
+              <div className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors">
+                {imagePreview ? (
+                  <div className="space-y-2">
+                    <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover rounded-lg" />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={removeImage}
+                      className="w-full"
+                    >
+                      Remover Foto
+                    </Button>
+                  </div>
+                ) : (
+                  <label className="cursor-pointer">
+                    <div className="space-y-2">
+                      <Package className="h-8 w-8 mx-auto text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">Clique para adicionar foto</p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={isUploading}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
+
             <div className="space-y-1.5">
               <Label>Nome *</Label>
               <Input value={name} onChange={(e) => setName(e.target.value)} className="bg-muted/50 border-border" placeholder="Ex: Camisa Flamengo 2024" />
@@ -220,6 +297,20 @@ export default function Products() {
             <div className="space-y-1.5">
               <Label>Time / Coleção</Label>
               <Input value={team} onChange={(e) => setTeam(e.target.value)} className="bg-muted/50 border-border" placeholder="Ex: Flamengo, Brasil, etc." />
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label>Gênero</Label>
+                <Input value={gender} onChange={(e) => setGender(e.target.value)} className="bg-muted/50 border-border" placeholder="Ex: Masculino" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Categoria</Label>
+                <Input value={category} onChange={(e) => setCategory(e.target.value)} className="bg-muted/50 border-border" placeholder="Ex: Clube" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Versão</Label>
+                <Input value={version} onChange={(e) => setVersion(e.target.value)} className="bg-muted/50 border-border" placeholder="Ex: Torcedor" />
+              </div>
             </div>
             <div className="space-y-1.5">
               <Label>Descrição</Label>

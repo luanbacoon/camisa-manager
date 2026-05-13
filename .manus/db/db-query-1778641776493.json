@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `products` ADD `gender` varchar(50);\nALTER TABLE `products` ADD `category` varchar(100);\nALTER TABLE `products` ADD `version` varchar(100);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ifPH7viqejjM65.root --database awm2eraPRXUvnHb76ArrUX --execute ALTER TABLE `products` ADD `gender` varchar(50);\nALTER TABLE `products` ADD `category` varchar(100);\nALTER TABLE `products` ADD `version` varchar(100);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1501
+}
