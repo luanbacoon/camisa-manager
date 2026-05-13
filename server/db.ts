@@ -5,6 +5,7 @@ import {
   users,
   products,
   productSizes,
+  productGallery,
   customers,
   sales,
   saleItems,
@@ -14,6 +15,7 @@ import {
   catalogOrders,
   type InsertProduct,
   type InsertProductSize,
+  type InsertProductGalleryItem,
   type InsertCustomer,
   type InsertSale,
   type InsertSaleItem,
@@ -526,7 +528,47 @@ export async function listPublicProducts() {
       .select()
       .from(productSizes)
       .where(eq(productSizes.productId, p.id));
-    result.push({ ...p, sizes });
+    const gallery = await db
+      .select()
+      .from(productGallery)
+      .where(eq(productGallery.productId, p.id))
+      .orderBy(productGallery.position);
+    result.push({ ...p, sizes, gallery });
   }
   return result;
+}
+
+// ─── Product Gallery ──────────────────────────────────────────────────────────
+export async function getProductGallery(productId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(productGallery)
+    .where(eq(productGallery.productId, productId))
+    .orderBy(productGallery.position);
+}
+
+export async function addGalleryImage(
+  productId: number,
+  imageUrl: string,
+  type: string,
+  position: number = 0
+) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  const [result] = await db.insert(productGallery).values({ productId, imageUrl, type, position });
+  return (result as any).insertId as number;
+}
+
+export async function deleteGalleryImage(imageId: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(productGallery).where(eq(productGallery.id, imageId));
+}
+
+export async function updateGalleryImageOrder(imageId: number, position: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(productGallery).set({ position }).where(eq(productGallery.id, imageId));
 }

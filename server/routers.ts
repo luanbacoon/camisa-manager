@@ -11,6 +11,10 @@ import {
   createProduct,
   updateProduct,
   upsertProductSizes,
+  getProductGallery,
+  addGalleryImage,
+  deleteGalleryImage,
+  updateGalleryImageOrder,
   listCustomers,
   getCustomer,
   createCustomer,
@@ -132,6 +136,29 @@ export const appRouter = router({
         await updateProduct(id, updateData as any);
         if (sizes) await upsertProductSizes(id, sizes);
       }),
+
+    gallery: protectedProcedure
+      .input(z.object({ productId: z.number() }))
+      .query(({ input }) => getProductGallery(input.productId)),
+
+    addGalleryImage: protectedProcedure
+      .input(
+        z.object({
+          productId: z.number(),
+          imageUrl: z.string(),
+          type: z.string(),
+          position: z.number().optional(),
+        })
+      )
+      .mutation(({ input }) => addGalleryImage(input.productId, input.imageUrl, input.type, input.position)),
+
+    deleteGalleryImage: protectedProcedure
+      .input(z.object({ imageId: z.number() }))
+      .mutation(({ input }) => deleteGalleryImage(input.imageId)),
+
+    updateGalleryOrder: protectedProcedure
+      .input(z.object({ imageId: z.number(), position: z.number() }))
+      .mutation(({ input }) => updateGalleryImageOrder(input.imageId, input.position)),
   }),
 
   // ─── Customers ─────────────────────────────────────────────────────────────

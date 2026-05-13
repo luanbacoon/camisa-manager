@@ -20,6 +20,12 @@ export default function Products() {
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [showDetail, setShowDetail] = useState<number | null>(null);
+  const [showGallery, setShowGallery] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<Array<{ id: number; imageUrl: string; type: string; position: number }>>([]);
+  const [galleryImageType, setGalleryImageType] = useState("frente");
+  const [galleryImagePreview, setGalleryImagePreview] = useState<string | null>(null);
+  const [galleryImageUrl, setGalleryImageUrl] = useState("");
+  const [isUploadingGallery, setIsUploadingGallery] = useState(false);
 
   const utils = trpc.useUtils();
   const { data: products = [], isLoading } = trpc.products.list.useQuery();
@@ -31,6 +37,15 @@ export default function Products() {
   });
   const updateProduct = trpc.products.update.useMutation({
     onSuccess: () => { utils.products.list.invalidate(); toast.success("Produto atualizado!"); setShowForm(false); },
+    onError: (e) => toast.error(e.message),
+  });
+  const { data: gallery = [] } = trpc.products.gallery.useQuery({ productId: editId! }, { enabled: !!editId });
+  const addGalleryImage = trpc.products.addGalleryImage.useMutation({
+    onSuccess: () => { toast.success("Foto adicionada!"); utils.products.gallery.invalidate(); setGalleryImageUrl(""); setGalleryImagePreview(null); },
+    onError: (e) => toast.error(e.message),
+  });
+  const deleteGalleryImage = trpc.products.deleteGalleryImage.useMutation({
+    onSuccess: () => { toast.success("Foto removida!"); utils.products.gallery.invalidate(); },
     onError: (e) => toast.error(e.message),
   });
 
@@ -114,6 +129,45 @@ export default function Products() {
   function removeImage() {
     setImageUrl("");
     setImagePreview(null);
+  }
+
+  async function handleGalleryImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setGalleryImagePreview(event.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    setIsUploadingGallery(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await response.json();
+      if (data.url) setGalleryImageUrl(data.url);
+      else toast.error('Erro ao fazer upload da imagem');
+    } catch (err) {
+      toast.error('Erro ao fazer upload');
+    } finally {
+      setIsUploadingGallery(false);
+    }
+  }
+
+  function addImageToGallery() {
+    if (!editId || !galleryImageUrl) return toast.error("Selecione uma imagem");
+    addGalleryImage.mutate({
+      productId: editId,
+      imageUrl: galleryImageUrl,
+      type: galleryImageType,
+      position: gallery.length,
+    });
+  }
+
+  function removeGalleryImage(imageId: number) {
+    deleteGalleryImage.mutate({ imageId });
   }
 
   function submit() {
@@ -381,6 +435,22 @@ export default function Products() {
               <Switch checked={showInCatalog} onCheckedChange={setShowInCatalog} />
             </div>
 
+            {editId && (
+              <div className="border-t border-border pt-4">
+                <Label className="text-sm font-semibold">Galeria de Fotos</Label>
+                <p className="text-xs text-muted-foreground mb-3">Adicione múltiplas fotos (frente, costas, detalhes)</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => setShowGallery(true)}
+                >
+                  + Adicionar Fotos à Galeria
+                </Button>
+              </div>
+            )}
+
             <div className="flex gap-3 justify-end pt-2">
               <Button variant="outline" onClick={() => setShowForm(false)}>Cancelar</Button>
               <Button
@@ -390,6 +460,101 @@ export default function Products() {
               >
                 {editId ? "Salvar" : "Cadastrar"}
               </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Gallery Dialog */}
+      <Dialog open={showGallery} onOpenChange={setShowGallery}>
+        <DialogContent className="max-w-lg bg-card border-border max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Galeria de Fotos</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            {/* Upload Section */}
+            <div className="space-y-3 border border-border rounded-lg p-4">
+              <Label>Adicionar Nova Foto</Label>
+              <div className="space-y-2">
+                <div className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors">
+                  {galleryImagePreview ? (
+                    <div className="space-y-2">
+                      <img src={galleryImagePreview} alt="Preview" className="w-full h-32 object-cover rounded-lg" />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => { setGalleryImagePreview(null); setGalleryImageUrl(""); }}
+                        className="w-full"
+                      >
+                        Remover Foto
+                      </Button>
+                    </div>
+                  ) : (
+                    <label className="cursor-pointer">
+                      <div className="space-y-2">
+                        <Package className="h-8 w-8 mx-auto text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">Clique para adicionar foto</p>
+                      </div>
+                      <input type="file" accept="image/*" onChange={handleGalleryImageUpload} className="hidden" disabled={isUploadingGallery} />
+                    </label>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Tipo de Foto</Label>
+                    <select value={galleryImageType} onChange={(e) => setGalleryImageType(e.target.value)} className="w-full px-3 py-2 rounded-lg bg-muted/50 border border-border text-sm">
+                      <option value="frente">Frente</option>
+                      <option value="costas">Costas</option>
+                      <option value="detalhe">Detalhe</option>
+                      <option value="outro">Outro</option>
+                    </select>
+                  </div>
+                  <div className="flex items-end">
+                    <Button
+                      type="button"
+                      onClick={addImageToGallery}
+                      disabled={!galleryImageUrl || addGalleryImage.isPending}
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                      size="sm"
+                    >
+                      Adicionar
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Gallery List */}
+            <div className="space-y-2">
+              <Label>Fotos Adicionadas</Label>
+              {gallery.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">Nenhuma foto adicionada ainda</p>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {gallery.map((img) => (
+                    <div key={img.id} className="relative group">
+                      <img src={img.imageUrl} alt={img.type} className="w-full h-24 object-cover rounded-lg border border-border" />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                        <span className="text-xs font-medium text-white bg-black/50 px-2 py-1 rounded">{img.type}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 text-red-400 hover:text-red-300"
+                          onClick={() => removeGalleryImage(img.id)}
+                        >
+                          ✗
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 justify-end pt-2">
+              <Button variant="outline" onClick={() => setShowGallery(false)}>Fechar</Button>
             </div>
           </div>
         </DialogContent>

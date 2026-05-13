@@ -31,6 +31,8 @@ export default function Catalog() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerNotes, setCustomerNotes] = useState("");
+  const [showGallery, setShowGallery] = useState<number | null>(null);
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
   const { data: products = [], isLoading } = trpc.catalog.products.useQuery();
   const { data: settings } = trpc.catalog.settings.useQuery();
@@ -228,9 +230,23 @@ export default function Catalog() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filtered.map((product) => (
               <div key={product.id} className="card-elegant overflow-hidden group hover:border-primary/30 transition-all">
-                {/* Product image */}
-                <div className="aspect-square bg-muted/30 flex items-center justify-center overflow-hidden">
-                  {product.imageUrl ? (
+                {/* Product image with gallery */}
+                <div className="aspect-square bg-muted/30 flex items-center justify-center overflow-hidden relative group/image">
+                  {product.gallery && product.gallery.length > 0 ? (
+                    <>
+                      <img
+                        src={product.gallery[0]?.imageUrl || product.imageUrl || ""}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
+                        onClick={() => { setShowGallery(product.id); setGalleryIndex(0); }}
+                      />
+                      {product.gallery.length > 1 && (
+                        <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover/image:opacity-100 transition-opacity">
+                          {product.gallery.length} fotos
+                        </div>
+                      )}
+                    </>
+                  ) : product.imageUrl ? (
                     <img
                       src={product.imageUrl}
                       alt={product.name}
@@ -406,6 +422,67 @@ export default function Catalog() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Gallery Modal */}
+      {showGallery && (
+        <Dialog open={!!showGallery} onOpenChange={() => setShowGallery(null)}>
+          <DialogContent className="max-w-2xl bg-card border-border">
+            <DialogHeader>
+              <DialogTitle>Galeria de Fotos</DialogTitle>
+            </DialogHeader>
+            {filtered.find((p) => p.id === showGallery)?.gallery && (
+              <div className="space-y-4">
+                <div className="relative aspect-square bg-muted/30 rounded-lg overflow-hidden flex items-center justify-center">
+                  <img
+                    src={filtered.find((p) => p.id === showGallery)!.gallery![galleryIndex]?.imageUrl}
+                    alt="Galeria"
+                    className="w-full h-full object-cover"
+                  />
+                  {filtered.find((p) => p.id === showGallery)!.gallery!.length > 1 && (
+                    <div className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
+                      <button
+                        onClick={() => setGalleryIndex((i) => (i - 1 + filtered.find((p) => p.id === showGallery)!.gallery!.length) % filtered.find((p) => p.id === showGallery)!.gallery!.length)}
+                        className="pointer-events-auto bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                      >
+                        ‹
+                      </button>
+                      <button
+                        onClick={() => setGalleryIndex((i) => (i + 1) % filtered.find((p) => p.id === showGallery)!.gallery!.length)}
+                        className="pointer-events-auto bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                      >
+                        ›
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {filtered.find((p) => p.id === showGallery)?.gallery?.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setGalleryIndex(idx)}
+                      className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                        galleryIndex === idx ? "border-primary" : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <img src={img.imageUrl} alt={img.type} className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <p className="text-muted-foreground text-xs">Tipo</p>
+                    <p className="font-medium capitalize">{filtered.find((p) => p.id === showGallery)?.gallery?.[galleryIndex]?.type}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Foto</p>
+                    <p className="font-medium">{galleryIndex + 1} de {filtered.find((p) => p.id === showGallery)?.gallery?.length}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-border mt-16 py-8">

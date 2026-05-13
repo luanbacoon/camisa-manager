@@ -78,6 +78,20 @@ export const productSizes = mysqlTable("product_sizes", {
 export type ProductSize = typeof productSizes.$inferSelect;
 export type InsertProductSize = typeof productSizes.$inferInsert;
 
+// ─── Product Gallery ──────────────────────────────────────────────────────────
+export const productGallery = mysqlTable("product_gallery", {
+  id: int("id").autoincrement().primaryKey(),
+  productId: int("productId").notNull(),
+  imageUrl: text("imageUrl").notNull(),
+  type: varchar("type", { length: 50 }).notNull(), // 'frente', 'costas', 'detalhe', etc
+  position: int("position").notNull().default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ProductGalleryItem = typeof productGallery.$inferSelect;
+export type InsertProductGalleryItem = typeof productGallery.$inferInsert;
+
 // ─── Customers ────────────────────────────────────────────────────────────────
 export const customers = mysqlTable("customers", {
   id: int("id").autoincrement().primaryKey(),
