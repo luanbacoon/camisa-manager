@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
+import multer from "multer";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
@@ -37,22 +38,16 @@ async function startServer() {
   registerStorageProxy(app);
   registerOAuthRoutes(app);
 
-  // File upload endpoint
-  app.post("/api/upload", async (req, res) => {
+  // File upload endpoint with multer
+  const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+  app.post("/api/upload", upload.single("file"), async (req, res) => {
     try {
-      const chunks: Buffer[] = [];
-      req.on("data", (chunk: Buffer) => chunks.push(chunk));
-      req.on("end", async () => {
-        try {
-          const buffer = Buffer.concat(chunks);
-          const { storagePut } = await import("../storage");
-          const { url } = await storagePut(`products/${Date.now()}.jpg`, buffer, "image/jpeg");
-          res.json({ url });
-        } catch (err) {
-          console.error("Upload error:", err);
-          res.status(500).json({ error: "Upload failed" });
-        }
-      });
+      const file = req.file;
+      if (!file) return res.status(400).json({ error: "No file provided" });
+      const { storagePut } = await import("../storage");
+      const ext = file.mimetype.split("/")[1] ?? "bin";
+      const { url } = await storagePut(`products/${Date.now()}.${ext}`, file.buffer, file.mimetype);
+      res.json({ url });
     } catch (err) {
       console.error("Upload error:", err);
       res.status(500).json({ error: "Upload failed" });

@@ -96,3 +96,6 @@
 - [x] Adicionar campo de status na venda com 8 opções (aguardando pagamento, pago, aguardando envio, em transito, finalizado, pago 50%, fazer pedido ao fornecedor, pedido feito ao fornecedor)
 - [x] Melhorar modal de novo produto com upload de foto, preview, e campos adicionais (gênero, categoria, versão)
 - [x] Adicionar suporte a múltiplas fotos por produto com galeria (frente, costas, detalhes)
+
+## Bugs Reportados
+- [x] Imagens não aparecem no catálogo e no módulo de produtos (corrigido: instalado multer e corrigida rota de upload)
