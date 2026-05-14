@@ -300,20 +300,22 @@ export default function SupplierOrders() {
 
           <div className="grid grid-cols-12 gap-6 p-8 flex-1 overflow-hidden">
             {/* Coluna 1: Grid de Produtos */}
-            <div className="col-span-7 border border-border rounded-lg p-6 bg-muted/30 max-h-[calc(100vh-150px)]">
-              <h3 className="font-semibold mb-3 text-sm">Produtos</h3>
-              <div className="grid grid-cols-1 gap-6 max-h-[calc(100vh-250px)] overflow-y-auto">
+            <div className="col-span-7 border border-border rounded-lg p-6 bg-muted/30 flex flex-col">
+              <h3 className="font-semibold mb-4 text-base">Produtos</h3>
+              <div className="grid grid-cols-1 gap-4 overflow-y-auto flex-1">
                 {products.map((product) => (
                   <div
                     key={product.id}
                     onClick={() => setSelectedProductForModal(product.id)}
-                    className="p-4 rounded cursor-pointer border border-border hover:border-emerald-300 hover:bg-emerald-50 transition"
+                    className="p-3 rounded cursor-pointer border border-border hover:border-emerald-300 hover:bg-emerald-50 transition flex gap-3"
                   >
                     {product.imageUrl && (
-                      <img src={product.imageUrl} alt={product.name} className="w-full h-64 object-cover rounded mb-3" />
+                      <img src={product.imageUrl} alt={product.name} className="w-20 h-20 object-cover rounded flex-shrink-0" />
                     )}
-                    <p className="text-sm font-medium truncate">{product.name}</p>
-                    <p className="text-sm text-muted-foreground">{fmt(product.price)}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{product.name}</p>
+                      <p className="text-xs text-muted-foreground">{fmt(product.price)}</p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -323,8 +325,8 @@ export default function SupplierOrders() {
             <div className="col-span-5 space-y-5">
               {/* Dados do Pedido */}
               <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
-                <h3 className="font-semibold text-sm">Dados do Pedido</h3>
-                <div className="grid grid-cols-2 gap-3">
+                <h3 className="font-semibold text-base">Dados do Pedido</h3>
+                <div className="grid grid-cols-3 gap-2">
                   <div>
                     <Label className="text-xs">Fornecedor *</Label>
                     <Input value={supplier} onChange={(e) => setSupplier(e.target.value)} placeholder="Nome do fornecedor" />
@@ -372,8 +374,8 @@ export default function SupplierOrders() {
 
               {/* Adicionar Item */}
               <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
-                <h3 className="font-semibold text-sm mb-2">Adicionar Item</h3>
-                <div className="grid grid-cols-3 gap-3 mb-3">
+                <h3 className="font-semibold text-base mb-2">Adicionar Item</h3>
+                <div className="grid grid-cols-4 gap-2 mb-3">
                   <div>
                     <Label className="text-xs">Tamanho *</Label>
                     <Select value={tempSize} onValueChange={setTempSize}>
@@ -403,8 +405,8 @@ export default function SupplierOrders() {
 
               {/* Custos Adicionais */}
               <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
-                <h3 className="font-semibold text-sm">Custos Adicionais</h3>
-                <div className="grid grid-cols-2 gap-3 max-w-md">
+                <h3 className="font-semibold text-base">Custos Adicionais</h3>
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label className="text-xs">Desconto (R$)</Label>
                     <Input type="number" step="0.01" value={discount} onChange={(e) => setDiscount(e.target.value)} placeholder="0.00" />
@@ -425,22 +427,22 @@ export default function SupplierOrders() {
           </div>
 
           {/* Carrinho */}
-          <div className="mt-6 space-y-3">
-            <h3 className="font-semibold">Itens do Pedido</h3>
+          <div className="px-8 pb-8 space-y-3 border-t border-border">
+            <h3 className="font-semibold text-base pt-4">Itens do Pedido</h3>
             {cartItems.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">Nenhum item adicionado</p>
             ) : (
-              <div className="space-y-2">
+              <div className="grid grid-cols-1 gap-2 max-h-[120px] overflow-y-auto">
                 {cartItems.map((item, idx) => {
                   const product = products.find((p) => p.id === item.productId);
                   return (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-muted/30 rounded border border-border">
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{product?.name} - {item.size}</p>
+                    <div key={idx} className="flex items-center justify-between p-2 bg-muted/30 rounded border border-border text-sm">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{product?.name} - {item.size}</p>
                         <p className="text-xs text-muted-foreground">Qtd: {item.quantity} × {fmt(item.unitCost)} = {fmt(item.quantity * item.unitCost)}</p>
                       </div>
-                      <Button size="sm" variant="ghost" onClick={() => removeFromCart(idx)}>
-                        <Trash2 className="w-4 h-4 text-red-500" />
+                      <Button size="sm" variant="ghost" onClick={() => removeFromCart(idx)} className="flex-shrink-0">
+                        <Trash2 className="w-3 h-3 text-red-500" />
                       </Button>
                     </div>
                   );
@@ -449,19 +451,15 @@ export default function SupplierOrders() {
             )}
           </div>
 
-          {/* Total */}
-          <div className="mt-6 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-            <div className="flex justify-between items-center">
-              <span className="font-semibold">Total do Pedido:</span>
-              <span className="text-2xl font-bold text-emerald-600">{fmt(cartTotal)}</span>
+          {/* Total e Botões */}
+          <div className="flex items-center justify-between px-8 pb-6 pt-4 border-t border-border">
+            <div className="text-2xl font-bold text-emerald-600">{fmt(cartTotal)}</div>
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={() => setShowNew(false)} className="px-6">Cancelar</Button>
+              <Button onClick={submitNew} className="bg-emerald-600 hover:bg-emerald-700 px-8" disabled={createOrder.isPending}>
+                {createOrder.isPending ? "Salvando..." : "Salvar Pedido"}
+              </Button>
             </div>
-          </div>
-
-          <div className="flex gap-3 justify-end mt-6">
-            <Button variant="outline" onClick={() => setShowNew(false)}>Cancelar</Button>
-            <Button onClick={submitNew} className="bg-emerald-600 hover:bg-emerald-700" disabled={createOrder.isPending}>
-              {createOrder.isPending ? "Salvando..." : "Salvar Pedido"}
-            </Button>
           </div>
         </DialogContent>
       </Dialog>
