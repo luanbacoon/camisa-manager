@@ -274,7 +274,7 @@ export default function SupplierOrders() {
             {/* Coluna 1: Grid de Produtos */}
             <div className="col-span-4 border border-border rounded-lg p-4 bg-muted/30 max-h-[600px]">
               <h3 className="font-semibold mb-3 text-sm">Produtos</h3>
-              <div className="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+              <div className="grid grid-cols-1 gap-4 max-h-96 overflow-y-auto">
                 {products.map((product) => (
                   <div
                     key={product.id}
@@ -286,10 +286,10 @@ export default function SupplierOrders() {
                     }`}
                   >
                     {product.imageUrl && (
-                      <img src={product.imageUrl} alt={product.name} className="w-full h-32 object-cover rounded mb-2" />
+                      <img src={product.imageUrl} alt={product.name} className="w-full h-48 object-cover rounded mb-2" />
                     )}
-                    <p className="text-xs font-medium truncate">{product.name}</p>
-                    <p className="text-xs text-muted-foreground">{fmt(product.price)}</p>
+                    <p className="text-sm font-medium truncate">{product.name}</p>
+                    <p className="text-sm text-muted-foreground">{fmt(product.price)}</p>
                   </div>
                 ))}
               </div>
