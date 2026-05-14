@@ -293,24 +293,24 @@ export default function SupplierOrders() {
 
       {/* Modal Novo Pedido */}
       <Dialog open={showNew} onOpenChange={setShowNew}>
-        <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto w-[98vw] !p-10">
+        <DialogContent className="max-w-full max-h-screen overflow-y-auto w-screen !p-0">
           <DialogHeader>
             <DialogTitle>Novo Pedido ao Fornecedor</DialogTitle>
           </DialogHeader>
 
-          <div className="grid grid-cols-8 gap-4">
+          <div className="grid grid-cols-12 gap-6 p-8">
             {/* Coluna 1: Grid de Produtos */}
-            <div className="col-span-4 border border-border rounded-lg p-4 bg-muted/30 max-h-[900px]">
+            <div className="col-span-7 border border-border rounded-lg p-6 bg-muted/30 max-h-[calc(100vh-150px)]">
               <h3 className="font-semibold mb-3 text-sm">Produtos</h3>
-              <div className="grid grid-cols-1 gap-4 max-h-[850px] overflow-y-auto">
+              <div className="grid grid-cols-1 gap-6 max-h-[calc(100vh-250px)] overflow-y-auto">
                 {products.map((product) => (
                   <div
                     key={product.id}
                     onClick={() => setSelectedProductForModal(product.id)}
-                    className="p-3 rounded cursor-pointer border border-border hover:border-emerald-300 hover:bg-emerald-50 transition"
+                    className="p-4 rounded cursor-pointer border border-border hover:border-emerald-300 hover:bg-emerald-50 transition"
                   >
                     {product.imageUrl && (
-                      <img src={product.imageUrl} alt={product.name} className="w-full h-48 object-cover rounded mb-2" />
+                      <img src={product.imageUrl} alt={product.name} className="w-full h-64 object-cover rounded mb-3" />
                     )}
                     <p className="text-sm font-medium truncate">{product.name}</p>
                     <p className="text-sm text-muted-foreground">{fmt(product.price)}</p>
@@ -320,7 +320,7 @@ export default function SupplierOrders() {
             </div>
 
             {/* Coluna 2: Formulário */}
-            <div className="col-span-4 space-y-4">
+            <div className="col-span-5 space-y-5">
               {/* Dados do Pedido */}
               <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
                 <h3 className="font-semibold text-sm">Dados do Pedido</h3>
