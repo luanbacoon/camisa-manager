@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `supplier_orders` ADD `supplier` varchar(255);\nALTER TABLE `supplier_orders` ADD `orderType` varchar(50) DEFAULT 'Nacional';\nALTER TABLE `supplier_orders` ADD `currency` varchar(20) DEFAULT 'BRL';\nALTER TABLE `supplier_orders` ADD `discount` decimal(10,2) DEFAULT '0';\nALTER TABLE `supplier_orders` ADD `freight` decimal(10,2) DEFAULT '0';\nALTER TABLE `supplier_orders` ADD `deliveryDate` timestamp;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ifPH7viqejjM65.root --database awm2eraPRXUvnHb76ArrUX --execute ALTER TABLE `supplier_orders` ADD `supplier` varchar(255);\nALTER TABLE `supplier_orders` ADD `orderType` varchar(50) DEFAULT 'Nacional';\nALTER TABLE `supplier_orders` ADD `currency` varchar(20) DEFAULT 'BRL';\nALTER TABLE `supplier_orders` ADD `discount` decimal(10,2) DEFAULT '0';\nALTER TABLE `supplier_orders` ADD `freight` decimal(10,2) DEFAULT '0';\nALTER TABLE `supplier_orders` ADD `deliveryDate` timestamp;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2236
+}

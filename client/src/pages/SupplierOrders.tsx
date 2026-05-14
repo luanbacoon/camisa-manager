@@ -1,9 +1,11 @@
+"use client";
+
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Plus, Search, Truck, CheckCircle, Package, ExternalLink, Edit2 } from "lucide-react";
+import { Plus, Search, Truck, CheckCircle, Package, ExternalLink, Edit2, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -12,6 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const SIZES = ["PP", "P", "M", "G", "GG", "XGG", "3G", "4G"];
+const CURRENCIES = ["R$ Real", "$ Dólar"];
+const ORDER_TYPES = ["Nacional", "Internacional"];
 
 function fmt(v: number | string) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(v));
@@ -60,13 +64,30 @@ export default function SupplierOrders() {
     onError: (e) => toast.error(e.message),
   });
 
-  // New form
-  const [productId, setProductId] = useState("");
-  const [size, setSize] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [unitCost, setUnitCost] = useState("");
+  // New form - Produtos selecionados
+  const [cartItems, setCartItems] = useState<Array<{
+    productId: number;
+    size: string;
+    quantity: number;
+    unitCost: number;
+  }>>([]);
+
+  // New form - Dados do pedido
+  const [supplier, setSupplier] = useState("");
+  const [orderType, setOrderType] = useState("Nacional");
+  const [currency, setCurrency] = useState("R$ Real");
+  const [orderDate, setOrderDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [deliveryDate, setDeliveryDate] = useState("");
+  const [discount, setDiscount] = useState("");
+  const [freight, setFreight] = useState("");
   const [notes, setNotes] = useState("");
   const [trackingCode, setTrackingCode] = useState("");
+
+  // Formulário temporário para adicionar item
+  const [tempProductId, setTempProductId] = useState("");
+  const [tempSize, setTempSize] = useState("");
+  const [tempQuantity, setTempQuantity] = useState("");
+  const [tempUnitCost, setTempUnitCost] = useState("");
 
   // Edit form
   const [editTracking, setEditTracking] = useState("");
@@ -74,8 +95,73 @@ export default function SupplierOrders() {
   const [editNotes, setEditNotes] = useState("");
 
   function openNew() {
-    setProductId(""); setSize(""); setQuantity(""); setUnitCost(""); setNotes(""); setTrackingCode("");
+    setCartItems([]);
+    setSupplier("");
+    setOrderType("Nacional");
+    setCurrency("R$ Real");
+    setOrderDate(format(new Date(), "yyyy-MM-dd"));
+    setDeliveryDate("");
+    setDiscount("");
+    setFreight("");
+    setNotes("");
+    setTrackingCode("");
+    setTempProductId("");
+    setTempSize("");
+    setTempQuantity("");
+    setTempUnitCost("");
     setShowNew(true);
+  }
+
+  function addToCart() {
+    if (!tempProductId || !tempSize || !tempQuantity || !tempUnitCost) {
+      return toast.error("Preencha todos os campos do item");
+    }
+    const item = {
+      productId: Number(tempProductId),
+      size: tempSize,
+      quantity: Number(tempQuantity),
+      unitCost: Number(tempUnitCost),
+    };
+    setCartItems([...cartItems, item]);
+    setTempProductId("");
+    setTempSize("");
+    setTempQuantity("");
+    setTempUnitCost("");
+  }
+
+  function removeFromCart(index: number) {
+    setCartItems(cartItems.filter((_, i) => i !== index));
+  }
+
+  const cartTotal = useMemo(() => {
+    const subtotal = cartItems.reduce((sum, item) => sum + item.quantity * item.unitCost, 0);
+    const discountAmount = Number(discount) || 0;
+    const freightAmount = Number(freight) || 0;
+    return subtotal - discountAmount + freightAmount;
+  }, [cartItems, discount, freight]);
+
+  function submitNew() {
+    if (cartItems.length === 0) return toast.error("Adicione pelo menos um item ao pedido");
+    if (!supplier) return toast.error("Preencha o fornecedor");
+
+    // Criar pedidos para cada item do carrinho
+    cartItems.forEach((item) => {
+      createOrder.mutate({
+        productId: item.productId,
+        size: item.size,
+        quantity: item.quantity,
+        unitCost: item.unitCost,
+        supplier,
+        orderType,
+        currency,
+        discount: Number(discount) || 0,
+        freight: Number(freight) || 0,
+        orderDate: orderDate ? new Date(orderDate) : undefined,
+        deliveryDate: deliveryDate ? new Date(deliveryDate) : undefined,
+        notes,
+        trackingCode,
+      });
+    });
   }
 
   function openEdit(order: typeof orders[0]) {
@@ -83,18 +169,6 @@ export default function SupplierOrders() {
     setEditStatus(order.status);
     setEditNotes(order.notes ?? "");
     setShowEdit(order.id);
-  }
-
-  function submitNew() {
-    if (!productId || !size || !quantity || !unitCost) return toast.error("Preencha todos os campos obrigatórios");
-    createOrder.mutate({
-      productId: Number(productId),
-      size,
-      quantity: Number(quantity),
-      unitCost: Number(unitCost),
-      notes,
-      trackingCode,
-    });
   }
 
   function submitEdit() {
@@ -107,282 +181,325 @@ export default function SupplierOrders() {
     });
   }
 
-  const filtered = useMemo(
-    () => orders.filter((o) =>
-      (o.product?.name ?? "").toLowerCase().includes(search.toLowerCase()) ||
-      (o.trackingCode ?? "").includes(search)
-    ),
-    [orders, search]
+  const filteredOrders = orders.filter((o) =>
+    o.product?.name?.toLowerCase().includes(search.toLowerCase()) ||
+    o.size?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const editingOrder = orders.find((o) => o.id === showEdit);
-  const confirmOrder = orders.find((o) => o.id === confirmReceive);
-
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Pedidos ao Fornecedor</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Gerencie suas compras e rastreie entregas</p>
+          <h1 className="text-3xl font-bold text-foreground">Pedidos ao Fornecedor</h1>
+          <p className="text-sm text-muted-foreground">Gerencie seus pedidos de reposição de estoque</p>
         </div>
-        <Button onClick={openNew} className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-          <Plus className="h-4 w-4" />
-          Novo Pedido
+        <Button onClick={openNew} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+          <Plus className="w-4 h-4" /> Novo Pedido
         </Button>
       </div>
 
-      <div className="card-elegant">
-        <div className="p-4 border-b border-border">
-          <div className="relative max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por produto ou rastreio..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 bg-muted/50 border-border"
-            />
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full data-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Produto</th>
-                <th>Tam.</th>
-                <th>Qtd</th>
-                <th>Custo Unit.</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Rastreio</th>
-                <th>Data</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr><td colSpan={10} className="text-center py-12 text-muted-foreground">Carregando...</td></tr>
-              ) : filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={10} className="text-center py-12">
-                    <div className="flex flex-col items-center gap-2">
-                      <Truck className="w-8 h-8 text-muted-foreground/40" />
-                      <p className="text-muted-foreground text-sm">Nenhum pedido encontrado</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((order) => (
-                  <tr key={order.id}>
-                    <td className="font-mono text-xs text-muted-foreground">#{order.id}</td>
-                    <td className="text-sm font-medium">{order.product?.name ?? "—"}</td>
-                    <td><span className="badge-neutral">{order.size}</span></td>
-                    <td className="text-sm">{order.quantity}</td>
-                    <td className="text-sm">{fmt(order.unitCost)}</td>
-                    <td className="font-semibold">{fmt(order.totalCost)}</td>
-                    <td><span className={STATUS_BADGE[order.status]}>{STATUS_LABELS[order.status]}</span></td>
-                    <td>
-                      {order.trackingCode ? (
-                        <a
-                          href={`https://www.linkcorreios.com.br/?id=${order.trackingCode}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-primary hover:text-primary/80 text-xs font-mono transition-colors"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {order.trackingCode}
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      ) : (
-                        <span className="text-muted-foreground text-xs">—</span>
-                      )}
-                    </td>
-                    <td className="text-xs text-muted-foreground">
-                      {format(new Date(order.orderedAt), "dd/MM/yyyy", { locale: ptBR })}
-                    </td>
-                    <td>
-                      <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(order)}>
-                          <Edit2 className="h-3.5 w-3.5" />
-                        </Button>
-                        {order.status !== "recebido" && order.status !== "cancelado" && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 w-7 p-0 text-emerald-400 hover:text-emerald-300"
-                            onClick={() => setConfirmReceive(order.id)}
-                          >
-                            <CheckCircle className="h-3.5 w-3.5" />
-                          </Button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      <div className="relative">
+        <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+        <Input
+          placeholder="Buscar por produto ou tamanho..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-10"
+        />
       </div>
 
-      {/* New Order Dialog */}
+      <div className="overflow-x-auto border border-border rounded-lg">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50 border-b border-border">
+            <tr>
+              <th className="px-4 py-3 text-left font-semibold">Data</th>
+              <th className="px-4 py-3 text-left font-semibold">Produto</th>
+              <th className="px-4 py-3 text-left font-semibold">Tamanho</th>
+              <th className="px-4 py-3 text-right font-semibold">Qtd</th>
+              <th className="px-4 py-3 text-right font-semibold">Custo Unit.</th>
+              <th className="px-4 py-3 text-right font-semibold">Total</th>
+              <th className="px-4 py-3 text-left font-semibold">Status</th>
+              <th className="px-4 py-3 text-left font-semibold">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
+              <tr><td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">Carregando...</td></tr>
+            ) : filteredOrders.length === 0 ? (
+              <tr><td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">Nenhum pedido encontrado</td></tr>
+            ) : (
+              filteredOrders.map((order) => (
+                <tr key={order.id} className="border-b border-border hover:bg-muted/30">
+                  <td className="px-4 py-3">{format(new Date(order.orderedAt), "dd/MM/yyyy", { locale: ptBR })}</td>
+                  <td className="px-4 py-3 font-medium">{order.product?.name}</td>
+                  <td className="px-4 py-3">{order.size}</td>
+                  <td className="px-4 py-3 text-right">{order.quantity}</td>
+                  <td className="px-4 py-3 text-right">{fmt(order.unitCost)}</td>
+                  <td className="px-4 py-3 text-right font-semibold">{fmt(order.totalCost)}</td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${STATUS_BADGE[order.status] || "badge-default"}`}>
+                      {STATUS_LABELS[order.status] || order.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openEdit(order)}
+                      className="gap-1"
+                    >
+                      <Edit2 className="w-3 h-3" /> Editar
+                    </Button>
+                    {order.status === "pendente" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setConfirmReceive(order.id)}
+                        className="gap-1 text-emerald-600 hover:text-emerald-700"
+                      >
+                        <CheckCircle className="w-3 h-3" /> Receber
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal Novo Pedido */}
       <Dialog open={showNew} onOpenChange={setShowNew}>
-        <DialogContent className="max-w-md bg-card border-border">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Novo Pedido ao Fornecedor</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 pt-2">
-            <div className="space-y-1.5">
-              <Label>Produto *</Label>
-              <Select value={productId} onValueChange={setProductId}>
-                <SelectTrigger className="bg-muted/50 border-border">
-                  <SelectValue placeholder="Selecionar produto" />
+
+          <div className="grid grid-cols-3 gap-4">
+            {/* Coluna 1: Grid de Produtos */}
+            <div className="col-span-1 border border-border rounded-lg p-4 bg-muted/30">
+              <h3 className="font-semibold mb-3 text-sm">Produtos</h3>
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {products.map((product) => (
+                  <div
+                    key={product.id}
+                    onClick={() => setTempProductId(String(product.id))}
+                    className={`p-2 rounded cursor-pointer border transition ${
+                      tempProductId === String(product.id)
+                        ? "border-emerald-500 bg-emerald-50"
+                        : "border-border hover:border-emerald-300"
+                    }`}
+                  >
+                    {product.imageUrl && (
+                      <img src={product.imageUrl} alt={product.name} className="w-full h-20 object-cover rounded mb-1" />
+                    )}
+                    <p className="text-xs font-medium truncate">{product.name}</p>
+                    <p className="text-xs text-muted-foreground">{fmt(product.price)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Coluna 2: Formulário */}
+            <div className="col-span-2 space-y-4">
+              {/* Dados do Pedido */}
+              <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+                <h3 className="font-semibold text-sm">Dados do Pedido</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">Fornecedor *</Label>
+                    <Input value={supplier} onChange={(e) => setSupplier(e.target.value)} placeholder="Nome do fornecedor" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Tipo de Pedido</Label>
+                    <Select value={orderType} onValueChange={setOrderType}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ORDER_TYPES.map((t) => (
+                          <SelectItem key={t} value={t}>{t}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Data do Pedido</Label>
+                    <Input type="date" value={orderDate} onChange={(e) => setOrderDate(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Data de Entrega</Label>
+                    <Input type="date" value={deliveryDate} onChange={(e) => setDeliveryDate(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Moeda</Label>
+                    <Select value={currency} onValueChange={setCurrency}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CURRENCIES.map((c) => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Código de Rastreio</Label>
+                    <Input value={trackingCode} onChange={(e) => setTrackingCode(e.target.value)} placeholder="Ex: AA123456789BR" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Adicionar Item */}
+              <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+                <h3 className="font-semibold text-sm">Adicionar Item</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">Tamanho *</Label>
+                    <Select value={tempSize} onValueChange={setTempSize}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SIZES.map((s) => (
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Quantidade *</Label>
+                    <Input type="number" value={tempQuantity} onChange={(e) => setTempQuantity(e.target.value)} placeholder="0" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Preço Unitário *</Label>
+                    <Input type="number" step="0.01" value={tempUnitCost} onChange={(e) => setTempUnitCost(e.target.value)} placeholder="0.00" />
+                  </div>
+                  <div className="flex items-end">
+                    <Button onClick={addToCart} className="w-full bg-blue-600 hover:bg-blue-700">
+                      Adicionar
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Custos Adicionais */}
+              <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+                <h3 className="font-semibold text-sm">Custos Adicionais</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">Desconto (R$)</Label>
+                    <Input type="number" step="0.01" value={discount} onChange={(e) => setDiscount(e.target.value)} placeholder="0.00" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Frete (R$)</Label>
+                    <Input type="number" step="0.01" value={freight} onChange={(e) => setFreight(e.target.value)} placeholder="0.00" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Observações */}
+              <div>
+                <Label className="text-xs">Observações</Label>
+                <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notas adicionais..." className="text-xs" />
+              </div>
+            </div>
+          </div>
+
+          {/* Carrinho */}
+          <div className="mt-6 space-y-3">
+            <h3 className="font-semibold">Itens do Pedido</h3>
+            {cartItems.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">Nenhum item adicionado</p>
+            ) : (
+              <div className="space-y-2">
+                {cartItems.map((item, idx) => {
+                  const product = products.find((p) => p.id === item.productId);
+                  return (
+                    <div key={idx} className="flex items-center justify-between p-3 bg-muted/30 rounded border border-border">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{product?.name} - {item.size}</p>
+                        <p className="text-xs text-muted-foreground">Qtd: {item.quantity} × {fmt(item.unitCost)} = {fmt(item.quantity * item.unitCost)}</p>
+                      </div>
+                      <Button size="sm" variant="ghost" onClick={() => removeFromCart(idx)}>
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Total */}
+          <div className="mt-6 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+            <div className="flex justify-between items-center">
+              <span className="font-semibold">Total do Pedido:</span>
+              <span className="text-2xl font-bold text-emerald-600">{fmt(cartTotal)}</span>
+            </div>
+          </div>
+
+          <div className="flex gap-3 justify-end mt-6">
+            <Button variant="outline" onClick={() => setShowNew(false)}>Cancelar</Button>
+            <Button onClick={submitNew} className="bg-emerald-600 hover:bg-emerald-700" disabled={createOrder.isPending}>
+              {createOrder.isPending ? "Salvando..." : "Salvar Pedido"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Editar */}
+      <Dialog open={showEdit !== null} onOpenChange={() => setShowEdit(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Pedido</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Código de Rastreio</Label>
+              <Input value={editTracking} onChange={(e) => setEditTracking(e.target.value)} />
+            </div>
+            <div>
+              <Label>Status</Label>
+              <Select value={editStatus} onValueChange={setEditStatus}>
+                <SelectTrigger>
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {products.map((p) => (
-                    <SelectItem key={p.id} value={String(p.id)}>
-                      {p.name} {p.team ? `(${p.team})` : ""}
-                    </SelectItem>
+                  {Object.entries(STATUS_LABELS).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>{label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label>Tamanho *</Label>
-                <Select value={size} onValueChange={setSize}>
-                  <SelectTrigger className="bg-muted/50 border-border">
-                    <SelectValue placeholder="Tam." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SIZES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Quantidade *</Label>
-                <Input type="number" min="1" value={quantity} onChange={(e) => setQuantity(e.target.value)} className="bg-muted/50 border-border" />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Custo Unitário (R$) *</Label>
-              <Input type="number" step="0.01" min="0" value={unitCost} onChange={(e) => setUnitCost(e.target.value)} className="bg-muted/50 border-border" placeholder="0,00" />
-            </div>
-            {quantity && unitCost && (
-              <div className="bg-muted/30 rounded-lg p-3 text-sm">
-                <p className="text-muted-foreground">Total do pedido: <span className="text-foreground font-semibold">{fmt(Number(quantity) * Number(unitCost))}</span></p>
-              </div>
-            )}
-            <div className="space-y-1.5">
-              <Label>Código de Rastreio (Correios)</Label>
-              <Input value={trackingCode} onChange={(e) => setTrackingCode(e.target.value.toUpperCase())} className="bg-muted/50 border-border font-mono" placeholder="AA000000000BR" />
-            </div>
-            <div className="space-y-1.5">
+            <div>
               <Label>Observações</Label>
-              <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="bg-muted/50 border-border resize-none" rows={2} />
+              <Textarea value={editNotes} onChange={(e) => setEditNotes(e.target.value)} />
             </div>
-            <div className="flex gap-3 justify-end pt-2">
-              <Button variant="outline" onClick={() => setShowNew(false)}>Cancelar</Button>
-              <Button onClick={submitNew} disabled={createOrder.isPending} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                {createOrder.isPending ? "Registrando..." : "Registrar Pedido"}
+            <div className="flex gap-3 justify-end">
+              <Button variant="outline" onClick={() => setShowEdit(null)}>Cancelar</Button>
+              <Button onClick={submitEdit} disabled={updateOrder.isPending}>
+                {updateOrder.isPending ? "Salvando..." : "Salvar"}
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Edit Dialog */}
-      <Dialog open={!!showEdit} onOpenChange={() => setShowEdit(null)}>
-        <DialogContent className="max-w-md bg-card border-border">
+      {/* Modal Confirmar Recebimento */}
+      <Dialog open={confirmReceive !== null} onOpenChange={() => setConfirmReceive(null)}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Editar Pedido #{showEdit}</DialogTitle>
+            <DialogTitle>Confirmar Recebimento</DialogTitle>
           </DialogHeader>
-          {editingOrder && (
-            <div className="space-y-4 pt-2">
-              <div className="bg-muted/30 rounded-lg p-3 text-sm">
-                <p className="font-medium">{editingOrder.product?.name}</p>
-                <p className="text-muted-foreground text-xs mt-0.5">{editingOrder.size} • {editingOrder.quantity} unidades</p>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Status</Label>
-                <Select value={editStatus} onValueChange={setEditStatus}>
-                  <SelectTrigger className="bg-muted/50 border-border">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pendente">Pendente</SelectItem>
-                    <SelectItem value="em_transito">Em Trânsito</SelectItem>
-                    <SelectItem value="recebido">Recebido</SelectItem>
-                    <SelectItem value="cancelado">Cancelado</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Código de Rastreio</Label>
-                <Input value={editTracking} onChange={(e) => setEditTracking(e.target.value.toUpperCase())} className="bg-muted/50 border-border font-mono" placeholder="AA000000000BR" />
-                {editTracking && (
-                  <a
-                    href={`https://www.linkcorreios.com.br/?id=${editTracking}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-primary text-xs mt-1"
-                  >
-                    <ExternalLink className="h-3 w-3" />
-                    Rastrear nos Correios
-                  </a>
-                )}
-              </div>
-              <div className="space-y-1.5">
-                <Label>Observações</Label>
-                <Textarea value={editNotes} onChange={(e) => setEditNotes(e.target.value)} className="bg-muted/50 border-border resize-none" rows={2} />
-              </div>
-              <div className="flex gap-3 justify-end pt-2">
-                <Button variant="outline" onClick={() => setShowEdit(null)}>Cancelar</Button>
-                <Button onClick={submitEdit} disabled={updateOrder.isPending} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                  Salvar
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Confirm Receive Dialog */}
-      <Dialog open={!!confirmReceive} onOpenChange={() => setConfirmReceive(null)}>
-        <DialogContent className="max-w-sm bg-card border-border">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-emerald-400" />
-              Confirmar Recebimento
-            </DialogTitle>
-          </DialogHeader>
-          {confirmOrder && (
-            <div className="space-y-4 pt-2">
-              <div className="bg-muted/30 rounded-lg p-3 text-sm">
-                <p className="font-medium">{confirmOrder.product?.name}</p>
-                <p className="text-muted-foreground text-xs mt-0.5">
-                  {confirmOrder.size} • {confirmOrder.quantity} unidades • {fmt(confirmOrder.totalCost)}
-                </p>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Ao confirmar, o estoque será atualizado automaticamente com <strong className="text-foreground">{confirmOrder.quantity} unidades</strong> no tamanho <strong className="text-foreground">{confirmOrder.size}</strong>.
-              </p>
-              <p className="text-xs text-muted-foreground">
-                O custo médio do produto também será recalculado.
-              </p>
-              <div className="flex gap-3 justify-end pt-2">
-                <Button variant="outline" onClick={() => setConfirmReceive(null)}>Cancelar</Button>
-                <Button
-                  onClick={() => markReceived.mutate({ id: confirmReceive! })}
-                  disabled={markReceived.isPending}
-                  className="bg-emerald-600 text-white hover:bg-emerald-500"
-                >
-                  {markReceived.isPending ? "Confirmando..." : "Confirmar Recebimento"}
-                </Button>
-              </div>
-            </div>
-          )}
+          <p className="text-sm text-muted-foreground">Ao confirmar, o estoque será atualizado automaticamente.</p>
+          <div className="flex gap-3 justify-end">
+            <Button variant="outline" onClick={() => setConfirmReceive(null)}>Cancelar</Button>
+            <Button onClick={() => confirmReceive && markReceived.mutate({ id: confirmReceive })} disabled={markReceived.isPending}>
+              {markReceived.isPending ? "Processando..." : "Confirmar"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

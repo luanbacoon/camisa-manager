@@ -172,9 +172,15 @@ export const supplierOrders = mysqlTable("supplier_orders", {
   status: mysqlEnum("status", ["pendente", "em_transito", "recebido", "cancelado"])
     .notNull()
     .default("pendente"),
+  supplier: varchar("supplier", { length: 255 }),
+  orderType: varchar("orderType", { length: 50 }).default("Nacional"),
+  currency: varchar("currency", { length: 20 }).default("BRL"),
+  discount: decimal("discount", { precision: 10, scale: 2 }).default("0"),
+  freight: decimal("freight", { precision: 10, scale: 2 }).default("0"),
   trackingCode: varchar("trackingCode", { length: 50 }),
   notes: text("notes"),
   orderedAt: timestamp("orderedAt").defaultNow().notNull(),
+  deliveryDate: timestamp("deliveryDate"),
   receivedAt: timestamp("receivedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

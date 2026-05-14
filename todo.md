@@ -111,3 +111,6 @@
 - [x] Adicionar opção de excluir produtos cadastrados no módulo de Produtos
 - [x] Implementar exclusão segura de produto: bloquear se tiver histórico relacionado ou usar soft delete
 - [x] Remover tamanhos e galeria ao deletar produto
+- [x] Redesenhar modal de novo pedido ao fornecedor com grid de produtos, formulário completo e carrinho
+- [x] Persistir no backend os campos do novo pedido (fornecedor, tipo, moeda, data, desconto, frete)
+- [ ] Salvar pedido multi-itens de forma transacional (estrutura de pedido + itens)
