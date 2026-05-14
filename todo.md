@@ -116,7 +116,7 @@
 - [x] Salvar pedido multi-itens de forma transacional (estrutura de pedido + itens)
 
 ## Ajustes de Layout - Pedidos ao Fornecedor
-- [x] Ajustar grid modal para 4 colunas (1 produtos + 3 formulário)
+- [x] Ajustar grid modal para 8 colunas (4 produtos + 4 formulário)
 - [x] Aumentar campos de dados do pedido para 3 colunas
 - [x] Aumentar campos de adicionar item para 4 colunas
 - [x] Manter estrutura original com layout mais horizontal

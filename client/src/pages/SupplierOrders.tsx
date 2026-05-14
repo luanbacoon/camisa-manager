@@ -270,9 +270,9 @@ export default function SupplierOrders() {
             <DialogTitle>Novo Pedido ao Fornecedor</DialogTitle>
           </DialogHeader>
 
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-8 gap-4">
             {/* Coluna 1: Grid de Produtos */}
-            <div className="col-span-1 border border-border rounded-lg p-4 bg-muted/30 max-h-[600px]">
+            <div className="col-span-4 border border-border rounded-lg p-4 bg-muted/30 max-h-[600px]">
               <h3 className="font-semibold mb-3 text-sm">Produtos</h3>
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {products.map((product) => (
@@ -296,7 +296,7 @@ export default function SupplierOrders() {
             </div>
 
             {/* Coluna 2: Formulário */}
-            <div className="col-span-3 space-y-4">
+            <div className="col-span-4 space-y-4">
               {/* Dados do Pedido */}
               <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
                 <h3 className="font-semibold text-sm">Dados do Pedido</h3>
