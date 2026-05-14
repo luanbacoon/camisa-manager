@@ -85,8 +85,7 @@ export default function SupplierOrders() {
 
   // Modal de seleção de produto
   const [selectedProductForModal, setSelectedProductForModal] = useState<number | null>(null);
-  const [modalSize, setModalSize] = useState("");
-  const [modalQuantity, setModalQuantity] = useState("");
+  const [modalSizeQuantities, setModalSizeQuantities] = useState<Record<string, number>>({});
   const [modalUnitCost, setModalUnitCost] = useState("");
 
   // Formulário temporário para adicionar item (legado)
@@ -140,21 +139,26 @@ export default function SupplierOrders() {
   }
 
   function addFromModal() {
-    if (!selectedProductForModal || !modalSize || !modalQuantity || !modalUnitCost) {
-      return toast.error("Preencha tamanho, quantidade e preco");
+    if (!selectedProductForModal || !modalUnitCost) {
+      return toast.error("Preencha o preco unitario");
     }
-    const item = {
-      productId: selectedProductForModal,
-      size: modalSize,
-      quantity: Number(modalQuantity),
-      unitCost: Number(modalUnitCost),
-    };
-    setCartItems([...cartItems, item]);
+    const hasAnyQuantity = Object.values(modalSizeQuantities).some(q => q > 0);
+    if (!hasAnyQuantity) {
+      return toast.error("Adicione quantidade para pelo menos um tamanho");
+    }
+    const newItems = Object.entries(modalSizeQuantities)
+      .filter(([_, qty]) => qty > 0)
+      .map(([size, qty]) => ({
+        productId: selectedProductForModal,
+        size,
+        quantity: qty,
+        unitCost: Number(modalUnitCost),
+      }));
+    setCartItems([...cartItems, ...newItems]);
     setSelectedProductForModal(null);
-    setModalSize("");
-    setModalQuantity("");
+    setModalSizeQuantities({});
     setModalUnitCost("");
-    toast.success("Item adicionado ao pedido!");
+    toast.success(`${newItems.length} item(ns) adicionado(s) ao pedido!`);
   }
 
   const cartTotal = useMemo(() => {
@@ -512,21 +516,22 @@ export default function SupplierOrders() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-sm">Tamanho *</Label>
-              <Select value={modalSize} onValueChange={setModalSize}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um tamanho" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SIZES.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-sm">Quantidade *</Label>
-              <Input type="number" min="1" value={modalQuantity} onChange={(e) => setModalQuantity(e.target.value)} placeholder="0" />
+              <Label className="text-sm font-semibold mb-3 block">Selecione Tamanhos e Quantidades</Label>
+              <div className="grid grid-cols-3 gap-3">
+                {SIZES.map((size) => (
+                  <div key={size} className="flex flex-col items-center gap-2">
+                    <Label className="text-xs font-medium">{size}</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={modalSizeQuantities[size] || 0}
+                      onChange={(e) => setModalSizeQuantities({...modalSizeQuantities, [size]: Number(e.target.value)})}
+                      placeholder="0"
+                      className="text-center"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
             <div>
               <Label className="text-sm">Preco Unitario (R$) *</Label>
