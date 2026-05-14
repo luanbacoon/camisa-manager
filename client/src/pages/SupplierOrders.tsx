@@ -324,7 +324,7 @@ export default function SupplierOrders() {
               {/* Dados do Pedido */}
               <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
                 <h3 className="font-semibold text-sm">Dados do Pedido</h3>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs">Fornecedor *</Label>
                     <Input value={supplier} onChange={(e) => setSupplier(e.target.value)} placeholder="Nome do fornecedor" />
@@ -372,8 +372,8 @@ export default function SupplierOrders() {
 
               {/* Adicionar Item */}
               <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
-                <h3 className="font-semibold text-sm">Adicionar Item</h3>
-                <div className="grid grid-cols-4 gap-3">
+                <h3 className="font-semibold text-sm mb-2">Adicionar Item</h3>
+                <div className="grid grid-cols-3 gap-3 mb-3">
                   <div>
                     <Label className="text-xs">Tamanho *</Label>
                     <Select value={tempSize} onValueChange={setTempSize}>
@@ -395,12 +395,10 @@ export default function SupplierOrders() {
                     <Label className="text-xs">Preço Unitário *</Label>
                     <Input type="number" step="0.01" value={tempUnitCost} onChange={(e) => setTempUnitCost(e.target.value)} placeholder="0.00" />
                   </div>
-                  <div className="flex items-end">
-                    <Button onClick={addToCart} className="w-full bg-blue-600 hover:bg-blue-700">
-                      Adicionar
-                    </Button>
-                  </div>
                 </div>
+                <Button onClick={addToCart} className="w-full bg-blue-600 hover:bg-blue-700">
+                  Adicionar Item
+                </Button>
               </div>
 
               {/* Custos Adicionais */}
