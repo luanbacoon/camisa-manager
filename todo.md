@@ -114,3 +114,9 @@
 - [x] Redesenhar modal de novo pedido ao fornecedor com grid de produtos, formulário completo e carrinho
 - [x] Persistir no backend os campos do novo pedido (fornecedor, tipo, moeda, data, desconto, frete)
 - [x] Salvar pedido multi-itens de forma transacional (estrutura de pedido + itens)
+
+## Ajustes de Layout - Pedidos ao Fornecedor
+- [x] Ajustar grid modal para 4 colunas (1 produtos + 3 formulário)
+- [x] Aumentar campos de dados do pedido para 3 colunas
+- [x] Aumentar campos de adicionar item para 4 colunas
+- [x] Manter estrutura original com layout mais horizontal
