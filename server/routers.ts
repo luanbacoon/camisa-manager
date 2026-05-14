@@ -3,6 +3,9 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
+import { eq } from "drizzle-orm";
+import { getDb } from "./db";
+import { products } from "../drizzle/schema";
 import {
   getStoreSettings,
   updateStoreSettings,
@@ -15,6 +18,7 @@ import {
   addGalleryImage,
   deleteGalleryImage,
   updateGalleryImageOrder,
+  deleteProductSafe,
   listCustomers,
   getCustomer,
   createCustomer,
@@ -161,6 +165,13 @@ export const appRouter = router({
     updateGalleryOrder: protectedProcedure
       .input(z.object({ imageId: z.number(), position: z.number() }))
       .mutation(({ input }) => updateGalleryImageOrder(input.imageId, input.position)),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await deleteProductSafe(input.id);
+        return { success: true };
+      }),
   }),
 
   // ─── Customers ─────────────────────────────────────────────────────────────

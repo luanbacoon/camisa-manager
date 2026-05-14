@@ -52,6 +52,10 @@ export default function Products() {
     onSuccess: () => { toast.success("Foto removida!"); utils.products.gallery.invalidate(); },
     onError: (e) => toast.error(e.message),
   });
+  const deleteProduct = trpc.products.delete.useMutation({
+    onSuccess: () => { utils.products.list.invalidate(); toast.success("Produto deletado!"); },
+    onError: (e) => toast.error(e.message),
+  });
 
   // Form state
   const [name, setName] = useState("");
@@ -294,6 +298,18 @@ export default function Products() {
                           </Button>
                           <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(p)}>
                             <Edit2 className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => {
+                              if (confirm(`Tem certeza que deseja deletar "${p.name}"?`)) {
+                                deleteProduct.mutate({ id: p.id });
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       </td>

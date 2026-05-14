@@ -572,3 +572,44 @@ export async function updateGalleryImageOrder(imageId: number, position: number)
   if (!db) return;
   await db.update(productGallery).set({ position }).where(eq(productGallery.id, imageId));
 }
+
+
+// ─── Product Delete ───────────────────────────────────────────────────────────
+export async function deleteProductSafe(productId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+
+  // Verificar se há vendas relacionadas
+  const salesWithProduct = await db
+    .select()
+    .from(saleItems)
+    .where(eq(saleItems.productId, productId))
+    .limit(1);
+
+  if (salesWithProduct.length > 0) {
+    throw new Error("Não é possível deletar um produto com histórico de vendas");
+  }
+
+  // Verificar se há pedidos ao fornecedor relacionados
+  const supplierOrdersWithProduct = await db
+    .select()
+    .from(supplierOrders)
+    .where(eq(supplierOrders.productId, productId))
+    .limit(1);
+
+  if (supplierOrdersWithProduct.length > 0) {
+    throw new Error("Não é possível deletar um produto com pedidos ao fornecedor");
+  }
+
+  // Deletar galeria
+  await db.delete(productGallery).where(eq(productGallery.productId, productId));
+
+  // Deletar tamanhos
+  await db.delete(productSizes).where(eq(productSizes.productId, productId));
+
+  // Deletar ajustes de estoque
+  await db.delete(stockAdjustments).where(eq(stockAdjustments.productId, productId));
+
+  // Deletar o produto
+  await db.delete(products).where(eq(products.id, productId));
+}

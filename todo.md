@@ -108,3 +108,6 @@
 - [x] Implementar seletor real de produtos para o catálogo público nas Configurações
 - [x] Aplicar personalizações no Catalog.tsx (logo, banner, cor primária, nome da loja)
 - [x] Corrigir saveProductSelection para persistir showInCatalog para produtos desmarcados
+- [x] Adicionar opção de excluir produtos cadastrados no módulo de Produtos
+- [x] Implementar exclusão segura de produto: bloquear se tiver histórico relacionado ou usar soft delete
+- [x] Remover tamanhos e galeria ao deletar produto
