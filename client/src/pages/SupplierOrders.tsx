@@ -274,19 +274,19 @@ export default function SupplierOrders() {
             {/* Coluna 1: Grid de Produtos */}
             <div className="col-span-4 border border-border rounded-lg p-4 bg-muted/30 max-h-[600px]">
               <h3 className="font-semibold mb-3 text-sm">Produtos</h3>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto">
                 {products.map((product) => (
                   <div
                     key={product.id}
                     onClick={() => setTempProductId(String(product.id))}
-                    className={`p-2 rounded cursor-pointer border transition ${
+                    className={`p-3 rounded cursor-pointer border transition ${
                       tempProductId === String(product.id)
                         ? "border-emerald-500 bg-emerald-50"
                         : "border-border hover:border-emerald-300"
                     }`}
                   >
                     {product.imageUrl && (
-                      <img src={product.imageUrl} alt={product.name} className="w-full h-20 object-cover rounded mb-1" />
+                      <img src={product.imageUrl} alt={product.name} className="w-full h-32 object-cover rounded mb-2" />
                     )}
                     <p className="text-xs font-medium truncate">{product.name}</p>
                     <p className="text-xs text-muted-foreground">{fmt(product.price)}</p>
