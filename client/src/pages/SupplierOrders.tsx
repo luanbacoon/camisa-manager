@@ -83,7 +83,13 @@ export default function SupplierOrders() {
   const [notes, setNotes] = useState("");
   const [trackingCode, setTrackingCode] = useState("");
 
-  // Formulário temporário para adicionar item
+  // Modal de seleção de produto
+  const [selectedProductForModal, setSelectedProductForModal] = useState<number | null>(null);
+  const [modalSize, setModalSize] = useState("");
+  const [modalQuantity, setModalQuantity] = useState("");
+  const [modalUnitCost, setModalUnitCost] = useState("");
+
+  // Formulário temporário para adicionar item (legado)
   const [tempProductId, setTempProductId] = useState("");
   const [tempSize, setTempSize] = useState("");
   const [tempQuantity, setTempQuantity] = useState("");
@@ -131,6 +137,24 @@ export default function SupplierOrders() {
 
   function removeFromCart(index: number) {
     setCartItems(cartItems.filter((_, i) => i !== index));
+  }
+
+  function addFromModal() {
+    if (!selectedProductForModal || !modalSize || !modalQuantity || !modalUnitCost) {
+      return toast.error("Preencha tamanho, quantidade e preco");
+    }
+    const item = {
+      productId: selectedProductForModal,
+      size: modalSize,
+      quantity: Number(modalQuantity),
+      unitCost: Number(modalUnitCost),
+    };
+    setCartItems([...cartItems, item]);
+    setSelectedProductForModal(null);
+    setModalSize("");
+    setModalQuantity("");
+    setModalUnitCost("");
+    toast.success("Item adicionado ao pedido!");
   }
 
   const cartTotal = useMemo(() => {
@@ -272,18 +296,14 @@ export default function SupplierOrders() {
 
           <div className="grid grid-cols-8 gap-4">
             {/* Coluna 1: Grid de Produtos */}
-            <div className="col-span-4 border border-border rounded-lg p-4 bg-muted/30 max-h-[600px]">
+            <div className="col-span-4 border border-border rounded-lg p-4 bg-muted/30 max-h-[800px]">
               <h3 className="font-semibold mb-3 text-sm">Produtos</h3>
-              <div className="grid grid-cols-1 gap-4 max-h-96 overflow-y-auto">
+              <div className="grid grid-cols-1 gap-4 max-h-[750px] overflow-y-auto">
                 {products.map((product) => (
                   <div
                     key={product.id}
-                    onClick={() => setTempProductId(String(product.id))}
-                    className={`p-3 rounded cursor-pointer border transition ${
-                      tempProductId === String(product.id)
-                        ? "border-emerald-500 bg-emerald-50"
-                        : "border-border hover:border-emerald-300"
-                    }`}
+                    onClick={() => setSelectedProductForModal(product.id)}
+                    className="p-3 rounded cursor-pointer border border-border hover:border-emerald-300 hover:bg-emerald-50 transition"
                   >
                     {product.imageUrl && (
                       <img src={product.imageUrl} alt={product.name} className="w-full h-48 object-cover rounded mb-2" />
@@ -477,6 +497,44 @@ export default function SupplierOrders() {
               <Button onClick={submitEdit} disabled={updateOrder.isPending}>
                 {updateOrder.isPending ? "Salvando..." : "Salvar"}
               </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Selecao de Produto */}
+      <Dialog open={selectedProductForModal !== null} onOpenChange={(open) => !open && setSelectedProductForModal(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedProductForModal && products.find(p => p.id === selectedProductForModal)?.name}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm">Tamanho *</Label>
+              <Select value={modalSize} onValueChange={setModalSize}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um tamanho" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SIZES.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-sm">Quantidade *</Label>
+              <Input type="number" min="1" value={modalQuantity} onChange={(e) => setModalQuantity(e.target.value)} placeholder="0" />
+            </div>
+            <div>
+              <Label className="text-sm">Preco Unitario (R$) *</Label>
+              <Input type="number" step="0.01" value={modalUnitCost} onChange={(e) => setModalUnitCost(e.target.value)} placeholder="0.00" />
+            </div>
+            <div className="flex gap-3 justify-end">
+              <Button variant="outline" onClick={() => setSelectedProductForModal(null)}>Cancelar</Button>
+              <Button onClick={addFromModal} className="bg-emerald-600 hover:bg-emerald-700">Adicionar ao Pedido</Button>
             </div>
           </div>
         </DialogContent>
