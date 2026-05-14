@@ -1,17 +1,16 @@
-"use client";
-
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Plus, Search, Truck, CheckCircle, Package, ExternalLink, Edit2, Trash2, X } from "lucide-react";
+import { Plus, Search, Truck, CheckCircle, Package, ExternalLink, Edit2, Trash2, X, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const SIZES = ["PP", "P", "M", "G", "GG", "XGG", "3G", "4G"];
 const CURRENCIES = ["R$ Real", "$ Dólar"];
@@ -33,6 +32,13 @@ const STATUS_BADGE: Record<string, string> = {
   em_transito: "badge-info",
   recebido: "badge-success",
   cancelado: "badge-danger",
+};
+
+type SelectedProduct = {
+  productId: number;
+  size: string;
+  quantity: number;
+  unitCost: number;
 };
 
 export default function SupplierOrders() {
@@ -64,13 +70,8 @@ export default function SupplierOrders() {
     onError: (e) => toast.error(e.message),
   });
 
-  // New form - Produtos selecionados
-  const [cartItems, setCartItems] = useState<Array<{
-    productId: number;
-    size: string;
-    quantity: number;
-    unitCost: number;
-  }>>([]);
+  // New form - Produtos selecionados com quantidade por tamanho
+  const [selectedProducts, setSelectedProducts] = useState<Map<number, SelectedProduct[]>>(new Map());
 
   // New form - Dados do pedido
   const [supplier, setSupplier] = useState("");
@@ -83,10 +84,10 @@ export default function SupplierOrders() {
   const [notes, setNotes] = useState("");
   const [trackingCode, setTrackingCode] = useState("");
 
-  // Formulário temporário para adicionar item
-  const [tempProductId, setTempProductId] = useState("");
+  // Seleção de tamanho e quantidade para produto específico
+  const [tempProductId, setTempProductId] = useState<number | null>(null);
   const [tempSize, setTempSize] = useState("");
-  const [tempQuantity, setTempQuantity] = useState("");
+  const [tempQuantity, setTempQuantity] = useState("1");
   const [tempUnitCost, setTempUnitCost] = useState("");
 
   // Edit form
@@ -95,7 +96,7 @@ export default function SupplierOrders() {
   const [editNotes, setEditNotes] = useState("");
 
   function openNew() {
-    setCartItems([]);
+    setSelectedProducts(new Map());
     setSupplier("");
     setOrderType("Nacional");
     setCurrency("R$ Real");
@@ -105,33 +106,69 @@ export default function SupplierOrders() {
     setFreight("");
     setNotes("");
     setTrackingCode("");
-    setTempProductId("");
+    setTempProductId(null);
     setTempSize("");
-    setTempQuantity("");
+    setTempQuantity("1");
     setTempUnitCost("");
     setShowNew(true);
   }
 
-  function addToCart() {
-    if (!tempProductId || !tempSize || !tempQuantity || !tempUnitCost) {
-      return toast.error("Preencha todos os campos do item");
+  // Selecionar/desselecionar produto
+  function toggleProductSelection(productId: number) {
+    const newSelected = new Map(selectedProducts);
+    if (newSelected.has(productId)) {
+      newSelected.delete(productId);
+    } else {
+      newSelected.set(productId, []);
     }
-    const item = {
-      productId: Number(tempProductId),
+    setSelectedProducts(newSelected);
+    setTempProductId(productId);
+    setTempSize("");
+    setTempQuantity("1");
+    setTempUnitCost("");
+  }
+
+  // Adicionar tamanho/quantidade a um produto selecionado
+  function addSizeToProduct() {
+    if (!tempProductId || !tempSize || !tempQuantity || !tempUnitCost) {
+      return toast.error("Preencha tamanho, quantidade e preço");
+    }
+
+    const newSelected = new Map(selectedProducts);
+    const currentItems = newSelected.get(tempProductId) || [];
+    
+    const newItem: SelectedProduct = {
+      productId: tempProductId,
       size: tempSize,
       quantity: Number(tempQuantity),
       unitCost: Number(tempUnitCost),
     };
-    setCartItems([...cartItems, item]);
-    setTempProductId("");
+
+    newSelected.set(tempProductId, [...currentItems, newItem]);
+    setSelectedProducts(newSelected);
+    
     setTempSize("");
-    setTempQuantity("");
+    setTempQuantity("1");
     setTempUnitCost("");
+    toast.success(`${tempSize} adicionado!`);
   }
 
-  function removeFromCart(index: number) {
-    setCartItems(cartItems.filter((_, i) => i !== index));
+  // Remover tamanho específico de um produto
+  function removeSizeFromProduct(productId: number, sizeIndex: number) {
+    const newSelected = new Map(selectedProducts);
+    const items = newSelected.get(productId) || [];
+    newSelected.set(productId, items.filter((_, i) => i !== sizeIndex));
+    setSelectedProducts(newSelected);
   }
+
+  // Construir array de itens do carrinho
+  const cartItems: SelectedProduct[] = useMemo(() => {
+    const items: SelectedProduct[] = [];
+    selectedProducts.forEach((sizes) => {
+      items.push(...sizes);
+    });
+    return items;
+  }, [selectedProducts]);
 
   const cartTotal = useMemo(() => {
     const subtotal = cartItems.reduce((sum, item) => sum + item.quantity * item.unitCost, 0);
@@ -144,7 +181,6 @@ export default function SupplierOrders() {
     if (cartItems.length === 0) return toast.error("Adicione pelo menos um item ao pedido");
     if (!supplier) return toast.error("Preencha o fornecedor");
 
-    // Criar pedido multi-itens de forma transacional
     createOrder.mutate({
       supplier,
       orderType,
@@ -250,7 +286,7 @@ export default function SupplierOrders() {
                         size="sm"
                         variant="outline"
                         onClick={() => setConfirmReceive(order.id)}
-                        className="gap-1 text-emerald-600 hover:text-emerald-700"
+                        className="gap-1 text-emerald-600"
                       >
                         <CheckCircle className="w-3 h-3" /> Receber
                       </Button>
@@ -263,52 +299,34 @@ export default function SupplierOrders() {
         </table>
       </div>
 
-      {/* Modal Novo Pedido */}
+      {/* Modal Novo Pedido - Layout Horizontal */}
       <Dialog open={showNew} onOpenChange={setShowNew}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Novo Pedido ao Fornecedor</DialogTitle>
           </DialogHeader>
 
-          <div className="grid grid-cols-3 gap-4">
-            {/* Coluna 1: Grid de Produtos */}
-            <div className="col-span-1 border border-border rounded-lg p-4 bg-muted/30">
-              <h3 className="font-semibold mb-3 text-sm">Produtos</h3>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {products.map((product) => (
-                  <div
-                    key={product.id}
-                    onClick={() => setTempProductId(String(product.id))}
-                    className={`p-2 rounded cursor-pointer border transition ${
-                      tempProductId === String(product.id)
-                        ? "border-emerald-500 bg-emerald-50"
-                        : "border-border hover:border-emerald-300"
-                    }`}
-                  >
-                    {product.imageUrl && (
-                      <img src={product.imageUrl} alt={product.name} className="w-full h-20 object-cover rounded mb-1" />
-                    )}
-                    <p className="text-xs font-medium truncate">{product.name}</p>
-                    <p className="text-xs text-muted-foreground">{fmt(product.price)}</p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Coluna 1: Dados do Pedido */}
+            <div className="space-y-4">
+              <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-lg border border-emerald-200">
+                <h3 className="font-semibold text-sm text-emerald-900 mb-3">Dados do Pedido</h3>
+                
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-xs font-medium">Fornecedor *</Label>
+                    <Input 
+                      value={supplier} 
+                      onChange={(e) => setSupplier(e.target.value)} 
+                      placeholder="Nome do fornecedor"
+                      className="text-sm"
+                    />
                   </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Coluna 2: Formulário */}
-            <div className="col-span-2 space-y-4">
-              {/* Dados do Pedido */}
-              <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
-                <h3 className="font-semibold text-sm">Dados do Pedido</h3>
-                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label className="text-xs">Fornecedor *</Label>
-                    <Input value={supplier} onChange={(e) => setSupplier(e.target.value)} placeholder="Nome do fornecedor" />
-                  </div>
-                  <div>
-                    <Label className="text-xs">Tipo de Pedido</Label>
+                    <Label className="text-xs font-medium">Tipo de Pedido</Label>
                     <Select value={orderType} onValueChange={setOrderType}>
-                      <SelectTrigger>
+                      <SelectTrigger className="text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -318,18 +336,11 @@ export default function SupplierOrders() {
                       </SelectContent>
                     </Select>
                   </div>
+
                   <div>
-                    <Label className="text-xs">Data do Pedido</Label>
-                    <Input type="date" value={orderDate} onChange={(e) => setOrderDate(e.target.value)} />
-                  </div>
-                  <div>
-                    <Label className="text-xs">Data de Entrega</Label>
-                    <Input type="date" value={deliveryDate} onChange={(e) => setDeliveryDate(e.target.value)} />
-                  </div>
-                  <div>
-                    <Label className="text-xs">Moeda</Label>
+                    <Label className="text-xs font-medium">Moeda</Label>
                     <Select value={currency} onValueChange={setCurrency}>
-                      <SelectTrigger>
+                      <SelectTrigger className="text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -339,107 +350,247 @@ export default function SupplierOrders() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
-                    <Label className="text-xs">Código de Rastreio</Label>
-                    <Input value={trackingCode} onChange={(e) => setTrackingCode(e.target.value)} placeholder="Ex: AA123456789BR" />
-                  </div>
-                </div>
-              </div>
 
-              {/* Adicionar Item */}
-              <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
-                <h3 className="font-semibold text-sm">Adicionar Item</h3>
-                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label className="text-xs">Tamanho *</Label>
-                    <Select value={tempSize} onValueChange={setTempSize}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {SIZES.map((s) => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Label className="text-xs font-medium">Data do Pedido</Label>
+                    <Input 
+                      type="date" 
+                      value={orderDate} 
+                      onChange={(e) => setOrderDate(e.target.value)}
+                      className="text-sm"
+                    />
                   </div>
+
                   <div>
-                    <Label className="text-xs">Quantidade *</Label>
-                    <Input type="number" value={tempQuantity} onChange={(e) => setTempQuantity(e.target.value)} placeholder="0" />
+                    <Label className="text-xs font-medium">Data de Entrega</Label>
+                    <Input 
+                      type="date" 
+                      value={deliveryDate} 
+                      onChange={(e) => setDeliveryDate(e.target.value)}
+                      className="text-sm"
+                    />
                   </div>
+
                   <div>
-                    <Label className="text-xs">Preço Unitário *</Label>
-                    <Input type="number" step="0.01" value={tempUnitCost} onChange={(e) => setTempUnitCost(e.target.value)} placeholder="0.00" />
-                  </div>
-                  <div className="flex items-end">
-                    <Button onClick={addToCart} className="w-full bg-blue-600 hover:bg-blue-700">
-                      Adicionar
-                    </Button>
+                    <Label className="text-xs font-medium">Código de Rastreio</Label>
+                    <Input 
+                      value={trackingCode} 
+                      onChange={(e) => setTrackingCode(e.target.value)} 
+                      placeholder="Ex: AA123456789BR"
+                      className="text-sm"
+                    />
                   </div>
                 </div>
               </div>
 
               {/* Custos Adicionais */}
-              <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
-                <h3 className="font-semibold text-sm">Custos Adicionais</h3>
-                <div className="grid grid-cols-2 gap-3">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+                <h3 className="font-semibold text-sm text-blue-900 mb-3">Custos Adicionais</h3>
+                
+                <div className="space-y-3">
                   <div>
-                    <Label className="text-xs">Desconto (R$)</Label>
-                    <Input type="number" step="0.01" value={discount} onChange={(e) => setDiscount(e.target.value)} placeholder="0.00" />
+                    <Label className="text-xs font-medium">Desconto (R$)</Label>
+                    <Input 
+                      type="number" 
+                      step="0.01" 
+                      value={discount} 
+                      onChange={(e) => setDiscount(e.target.value)} 
+                      placeholder="0.00"
+                      className="text-sm"
+                    />
                   </div>
+
                   <div>
-                    <Label className="text-xs">Frete (R$)</Label>
-                    <Input type="number" step="0.01" value={freight} onChange={(e) => setFreight(e.target.value)} placeholder="0.00" />
+                    <Label className="text-xs font-medium">Frete (R$)</Label>
+                    <Input 
+                      type="number" 
+                      step="0.01" 
+                      value={freight} 
+                      onChange={(e) => setFreight(e.target.value)} 
+                      placeholder="0.00"
+                      className="text-sm"
+                    />
                   </div>
                 </div>
               </div>
 
               {/* Observações */}
               <div>
-                <Label className="text-xs">Observações</Label>
-                <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notas adicionais..." className="text-xs" />
+                <Label className="text-xs font-medium">Observações</Label>
+                <Textarea 
+                  value={notes} 
+                  onChange={(e) => setNotes(e.target.value)} 
+                  placeholder="Notas adicionais..." 
+                  className="text-xs resize-none h-20"
+                />
               </div>
             </div>
-          </div>
 
-          {/* Carrinho */}
-          <div className="mt-6 space-y-3">
-            <h3 className="font-semibold">Itens do Pedido</h3>
-            {cartItems.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">Nenhum item adicionado</p>
-            ) : (
-              <div className="space-y-2">
-                {cartItems.map((item, idx) => {
-                  const product = products.find((p) => p.id === item.productId);
-                  return (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-muted/30 rounded border border-border">
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{product?.name} - {item.size}</p>
-                        <p className="text-xs text-muted-foreground">Qtd: {item.quantity} × {fmt(item.unitCost)} = {fmt(item.quantity * item.unitCost)}</p>
+            {/* Coluna 2: Seleção de Produtos */}
+            <div className="space-y-4">
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
+                <h3 className="font-semibold text-sm text-purple-900 mb-3">Selecione Produtos</h3>
+                
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {products.map((product) => (
+                    <div
+                      key={product.id}
+                      className="flex items-start gap-3 p-3 rounded-lg border border-purple-200 hover:bg-purple-50 transition"
+                    >
+                      <Checkbox 
+                        checked={selectedProducts.has(product.id)}
+                        onCheckedChange={() => toggleProductSelection(product.id)}
+                        className="mt-1"
+                      />
+                      <div 
+                        className="flex-1 min-w-0 cursor-pointer"
+                        onClick={() => toggleProductSelection(product.id)}
+                      >
+                        {product.imageUrl && (
+                          <img 
+                            src={product.imageUrl} 
+                            alt={product.name} 
+                            className="w-full h-16 object-cover rounded mb-2"
+                          />
+                        )}
+                        <p className="text-xs font-medium truncate">{product.name}</p>
+                        <p className="text-xs text-muted-foreground">{fmt(product.price)}</p>
+                        {selectedProducts.has(product.id) && (
+                          <div className="mt-2 flex items-center gap-1 text-xs text-emerald-600 font-semibold">
+                            <Check className="w-3 h-3" /> {selectedProducts.get(product.id)?.length || 0} tamanho(s)
+                          </div>
+                        )}
                       </div>
-                      <Button size="sm" variant="ghost" onClick={() => removeFromCart(idx)}>
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
-            )}
-          </div>
-
-          {/* Total */}
-          <div className="mt-6 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-            <div className="flex justify-between items-center">
-              <span className="font-semibold">Total do Pedido:</span>
-              <span className="text-2xl font-bold text-emerald-600">{fmt(cartTotal)}</span>
             </div>
-          </div>
 
-          <div className="flex gap-3 justify-end mt-6">
-            <Button variant="outline" onClick={() => setShowNew(false)}>Cancelar</Button>
-            <Button onClick={submitNew} className="bg-emerald-600 hover:bg-emerald-700" disabled={createOrder.isPending}>
-              {createOrder.isPending ? "Salvando..." : "Salvar Pedido"}
-            </Button>
+            {/* Coluna 3: Adicionar Tamanhos e Carrinho */}
+            <div className="space-y-4">
+              {tempProductId && (
+                <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-lg border border-orange-200">
+                  <h3 className="font-semibold text-sm text-orange-900 mb-3">
+                    Adicionar Tamanhos
+                  </h3>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <Label className="text-xs font-medium">Tamanho *</Label>
+                      <Select value={tempSize} onValueChange={setTempSize}>
+                        <SelectTrigger className="text-sm">
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SIZES.map((s) => (
+                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs font-medium">Quantidade *</Label>
+                      <Input 
+                        type="number" 
+                        value={tempQuantity} 
+                        onChange={(e) => setTempQuantity(e.target.value)} 
+                        placeholder="0"
+                        className="text-sm"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-xs font-medium">Preço Unitário *</Label>
+                      <Input 
+                        type="number" 
+                        step="0.01" 
+                        value={tempUnitCost} 
+                        onChange={(e) => setTempUnitCost(e.target.value)} 
+                        placeholder="0.00"
+                        className="text-sm"
+                      />
+                    </div>
+
+                    <Button 
+                      onClick={addSizeToProduct} 
+                      className="w-full bg-orange-600 hover:bg-orange-700 text-sm"
+                    >
+                      Adicionar Tamanho
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Carrinho */}
+              <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-lg border border-emerald-200 flex-1">
+                <h3 className="font-semibold text-sm text-emerald-900 mb-3">
+                  Itens do Pedido ({cartItems.length})
+                </h3>
+                
+                <div className="space-y-2 max-h-64 overflow-y-auto mb-4">
+                  {cartItems.length === 0 ? (
+                    <p className="text-xs text-muted-foreground text-center py-4">Nenhum item adicionado</p>
+                  ) : (
+                    cartItems.map((item, idx) => {
+                      const product = products.find((p) => p.id === item.productId);
+                      return (
+                        <div 
+                          key={idx} 
+                          className="flex items-center justify-between p-2 bg-white rounded border border-emerald-200 text-xs"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium truncate">{product?.name} - {item.size}</p>
+                            <p className="text-muted-foreground">
+                              {item.quantity}x {fmt(item.unitCost)} = {fmt(item.quantity * item.unitCost)}
+                            </p>
+                          </div>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            onClick={() => {
+                              const productId = item.productId;
+                              const sizes = selectedProducts.get(productId) || [];
+                              const sizeIndex = sizes.findIndex(s => s.size === item.size && s.quantity === item.quantity);
+                              removeSizeFromProduct(productId, sizeIndex);
+                            }}
+                            className="ml-2"
+                          >
+                            <Trash2 className="w-3 h-3 text-red-500" />
+                          </Button>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* Total */}
+                <div className="border-t border-emerald-300 pt-3">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="font-semibold text-sm">Total:</span>
+                    <span className="text-lg font-bold text-emerald-700">{fmt(cartTotal)}</span>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowNew(false)}
+                      className="flex-1 text-sm"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button 
+                      onClick={submitNew} 
+                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-sm"
+                      disabled={createOrder.isPending}
+                    >
+                      {createOrder.isPending ? "Salvando..." : "Salvar Pedido"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -450,11 +601,17 @@ export default function SupplierOrders() {
           <DialogHeader>
             <DialogTitle>Editar Pedido</DialogTitle>
           </DialogHeader>
+
           <div className="space-y-4">
             <div>
               <Label>Código de Rastreio</Label>
-              <Input value={editTracking} onChange={(e) => setEditTracking(e.target.value)} />
+              <Input
+                value={editTracking}
+                onChange={(e) => setEditTracking(e.target.value)}
+                placeholder="Ex: AA123456789BR"
+              />
             </div>
+
             <div>
               <Label>Status</Label>
               <Select value={editStatus} onValueChange={setEditStatus}>
@@ -462,20 +619,28 @@ export default function SupplierOrders() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(STATUS_LABELS).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>{label}</SelectItem>
+                  {Object.entries(STATUS_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>{label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
+
             <div>
               <Label>Observações</Label>
-              <Textarea value={editNotes} onChange={(e) => setEditNotes(e.target.value)} />
+              <Textarea
+                value={editNotes}
+                onChange={(e) => setEditNotes(e.target.value)}
+                placeholder="Notas adicionais..."
+              />
             </div>
+
             <div className="flex gap-3 justify-end">
-              <Button variant="outline" onClick={() => setShowEdit(null)}>Cancelar</Button>
-              <Button onClick={submitEdit} disabled={updateOrder.isPending}>
-                {updateOrder.isPending ? "Salvando..." : "Salvar"}
+              <Button variant="outline" onClick={() => setShowEdit(null)}>
+                Cancelar
+              </Button>
+              <Button onClick={submitEdit} className="bg-primary">
+                Salvar Alterações
               </Button>
             </div>
           </div>
@@ -488,10 +653,20 @@ export default function SupplierOrders() {
           <DialogHeader>
             <DialogTitle>Confirmar Recebimento</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">Ao confirmar, o estoque será atualizado automaticamente.</p>
+
+          <p className="text-sm text-muted-foreground">
+            Tem certeza que deseja marcar este pedido como recebido? O estoque será atualizado automaticamente.
+          </p>
+
           <div className="flex gap-3 justify-end">
-            <Button variant="outline" onClick={() => setConfirmReceive(null)}>Cancelar</Button>
-            <Button onClick={() => confirmReceive && markReceived.mutate({ id: confirmReceive })} disabled={markReceived.isPending}>
+            <Button variant="outline" onClick={() => setConfirmReceive(null)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => confirmReceive && markReceived.mutate({ id: confirmReceive })}
+              className="bg-emerald-600 hover:bg-emerald-700"
+              disabled={markReceived.isPending}
+            >
               {markReceived.isPending ? "Processando..." : "Confirmar"}
             </Button>
           </div>

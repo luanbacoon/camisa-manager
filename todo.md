@@ -114,3 +114,9 @@
 - [x] Redesenhar modal de novo pedido ao fornecedor com grid de produtos, formulário completo e carrinho
 - [x] Persistir no backend os campos do novo pedido (fornecedor, tipo, moeda, data, desconto, frete)
 - [x] Salvar pedido multi-itens de forma transacional (estrutura de pedido + itens)
+
+## Melhorias Visuais e UX - Pedidos ao Fornecedor
+- [x] Redesenhar modal de novo pedido com layout horizontal (grid 2-3 colunas)
+- [x] Implementar seleção múltipla de produtos com checkboxes na grid de produtos
+- [x] Adicionar visualização de itens selecionados com quantidade e tamanho
+- [x] Melhorar apresentação visual do carrinho com cards mais atraentes
