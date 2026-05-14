@@ -300,7 +300,7 @@ export default function SupplierOrders() {
 
           <div className="grid grid-cols-8 gap-4">
             {/* Coluna 1: Grid de Produtos */}
-            <div className="col-span-4 border border-border rounded-lg p-4 bg-muted/30 max-h-[900px]">
+            <div className="col-span-6 border border-border rounded-lg p-4 bg-muted/30 max-h-[900px]">
               <h3 className="font-semibold mb-3 text-sm">Produtos</h3>
               <div className="grid grid-cols-1 gap-4 max-h-[850px] overflow-y-auto">
                 {products.map((product) => (
@@ -320,7 +320,7 @@ export default function SupplierOrders() {
             </div>
 
             {/* Coluna 2: Formulário */}
-            <div className="col-span-4 space-y-4">
+            <div className="col-span-2 space-y-4">
               {/* Dados do Pedido */}
               <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
                 <h3 className="font-semibold text-sm">Dados do Pedido</h3>
