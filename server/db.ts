@@ -10,6 +10,7 @@ import {
   sales,
   saleItems,
   supplierOrders,
+  supplierOrderItems,
   stockAdjustments,
   storeSettings,
   catalogOrders,
@@ -20,6 +21,7 @@ import {
   type InsertSale,
   type InsertSaleItem,
   type InsertSupplierOrder,
+  type InsertSupplierOrderItem,
   type CatalogOrder,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
@@ -418,6 +420,40 @@ export async function createSupplierOrder(data: InsertSupplierOrder) {
   if (!db) throw new Error("DB not available");
   const [result] = await db.insert(supplierOrders).values(data);
   return (result as any).insertId as number;
+}
+
+export async function createSupplierOrderWithItems(
+  orderData: Omit<InsertSupplierOrder, 'productId' | 'size' | 'quantity' | 'unitCost' | 'totalCost'>,
+  items: { productId: number; size: string; quantity: number; unitCost: number }[]
+) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+
+  // Create the order
+  const [result] = await db.insert(supplierOrders).values({
+    ...orderData,
+    productId: items[0]?.productId || 0,
+    size: items[0]?.size || "",
+    quantity: items.reduce((sum, item) => sum + item.quantity, 0),
+    unitCost: "0",
+    totalCost: String(items.reduce((sum, item) => sum + item.quantity * item.unitCost, 0)),
+  });
+  const orderId = (result as any).insertId as number;
+
+  // Add items
+  for (const item of items) {
+    const totalCost = item.quantity * item.unitCost;
+    await db.insert(supplierOrderItems).values({
+      orderId,
+      productId: item.productId,
+      size: item.size,
+      quantity: item.quantity,
+      unitCost: String(item.unitCost),
+      totalCost: String(totalCost),
+    });
+  }
+
+  return orderId;
 }
 
 export async function updateSupplierOrder(id: number, data: Partial<InsertSupplierOrder>) {

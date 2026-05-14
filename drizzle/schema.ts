@@ -189,6 +189,21 @@ export const supplierOrders = mysqlTable("supplier_orders", {
 export type SupplierOrder = typeof supplierOrders.$inferSelect;
 export type InsertSupplierOrder = typeof supplierOrders.$inferInsert;
 
+// ─── Supplier Order Items ─────────────────────────────────────────────────────
+export const supplierOrderItems = mysqlTable("supplier_order_items", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull(),
+  productId: int("productId").notNull(),
+  size: varchar("size", { length: 20 }).notNull(),
+  quantity: int("quantity").notNull(),
+  unitCost: decimal("unitCost", { precision: 10, scale: 2 }).notNull(),
+  totalCost: decimal("totalCost", { precision: 12, scale: 2 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SupplierOrderItem = typeof supplierOrderItems.$inferSelect;
+export type InsertSupplierOrderItem = typeof supplierOrderItems.$inferInsert;
+
 // ─── Stock Adjustments ────────────────────────────────────────────────────────
 export const stockAdjustments = mysqlTable("stock_adjustments", {
   id: int("id").autoincrement().primaryKey(),

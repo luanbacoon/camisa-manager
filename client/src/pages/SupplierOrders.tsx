@@ -45,7 +45,7 @@ export default function SupplierOrders() {
   const { data: orders = [], isLoading } = trpc.supplierOrders.list.useQuery();
   const { data: products = [] } = trpc.products.list.useQuery({ activeOnly: true });
 
-  const createOrder = trpc.supplierOrders.create.useMutation({
+  const createOrder = trpc.supplierOrders.createBatch.useMutation({
     onSuccess: () => { utils.supplierOrders.list.invalidate(); toast.success("Pedido registrado!"); setShowNew(false); },
     onError: (e) => toast.error(e.message),
   });
@@ -144,24 +144,19 @@ export default function SupplierOrders() {
     if (cartItems.length === 0) return toast.error("Adicione pelo menos um item ao pedido");
     if (!supplier) return toast.error("Preencha o fornecedor");
 
-    // Criar pedidos para cada item do carrinho
-    cartItems.forEach((item) => {
-      createOrder.mutate({
-        productId: item.productId,
-        size: item.size,
-        quantity: item.quantity,
-        unitCost: item.unitCost,
-        supplier,
-        orderType,
-        currency,
-        discount: Number(discount) || 0,
-        freight: Number(freight) || 0,
-        orderDate: orderDate ? new Date(orderDate) : undefined,
-        deliveryDate: deliveryDate ? new Date(deliveryDate) : undefined,
-        notes,
-        trackingCode,
-      });
-    });
+    // Criar pedido multi-itens de forma transacional
+    createOrder.mutate({
+      supplier,
+      orderType,
+      currency,
+      discount: Number(discount) || 0,
+      freight: Number(freight) || 0,
+      orderDate: orderDate ? new Date(orderDate) : undefined,
+      deliveryDate: deliveryDate ? new Date(deliveryDate) : undefined,
+      notes,
+      trackingCode,
+      items: cartItems,
+    } as any);
   }
 
   function openEdit(order: typeof orders[0]) {

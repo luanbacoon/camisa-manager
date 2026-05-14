@@ -113,4 +113,4 @@
 - [x] Remover tamanhos e galeria ao deletar produto
 - [x] Redesenhar modal de novo pedido ao fornecedor com grid de produtos, formulário completo e carrinho
 - [x] Persistir no backend os campos do novo pedido (fornecedor, tipo, moeda, data, desconto, frete)
-- [ ] Salvar pedido multi-itens de forma transacional (estrutura de pedido + itens)
+- [x] Salvar pedido multi-itens de forma transacional (estrutura de pedido + itens)

@@ -34,6 +34,7 @@ import {
   getStockHistory,
   listSupplierOrders,
   createSupplierOrder,
+  createSupplierOrderWithItems,
   updateSupplierOrder,
   markSupplierOrderReceived,
   listCatalogOrders,
@@ -362,6 +363,51 @@ export const appRouter = router({
           notes: input.notes,
           trackingCode: input.trackingCode,
         });
+      }),
+
+    createBatch: protectedProcedure
+      .input(
+        z.object({
+          supplier: z.string().optional(),
+          orderType: z.string().optional(),
+          currency: z.string().optional(),
+          discount: z.number().min(0).optional(),
+          freight: z.number().min(0).optional(),
+          orderDate: z.date().optional(),
+          deliveryDate: z.date().optional(),
+          notes: z.string().optional(),
+          trackingCode: z.string().optional(),
+          items: z.array(
+            z.object({
+              productId: z.number(),
+              size: z.string(),
+              quantity: z.number().int().min(1),
+              unitCost: z.number().min(0),
+            })
+          ),
+        })
+      )
+      .mutation(({ input }) => {
+        return createSupplierOrderWithItems(
+          {
+            supplier: input.supplier,
+            orderType: input.orderType,
+            currency: input.currency,
+            discount: input.discount ? String(input.discount) : "0",
+            freight: input.freight ? String(input.freight) : "0",
+            orderedAt: input.orderDate || new Date(),
+            deliveryDate: input.deliveryDate,
+            notes: input.notes,
+            trackingCode: input.trackingCode,
+            status: "pendente",
+          },
+          input.items.map((item) => ({
+            productId: item.productId,
+            size: item.size,
+            quantity: item.quantity,
+            unitCost: item.unitCost,
+          }))
+        );
       }),
 
     update: protectedProcedure
