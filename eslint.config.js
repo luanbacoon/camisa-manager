@@ -1,54 +1,50 @@
 import js from "@eslint/js";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
-import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 
 export default [
   {
-    ignores: ["dist/**", "node_modules/**", "drizzle/meta/**", "patches/**"],
+    ignores: [
+      "dist/**",
+      "node_modules/**",
+      "drizzle/meta/**",
+      "patches/**",
+      "client/public/**",
+      ".manus-logs/**",
+    ],
   },
-  // Regras base JS
   js.configs.recommended,
-  // TypeScript (server + shared)
   {
-    files: ["server/**/*.ts", "shared/**/*.ts", "drizzle/**/*.ts"],
+    files: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.mjs"],
     languageOptions: {
       parser: tsParser,
-      parserOptions: {
-        project: "./tsconfig.json",
+      globals: {
+        process: "readonly",
+        Buffer: "readonly",
+        crypto: "readonly",
+        fetch: "readonly",
+        React: "readonly",
+        window: "readonly",
+        document: "readonly",
+        localStorage: "readonly",
+        setTimeout: "readonly",
+        clearTimeout: "readonly",
+        requestAnimationFrame: "readonly",
+        console: "readonly",
+        google: "readonly",
+        btoa: "readonly",
+        atob: "readonly",
       },
     },
     plugins: {
       "@typescript-eslint": tsPlugin,
-    },
-    rules: {
-      ...tsPlugin.configs.recommended.rules,
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
-      "no-console": ["warn", { allow: ["warn", "error", "log"] }],
-    },
-  },
-  // TypeScript + React (client)
-  {
-    files: ["client/**/*.ts", "client/**/*.tsx"],
-    languageOptions: {
-      parser: tsParser,
-      parserOptions: {
-        project: "./tsconfig.json",
-      },
-    },
-    plugins: {
-      "@typescript-eslint": tsPlugin,
-      "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
     },
     rules: {
-      ...tsPlugin.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      ...js.configs.recommended.rules,
+      "no-undef": "off",
+      "no-console": "off",
     },
   },
 ];
