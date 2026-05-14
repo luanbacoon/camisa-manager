@@ -293,7 +293,7 @@ export default function SupplierOrders() {
 
       {/* Modal Novo Pedido */}
       <Dialog open={showNew} onOpenChange={setShowNew}>
-        <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto w-[95vw]">
+        <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto w-[95vw] p-8">
           <DialogHeader>
             <DialogTitle>Novo Pedido ao Fornecedor</DialogTitle>
           </DialogHeader>
