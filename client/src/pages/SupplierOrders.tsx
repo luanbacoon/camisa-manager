@@ -293,16 +293,16 @@ export default function SupplierOrders() {
 
       {/* Modal Novo Pedido */}
       <Dialog open={showNew} onOpenChange={setShowNew}>
-        <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto w-[95vw] p-8">
+        <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto w-[98vw] !p-10">
           <DialogHeader>
             <DialogTitle>Novo Pedido ao Fornecedor</DialogTitle>
           </DialogHeader>
 
           <div className="grid grid-cols-8 gap-4">
             {/* Coluna 1: Grid de Produtos */}
-            <div className="col-span-4 border border-border rounded-lg p-4 bg-muted/30 max-h-[800px]">
+            <div className="col-span-4 border border-border rounded-lg p-4 bg-muted/30 max-h-[900px]">
               <h3 className="font-semibold mb-3 text-sm">Produtos</h3>
-              <div className="grid grid-cols-1 gap-4 max-h-[750px] overflow-y-auto">
+              <div className="grid grid-cols-1 gap-4 max-h-[850px] overflow-y-auto">
                 {products.map((product) => (
                   <div
                     key={product.id}
