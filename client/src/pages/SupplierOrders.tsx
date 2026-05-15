@@ -302,7 +302,7 @@ export default function SupplierOrders() {
             {/* Coluna 1: Grid de Produtos */}
             <div className="col-span-7 border border-border rounded-lg p-6 bg-muted/30 flex flex-col">
               <h3 className="font-semibold mb-4 text-base">Produtos</h3>
-              <div className="grid grid-cols-1 gap-4 overflow-y-auto flex-1">
+              <div className="grid grid-cols-2 gap-4 overflow-y-auto flex-1">
                 {products.map((product) => (
                   <div
                     key={product.id}
