@@ -307,7 +307,7 @@ export default function SupplierOrders() {
                   <div
                     key={product.id}
                     onClick={() => setSelectedProductForModal(product.id)}
-                    className="p-3 rounded cursor-pointer border border-border hover:border-emerald-300 hover:bg-emerald-50 transition flex gap-3"
+                    className="p-3 rounded cursor-pointer border border-border hover:border-emerald-300 hover:bg-emerald-50 transition flex gap-3 items-center"
                   >
                     {product.imageUrl && (
                       <img src={product.imageUrl} alt={product.name} className="w-20 h-20 object-cover rounded flex-shrink-0" />
