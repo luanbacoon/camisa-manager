@@ -87,6 +87,7 @@ export default function SupplierOrders() {
   const [selectedProductForModal, setSelectedProductForModal] = useState<number | null>(null);
   const [modalSizeQuantities, setModalSizeQuantities] = useState<Record<string, number>>({});
   const [modalUnitCost, setModalUnitCost] = useState("");
+  const [productSearchFilter, setProductSearchFilter] = useState("");
 
   // Formulário temporário para adicionar item (legado)
   const [tempProductId, setTempProductId] = useState("");
@@ -292,7 +293,7 @@ export default function SupplierOrders() {
       </div>
 
       {/* Modal Novo Pedido */}
-      <Dialog open={showNew} onOpenChange={setShowNew}>
+      <Dialog open={showNew} onOpenChange={(open) => { setShowNew(open); if (!open) setProductSearchFilter(""); }}>
         <DialogContent className="!max-w-none !max-h-none !w-[90vw] !h-[95vh] !p-0 !rounded-none flex flex-col">
           <DialogHeader className="px-8 pt-6 flex-shrink-0">
             <DialogTitle>Novo Pedido ao Fornecedor</DialogTitle>
@@ -302,8 +303,18 @@ export default function SupplierOrders() {
             {/* Coluna 1: Grid de Produtos */}
             <div className="col-span-7 border border-border rounded-lg p-6 bg-muted/30 flex flex-col">
               <h3 className="font-semibold mb-4 text-base">Produtos</h3>
+              <div className="mb-4">
+                <Input
+                  placeholder="Buscar por nome ou codigo..."
+                  value={productSearchFilter}
+                  onChange={(e) => setProductSearchFilter(e.target.value)}
+                  className="bg-background/50"
+                />
+              </div>
               <div className="grid grid-cols-2 gap-4 overflow-y-auto flex-1">
-                {products.map((product) => (
+                {products
+                  .filter((p) => p.name.toLowerCase().includes(productSearchFilter.toLowerCase()))
+                  .map((product) => (
                   <div
                     key={product.id}
                     onClick={() => setSelectedProductForModal(product.id)}
