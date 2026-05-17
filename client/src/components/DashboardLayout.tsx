@@ -40,6 +40,7 @@ import {
   History,
   HardDrive,
   BarChart3,
+  Factory,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -60,6 +61,7 @@ const menuItems = [
   { icon: History, label: "Histórico WhatsApp", path: "/whatsapp-historico" },
   { icon: HardDrive, label: "Backups", path: "/backups" },
   { icon: BarChart3, label: "Relatórios", path: "/relatorios" },
+  { icon: Factory, label: "Fornecedores", path: "/fornecedores" },
   { icon: Users, label: "Usuários", path: "/usuarios" },
   { icon: Settings, label: "Configurações", path: "/configuracoes" },
 ];

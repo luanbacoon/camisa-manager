@@ -73,7 +73,9 @@ export async function createSupplier(
     notes: data.notes || null,
   });
 
-  const insertedId = (result as any).insertId || (result as any)[0]?.id;
+  // Drizzle returns an array of insert results
+  const insertedId = (result as any)?.[0]?.id || (result as any)?.insertId || data.name;
+  if (!insertedId) throw new Error("Failed to get inserted ID");
   return await getSupplier(insertedId, tenantId);
 }
 
