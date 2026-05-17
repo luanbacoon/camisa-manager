@@ -16,6 +16,7 @@ import {
   completeTwoFactorLogin,
 } from "../_core/local-auth";
 import { verifyTwoFactorToken, verifyBackupCode } from "../_core/two-factor-auth";
+import { eq } from "drizzle-orm";
 
 export const localAuthRouter = router({
   /**
@@ -342,4 +343,132 @@ export const localAuthRouter = router({
         });
       }
     }),
+
+  /**
+   * Gerar secret para ativar 2FA
+   */
+  generateTwoFactorSecret: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      const { generateTwoFactorSecret } = await import("../_core/two-factor-auth");
+      const email = ctx.user.email || "user@example.com";
+      const { secret, keyUri } = generateTwoFactorSecret(email);
+      return { success: true, secret, keyUri };
+    } catch (error: any) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: error.message || "Erro ao gerar secret 2FA",
+      });
+    }
+  }),
+
+  /**
+   * Ativar 2FA para o usuário atual
+   */
+  enableTwoFactorMutation: protectedProcedure
+    .input(
+      z.object({
+        secret: z.string(),
+        token: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { enableTwoFactor } = await import("../_core/two-factor-auth");
+        
+        // Verificar se o token é válido antes de ativar
+        const isValid = await verifyTwoFactorToken(input.secret, input.token);
+        if (!isValid) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Token 2FA inválido",
+          });
+        }
+
+        const result = await enableTwoFactor(ctx.user.id, input.secret);
+        return { success: true, backupCodes: result.backupCodes };
+      } catch (error: any) {
+        if (error instanceof TRPCError) throw error;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error.message || "Erro ao ativar 2FA",
+        });
+      }
+    }),
+
+  /**
+   * Desativar 2FA para o usuário atual
+   */
+  disableTwoFactor: protectedProcedure
+    .input(
+      z.object({
+        token: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { disableTwoFactor, getTwoFactorConfig } = await import("../_core/two-factor-auth");
+        
+        // Verificar se o usuário tem 2FA ativado
+        const config = await getTwoFactorConfig(ctx.user.id);
+        if (!config?.enabled) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "2FA não está ativado para este usuário",
+          });
+        }
+
+        // Verificar token antes de desativar
+        const { getDb } = await import("../db");
+        const dbInstance = await getDb();
+        if (!dbInstance) throw new Error("DB not available");
+
+        const { twoFactorSecrets } = await import("../../drizzle/schema");
+        const twoFactorConfig = await dbInstance
+          .select()
+          .from(twoFactorSecrets)
+          .where(eq(twoFactorSecrets.userId, ctx.user.id))
+          .limit(1)
+          .then((rows: any) => rows[0] || null);
+
+        if (!twoFactorConfig?.secret) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Configuração 2FA não encontrada",
+          });
+        }
+
+        const isValid = await verifyTwoFactorToken(twoFactorConfig.secret, input.token);
+        if (!isValid) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Token 2FA inválido",
+          });
+        }
+
+        await disableTwoFactor(ctx.user.id);
+        return { success: true };
+      } catch (error: any) {
+        if (error instanceof TRPCError) throw error;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error.message || "Erro ao desativar 2FA",
+        });
+      }
+    }),
+
+  /**
+   * Obter status 2FA do usuário atual
+   */
+  getTwoFactorStatus: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      const { getTwoFactorConfig } = await import("../_core/two-factor-auth");
+      const config = await getTwoFactorConfig(ctx.user.id);
+      return { success: true, enabled: config?.enabled || false, backupCodesRemaining: config?.backupCodesRemaining || 0 };
+    } catch (error: any) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: error.message || "Erro ao obter status 2FA",
+      });
+    }
+  }),
 });

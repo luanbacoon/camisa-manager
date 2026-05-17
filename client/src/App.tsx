@@ -22,6 +22,7 @@ import { UserManagement } from "./pages/UserManagement";
 import { LocalLogin } from "./pages/LocalLogin";
 import Reports from "./pages/Reports";
 import Suppliers from "./pages/Suppliers";
+import TwoFactorSettings from "./pages/TwoFactorSettings";
 
 function DashboardRoutes() {
   return (
@@ -42,6 +43,7 @@ function DashboardRoutes() {
         <Route path="/usuarios" component={UserManagement} />
         <Route path="/relatorios" component={Reports} />
         <Route path="/fornecedores" component={Suppliers} />
+        <Route path="/seguranca/2fa" component={TwoFactorSettings} />
         <Route component={NotFound} />
       </Switch>
     </DashboardLayout>

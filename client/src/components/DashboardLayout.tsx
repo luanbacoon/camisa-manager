@@ -41,6 +41,7 @@ import {
   HardDrive,
   BarChart3,
   Factory,
+  Shield,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -62,6 +63,7 @@ const menuItems = [
   { icon: HardDrive, label: "Backups", path: "/backups" },
   { icon: BarChart3, label: "Relatórios", path: "/relatorios" },
   { icon: Factory, label: "Fornecedores", path: "/fornecedores" },
+  { icon: Shield, label: "Segurança 2FA", path: "/seguranca/2fa" },
   { icon: Users, label: "Usuários", path: "/usuarios" },
   { icon: Settings, label: "Configurações", path: "/configuracoes" },
 ];
