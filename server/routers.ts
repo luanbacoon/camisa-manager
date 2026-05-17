@@ -119,11 +119,13 @@ export const appRouter = router({
           sizes: z.array(z.object({ size: z.string(), stock: z.number().int().min(0) })),
         })
       )
-      .mutation(({ input }) => {
+      .mutation(({ input, ctx }) => {
         const { sizes, ...productData } = input;
+        const tenantId = (ctx.user as any)?.tenantId || 1;
         return createProduct(
           {
             ...productData,
+            tenantId,
             cost: String(productData.cost),
             avgCost: String(productData.cost),
             price: String(productData.price),

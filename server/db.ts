@@ -108,20 +108,30 @@ export async function updateStoreSettings(data: Partial<typeof storeSettings.$in
 }
 
 // ─── Products ─────────────────────────────────────────────────────────────────
-export async function listProducts(activeOnly = false) {
+export async function listProducts(activeOnly = false, tenantId?: number) {
   const db = await getDb();
   if (!db) return [];
-  const query = db.select().from(products);
-  if (activeOnly) {
-    return db.select().from(products).where(eq(products.active, true)).orderBy(desc(products.createdAt));
+  let query = db.select().from(products);
+  
+  const conditions = [];
+  if (tenantId) conditions.push(eq(products.tenantId, tenantId));
+  if (activeOnly) conditions.push(eq(products.active, true));
+  
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions)) as any;
   }
+  
   return query.orderBy(desc(products.createdAt));
 }
 
-export async function getProductWithSizes(productId: number) {
+export async function getProductWithSizes(productId: number, tenantId?: number) {
   const db = await getDb();
   if (!db) return null;
-  const [product] = await db.select().from(products).where(eq(products.id, productId)).limit(1);
+  
+  const conditions = [eq(products.id, productId)];
+  if (tenantId) conditions.push(eq(products.tenantId, tenantId));
+  
+  const [product] = await db.select().from(products).where(and(...conditions)).limit(1);
   if (!product) return null;
   const sizes = await db.select().from(productSizes).where(eq(productSizes.productId, productId));
   return { ...product, sizes };

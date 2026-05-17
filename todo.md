@@ -169,8 +169,11 @@
 - [x] Criar middleware de tenant-middleware.ts com funções auxiliares
 - [ ] Criar painel de admin para gerenciar tenants (UI)
 - [ ] Migrar dados existentes para tenant "default"
-- [ ] Adicionar tenantId progressivamente em cada tabela
+- [x] Adicionar tenantId à tabela de produtos
+- [ ] Adicionar tenantId às demais tabelas de domínio (customers, sales, etc)
 - [ ] Implementar subdomínios dinâmicos (tenant.camisamanager.com)
+- [ ] Atualizar procedures para usar tenantId do contexto
+- [ ] Implementar isolamento de dados em todas as queries
 
 ## CRÍTICO - Sistema de Permissões e Roles
 - [ ] Criar tabela de roles (admin, gerente, vendedor, visualizador)

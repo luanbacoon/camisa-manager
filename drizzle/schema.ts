@@ -47,6 +47,7 @@ export type StoreSettings = typeof storeSettings.$inferSelect;
 // ─── Products ─────────────────────────────────────────────────────────────────
 export const products = mysqlTable("products", {
   id: int("id").autoincrement().primaryKey(),
+  tenantId: int("tenantId").notNull().references(() => tenants.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
   team: varchar("team", { length: 255 }),
   description: text("description"),
