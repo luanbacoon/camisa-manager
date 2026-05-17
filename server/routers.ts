@@ -3,6 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { tenantsRouter } from "./routers/tenants";
+import { backupsRouter } from "./routers/backups";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { getDb } from "./db";
@@ -56,6 +57,7 @@ import {
 export const appRouter = router({
   system: systemRouter,
   tenants: tenantsRouter,
+  backups: backupsRouter,
 
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),

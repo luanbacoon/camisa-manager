@@ -205,9 +205,17 @@
 
 
 ## CRÍTICO - Segurança
-- [ ] Implementar autenticação 2FA com TOTP (Google Authenticator)
-- [ ] Implementar rate limiting para proteção contra brute force
+- [x] Implementar autenticação 2FA com TOTP (Google Authenticator)
+- [x] Implementar rate limiting para proteção contra brute force
 - [ ] Implementar criptografia de dados sensíveis
 - [ ] Implementar auditoria de segurança (audit log)
 - [ ] Criar UI para gerenciar 2FA (ativar/desativar, backup codes)
 - [ ] Testar segurança
+
+
+## CRÍTICO - Backup e Disaster Recovery
+- [x] Criar sistema de backup automático do banco de dados
+- [x] Implementar armazenamento de backups em S3
+- [x] Criar procedures tRPC para gerenciar backups
+- [x] Criar UI para visualizar e restaurar backups
+- [x] Testar backup e restore

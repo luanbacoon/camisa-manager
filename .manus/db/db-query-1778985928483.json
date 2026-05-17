@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `backups` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`filename` varchar(255) NOT NULL,\n\t`description` text,\n\t`size` varchar(50) NOT NULL,\n\t`status` enum('pending','completed','failed') NOT NULL DEFAULT 'pending',\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`restoredAt` timestamp,\n\tCONSTRAINT `backups_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ifPH7viqejjM65.root --database awm2eraPRXUvnHb76ArrUX --execute CREATE TABLE `backups` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`filename` varchar(255) NOT NULL,\n\t`description` text,\n\t`size` varchar(50) NOT NULL,\n\t`status` enum('pending','completed','failed') NOT NULL DEFAULT 'pending',\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`restoredAt` timestamp,\n\tCONSTRAINT `backups_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 628
+}
