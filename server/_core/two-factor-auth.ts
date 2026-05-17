@@ -8,15 +8,18 @@ import { eq } from "drizzle-orm";
 /**
  * Gerar novo secret TOTP para um usuário
  */
-export function generateTwoFactorSecret(email: string) {
+export function generateTwoFactorSecret(email: string): { secret: string; keyUri: string } {
   const secret = generateSecret({
     name: `CamisaManager (${email})`,
     issuer: "CamisaManager",
-  });
+  }) as any;
+
+  const secretStr = typeof secret === "string" ? secret : (secret.secret as string);
+  const keyUriStr = typeof secret === "string" ? secret : (secret.keyUri as string);
 
   return {
-    secret,
-    keyUri: secret, // otplib já retorna o keyUri
+    secret: secretStr || "",
+    keyUri: keyUriStr || "",
   };
 }
 
