@@ -40,6 +40,7 @@ import {
   listCatalogOrders,
   createCatalogOrder,
   updateCatalogOrderStatus,
+  deleteCatalogOrder,
   listPublicProducts,
 } from "./db";
 
@@ -557,6 +558,10 @@ export const appRouter = router({
         })
       )
       .mutation(({ input }) => updateCatalogOrderStatus(input.id, input.status as any)),
+
+    deleteOrder: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(({ input }) => deleteCatalogOrder(input.id)),
   }),
 });
 

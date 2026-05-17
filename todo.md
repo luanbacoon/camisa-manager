@@ -135,3 +135,8 @@
 - [x] Configurar Heartbeat scheduler para executar a cada 30 minutos
 - [x] Adicionar tabela para armazenar histórico de rastreamento
 - [x] Implementar lógica de atualização apenas para pedidos pendentes/em trânsito
+
+## Exclusão de Pedidos do Catálogo
+- [x] Criar procedure tRPC para deletar pedido do catálogo
+- [x] Adicionar botão de exclusão na UI com diálogo de confirmação
+- [x] Testar funcionalidade de exclusão

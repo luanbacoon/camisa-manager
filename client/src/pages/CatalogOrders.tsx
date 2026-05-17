@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ClipboardList, CheckCircle, XCircle, Eye, Phone } from "lucide-react";
+import { ClipboardList, CheckCircle, XCircle, Eye, Phone, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -28,6 +28,7 @@ const STATUS_BADGE: Record<string, string> = {
 
 export default function CatalogOrders() {
   const [showDetail, setShowDetail] = useState<number | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
 
   const utils = trpc.useUtils();
   const { data: rawOrders = [], isLoading } = trpc.catalog.orders.useQuery();
@@ -60,6 +61,16 @@ export default function CatalogOrders() {
       utils.catalog.orders.invalidate();
       utils.catalog.orderDetail.invalidate({ id: showDetail! });
       toast.success("Status atualizado!");
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const deleteOrder = trpc.catalog.deleteOrder.useMutation({
+    onSuccess: () => {
+      utils.catalog.orders.invalidate();
+      setShowDetail(null);
+      setConfirmDelete(null);
+      toast.success("Pedido deletado com sucesso!");
     },
     onError: (e) => toast.error(e.message),
   });
@@ -141,9 +152,14 @@ export default function CatalogOrders() {
                       {format(new Date(order.createdAt), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                     </td>
                     <td>
-                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setShowDetail(order.id)}>
-                        <Eye className="h-3.5 w-3.5" />
-                      </Button>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setShowDetail(order.id)}>
+                          <Eye className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-red-500 hover:text-red-600 hover:bg-red-500/10" onClick={() => setConfirmDelete(order.id)}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -152,6 +168,32 @@ export default function CatalogOrders() {
           </table>
         </div>
       </div>
+
+      {/* Confirm Delete Dialog */}
+      <Dialog open={!!confirmDelete} onOpenChange={() => setConfirmDelete(null)}>
+        <DialogContent className="max-w-sm bg-card border-border">
+          <DialogHeader>
+            <DialogTitle>Confirmar Exclusão</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Tem certeza que deseja deletar o pedido #{confirmDelete}? Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button variant="outline" onClick={() => setConfirmDelete(null)}>
+                Cancelar
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => confirmDelete && deleteOrder.mutate({ id: confirmDelete })}
+                disabled={deleteOrder.isPending}
+              >
+                {deleteOrder.isPending ? "Deletando..." : "Deletar"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Detail Dialog */}
       <Dialog open={!!showDetail} onOpenChange={() => setShowDetail(null)}>
@@ -219,7 +261,19 @@ export default function CatalogOrders() {
                 <span className="text-primary">{fmt(orderDetail.total)}</span>
               </div>
 
-              <div className="flex gap-2 justify-end">
+              <div className="flex gap-2 justify-between">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => {
+                    setShowDetail(null);
+                    setConfirmDelete(orderDetail.id);
+                  }}
+                  className="gap-1"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Deletar Pedido
+                </Button>
                 <Select
                   value={orderDetail.status}
                   onValueChange={(v) => updateStatus.mutate({ id: orderDetail.id, status: v as any })}

@@ -552,6 +552,20 @@ export async function updateCatalogOrderStatus(
   await db.update(catalogOrders).set({ status }).where(eq(catalogOrders.id, id));
 }
 
+export async function deleteCatalogOrder(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  
+  // Verificar se o pedido existe
+  const order = await db.select().from(catalogOrders).where(eq(catalogOrders.id, id)).limit(1);
+  if (order.length === 0) {
+    throw new Error("Pedido nao encontrado");
+  }
+  
+  // Deletar o pedido
+  await db.delete(catalogOrders).where(eq(catalogOrders.id, id));
+}
+
 export async function listPublicProducts() {
   const db = await getDb();
   if (!db) return [];
