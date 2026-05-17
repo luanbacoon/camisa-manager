@@ -68,9 +68,7 @@ export default function Settings() {
     return new Set(catalogProducts.map((p) => p.id));
   }, [products]);
 
-  useEffect(() => {
-    setSelectedProducts(selectedProductsSet);
-  }, [selectedProductsSet]);
+  // selectedProductsSet é usado diretamente, não precisa de useEffect
 
   function save() {
     updateSettings.mutate({ storeName, ownerName, phone, email, address, instagram, whatsapp, primaryColor });
