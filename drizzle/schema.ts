@@ -178,6 +178,9 @@ export const supplierOrders = mysqlTable("supplier_orders", {
   discount: decimal("discount", { precision: 10, scale: 2 }).default("0"),
   freight: decimal("freight", { precision: 10, scale: 2 }).default("0"),
   trackingCode: varchar("trackingCode", { length: 50 }),
+  trackingStatus: varchar("trackingStatus", { length: 100 }),
+  lastTrackingUpdate: timestamp("lastTrackingUpdate"),
+  scheduleCronTaskUid: varchar("scheduleCronTaskUid", { length: 65 }).unique(),
   notes: text("notes"),
   orderedAt: timestamp("orderedAt").defaultNow().notNull(),
   deliveryDate: timestamp("deliveryDate"),
@@ -203,6 +206,21 @@ export const supplierOrderItems = mysqlTable("supplier_order_items", {
 
 export type SupplierOrderItem = typeof supplierOrderItems.$inferSelect;
 export type InsertSupplierOrderItem = typeof supplierOrderItems.$inferInsert;
+
+// ─── Tracking History ─────────────────────────────────────────────────────────
+export const trackingHistory = mysqlTable("tracking_history", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull(),
+  trackingCode: varchar("trackingCode", { length: 50 }).notNull(),
+  status: varchar("status", { length: 100 }).notNull(),
+  description: text("description"),
+  events: json("events"),
+  lastUpdate: timestamp("lastUpdate"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TrackingHistory = typeof trackingHistory.$inferSelect;
+export type InsertTrackingHistory = typeof trackingHistory.$inferInsert;
 
 // ─── Stock Adjustments ────────────────────────────────────────────────────────
 export const stockAdjustments = mysqlTable("stock_adjustments", {

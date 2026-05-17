@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `tracking_history` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`orderId` int NOT NULL,\n\t`trackingCode` varchar(50) NOT NULL,\n\t`status` varchar(100) NOT NULL,\n\t`description` text,\n\t`events` json,\n\t`lastUpdate` timestamp,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `tracking_history_id` PRIMARY KEY(`id`)\n);\nALTER TABLE `supplier_orders` ADD `trackingStatus` varchar(100);\nALTER TABLE `supplier_orders` ADD `lastTrackingUpdate` timestamp;\nALTER TABLE `supplier_orders` ADD `scheduleCronTaskUid` varchar(65);\nALTER TABLE `supplier_orders` ADD CONSTRAINT `supplier_orders_scheduleCronTaskUid_unique` UNIQUE(`scheduleCronTaskUid`);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ifPH7viqejjM65.root --database awm2eraPRXUvnHb76ArrUX --execute CREATE TABLE `tracking_history` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`orderId` int NOT NULL,\n\t`trackingCode` varchar(50) NOT NULL,\n\t`status` varchar(100) NOT NULL,\n\t`description` text,\n\t`events` json,\n\t`lastUpdate` timestamp,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `tracking_history_id` PRIMARY KEY(`id`)\n);\nALTER TABLE `supplier_orders` ADD `trackingStatus` varchar(100);\nALTER TABLE `supplier_orders` ADD `lastTrackingUpdate` timestamp;\nALTER TABLE `supplier_orders` ADD `scheduleCronTaskUid` varchar(65);\nALTER TABLE `supplier_orders` ADD CONSTRAINT `supplier_orders_scheduleCronTaskUid_unique` UNIQUE(`scheduleCronTaskUid`);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1746
+}

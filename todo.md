@@ -129,3 +129,9 @@
 - [x] Adicionar botão com ícone ExternalLink na tabela de pedidos para rastrear
 - [x] Integrar API dos Correios para buscar status de entrega em tempo real
 - [x] Exibir status de rastreamento na UI (modal de edição e tabela)
+
+## Atualização Automática de Rastreamento
+- [x] Criar job de atualização de rastreamento no backend
+- [x] Configurar Heartbeat scheduler para executar a cada 30 minutos
+- [x] Adicionar tabela para armazenar histórico de rastreamento
+- [x] Implementar lógica de atualização apenas para pedidos pendentes/em trânsito

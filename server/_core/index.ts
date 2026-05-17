@@ -9,6 +9,7 @@ import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { updateTrackingHandler } from "../scheduled/updateTracking";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -53,6 +54,9 @@ async function startServer() {
       res.status(500).json({ error: "Upload failed" });
     }
   });
+  // Scheduled tasks
+  app.post("/api/scheduled/updateTracking", updateTrackingHandler);
+
   // tRPC API
   app.use(
     "/api/trpc",

@@ -193,3 +193,16 @@ The table below is just an index — `manus-heartbeat <cmd> --help` is canonical
 | `list` | List crons. Default = owner's own; `--user-id u_xxx` inspects an end-user's (debugging §3 crons). |
 | `logs` | Recent execution history for one task (`--task-uid`). Default last 20 runs, no body — `--with-body` for full responses, `--run-uid` for one specific run, `--status failed` to filter. |
 | `bootstrap-legacy-project` | Legacy projects only. Drops `references/periodic-updates.md` and `server/_core/heartbeat.ts` into the project so the SDK in §5a becomes available. No-op when those files already exist. |
+
+
+---
+
+## Project-specific Heartbeat Jobs
+
+### update-tracking-30min
+- **Task UID**: `UuJFqu65CL6T7HC9LcFu2W`
+- **Cron**: `0 */30 * * * *` (every 30 minutes)
+- **Path**: `/api/scheduled/updateTracking`
+- **Description**: Atualizar status de rastreamento dos pedidos a cada 30 minutos
+- **Handler**: `server/scheduled/updateTracking.ts`
+- **Created**: 2026-05-17

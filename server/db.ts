@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, lte, sql, sum, count } from "drizzle-orm";
+import { and, desc, eq, gte, lte, sql, sum, count, ne, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -14,6 +14,7 @@ import {
   stockAdjustments,
   storeSettings,
   catalogOrders,
+  trackingHistory,
   type InsertProduct,
   type InsertProductSize,
   type InsertProductGalleryItem,
@@ -23,6 +24,7 @@ import {
   type InsertSupplierOrder,
   type InsertSupplierOrderItem,
   type CatalogOrder,
+  type InsertTrackingHistory,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -648,4 +650,62 @@ export async function deleteProductSafe(productId: number) {
 
   // Deletar o produto
   await db.delete(products).where(eq(products.id, productId));
+}
+
+// ─── Tracking Updates ─────────────────────────────────────────────────────────
+export async function getSupplierOrdersForTracking() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(supplierOrders)
+    .where(
+      and(
+        sql`${supplierOrders.trackingCode} IS NOT NULL`,
+        inArray(supplierOrders.status, ["pendente", "em_transito"])
+      )
+    );
+}
+
+export async function updateTrackingInfo(
+  orderId: number,
+  trackingStatus: string,
+  lastTrackingUpdate: Date,
+  events: any
+) {
+  const db = await getDb();
+  if (!db) return;
+
+  await db
+    .update(supplierOrders)
+    .set({
+      trackingStatus,
+      lastTrackingUpdate,
+      updatedAt: new Date(),
+    })
+    .where(eq(supplierOrders.id, orderId));
+
+  // Salvar no histórico
+  const order = (await db.select().from(supplierOrders).where(eq(supplierOrders.id, orderId)))[0];
+  
+  await db.insert(trackingHistory).values({
+    orderId,
+    trackingCode: order?.trackingCode || "",
+    status: trackingStatus,
+    description: "Status atualizado automaticamente",
+    events: events,
+    lastUpdate: lastTrackingUpdate,
+  } as InsertTrackingHistory);
+}
+
+export async function getTrackingHistory(orderId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(trackingHistory)
+    .where(eq(trackingHistory.orderId, orderId))
+    .orderBy(desc(trackingHistory.createdAt));
 }
