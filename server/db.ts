@@ -552,6 +552,42 @@ export async function updateCatalogOrderStatus(
   await db.update(catalogOrders).set({ status }).where(eq(catalogOrders.id, id));
 }
 
+export async function updateCatalogOrderStatusWithNotification(
+  id: number,
+  status: "novo" | "em_analise" | "confirmado" | "cancelado",
+  sendNotification: boolean = true
+) {
+  const db = await getDb();
+  if (!db) return;
+
+  // Buscar o pedido antes de atualizar
+  const orders = await db.select().from(catalogOrders).where(eq(catalogOrders.id, id)).limit(1);
+  if (orders.length === 0) {
+    throw new Error("Pedido nao encontrado");
+  }
+
+  const order = orders[0];
+
+  // Atualizar status
+  await db.update(catalogOrders).set({ status }).where(eq(catalogOrders.id, id));
+
+  // Enviar notificação WhatsApp se habilitado
+  if (sendNotification && order.customerPhone) {
+    try {
+      const { notifyOrderStatusChange } = await import("./_core/whatsapp");
+      await notifyOrderStatusChange(
+        order.customerPhone,
+        order.id,
+        status,
+        order.customerName
+      );
+    } catch (error) {
+      console.error("Erro ao enviar notificação WhatsApp:", error);
+      // Não falhar a atualização se a notificação falhar
+    }
+  }
+}
+
 export async function deleteCatalogOrder(id: number) {
   const db = await getDb();
   if (!db) throw new Error("DB not available");

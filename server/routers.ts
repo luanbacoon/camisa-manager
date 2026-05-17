@@ -40,6 +40,7 @@ import {
   listCatalogOrders,
   createCatalogOrder,
   updateCatalogOrderStatus,
+  updateCatalogOrderStatusWithNotification,
   deleteCatalogOrder,
   listPublicProducts,
 } from "./db";
@@ -555,9 +556,16 @@ export const appRouter = router({
         z.object({
           id: z.number(),
           status: z.enum(["novo", "em_analise", "confirmado", "cancelado", "entregue"]),
+          notifyCustomer: z.boolean().optional().default(true),
         })
       )
-      .mutation(({ input }) => updateCatalogOrderStatus(input.id, input.status as any)),
+      .mutation(({ input }) =>
+        updateCatalogOrderStatusWithNotification(
+          input.id,
+          input.status as any,
+          input.notifyCustomer
+        )
+      ),
 
     deleteOrder: protectedProcedure
       .input(z.object({ id: z.number() }))

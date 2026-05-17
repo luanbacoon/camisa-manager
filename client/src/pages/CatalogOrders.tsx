@@ -3,10 +3,11 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ClipboardList, CheckCircle, XCircle, Eye, Phone, Trash2 } from "lucide-react";
+import { ClipboardList, CheckCircle, XCircle, Eye, Phone, Trash2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 function fmt(v: number | string) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(v));
@@ -29,6 +30,7 @@ const STATUS_BADGE: Record<string, string> = {
 export default function CatalogOrders() {
   const [showDetail, setShowDetail] = useState<number | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
+  const [notifyCustomer, setNotifyCustomer] = useState(true);
 
   const utils = trpc.useUtils();
   const { data: rawOrders = [], isLoading } = trpc.catalog.orders.useQuery();
@@ -64,6 +66,14 @@ export default function CatalogOrders() {
     },
     onError: (e) => toast.error(e.message),
   });
+
+  const handleStatusChange = (orderId: number, newStatus: string) => {
+    updateStatus.mutate({
+      id: orderId,
+      status: newStatus as any,
+      notifyCustomer,
+    });
+  };
 
   const deleteOrder = trpc.catalog.deleteOrder.useMutation({
     onSuccess: () => {
@@ -135,7 +145,7 @@ export default function CatalogOrders() {
                     <td>
                       <Select
                         value={order.status}
-                        onValueChange={(v) => updateStatus.mutate({ id: order.id, status: v as any })}
+                        onValueChange={(v) => handleStatusChange(order.id, v)}
                       >
                         <SelectTrigger className={`h-7 text-xs w-32 border-0 bg-transparent p-0 focus:ring-0 ${STATUS_BADGE[order.status]}`}>
                           <SelectValue />
@@ -261,6 +271,18 @@ export default function CatalogOrders() {
                 <span className="text-primary">{fmt(orderDetail.total)}</span>
               </div>
 
+              <div className="flex items-center gap-2 bg-muted/30 rounded-lg p-3">
+                <Checkbox
+                  id="notifyCustomer"
+                  checked={notifyCustomer}
+                  onCheckedChange={(checked) => setNotifyCustomer(checked as boolean)}
+                />
+                <label htmlFor="notifyCustomer" className="text-sm cursor-pointer flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4 text-emerald-400" />
+                  Notificar cliente via WhatsApp
+                </label>
+              </div>
+
               <div className="flex gap-2 justify-between">
                 <Button
                   variant="destructive"
@@ -276,7 +298,7 @@ export default function CatalogOrders() {
                 </Button>
                 <Select
                   value={orderDetail.status}
-                  onValueChange={(v) => updateStatus.mutate({ id: orderDetail.id, status: v as any })}
+                  onValueChange={(v) => handleStatusChange(orderDetail.id, v)}
                 >
                   <SelectTrigger className="w-40 bg-muted/50 border-border">
                     <SelectValue />

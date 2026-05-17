@@ -140,3 +140,8 @@
 - [x] Criar procedure tRPC para deletar pedido do catálogo
 - [x] Adicionar botão de exclusão na UI com diálogo de confirmação
 - [x] Testar funcionalidade de exclusão
+
+## Notificações WhatsApp para Pedidos
+- [x] Criar função de envio de mensagem WhatsApp no backend
+- [x] Integrar notificação ao atualizar status de pedido do catálogo
+- [x] Testar envio de notificações WhatsApp
