@@ -253,3 +253,18 @@ export const catalogOrders = mysqlTable("catalog_orders", {
 });
 
 export type CatalogOrder = typeof catalogOrders.$inferSelect;
+
+// ─── WhatsApp Message Templates ────────────────────────────────────────────────
+export const whatsappTemplates = mysqlTable("whatsapp_templates", {
+  id: int("id").autoincrement().primaryKey(),
+  status: mysqlEnum("status", ["novo", "em_analise", "confirmado", "cancelado", "entregue"])
+    .notNull()
+    .unique(),
+  messageText: text("messageText").notNull(),
+  emoji: varchar("emoji", { length: 10 }).default("📦"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type WhatsAppTemplate = typeof whatsappTemplates.$inferSelect;
+export type InsertWhatsAppTemplate = typeof whatsappTemplates.$inferInsert;

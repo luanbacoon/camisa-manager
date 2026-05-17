@@ -15,6 +15,7 @@ import Simulator from "./pages/Simulator";
 import Settings from "./pages/Settings";
 import Catalog from "./pages/Catalog";
 import CatalogOrders from "./pages/CatalogOrders";
+import WhatsAppSettings from "./pages/WhatsAppSettings";
 
 function DashboardRoutes() {
   return (
@@ -29,6 +30,7 @@ function DashboardRoutes() {
         <Route path="/simulador" component={Simulator} />
         <Route path="/pedidos-catalogo" component={CatalogOrders} />
         <Route path="/configuracoes" component={Settings} />
+        <Route path="/whatsapp-configuracoes" component={WhatsAppSettings} />
         <Route component={NotFound} />
       </Switch>
     </DashboardLayout>

@@ -145,3 +145,10 @@
 - [x] Criar função de envio de mensagem WhatsApp no backend
 - [x] Integrar notificação ao atualizar status de pedido do catálogo
 - [x] Testar envio de notificações WhatsApp
+
+## Personalização de Mensagens WhatsApp
+- [x] Criar tabela de configurações de templates de mensagens
+- [x] Implementar procedures tRPC para gerenciar templates
+- [x] Criar página de configuração de mensagens
+- [x] Integrar templates personalizados ao envio
+- [x] Testar personalização de mensagens

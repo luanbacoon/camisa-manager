@@ -15,6 +15,7 @@ import {
   storeSettings,
   catalogOrders,
   trackingHistory,
+  whatsappTemplates,
   type InsertProduct,
   type InsertProductSize,
   type InsertProductGalleryItem,
@@ -25,6 +26,8 @@ import {
   type InsertSupplierOrderItem,
   type CatalogOrder,
   type InsertTrackingHistory,
+  type WhatsAppTemplate,
+  type InsertWhatsAppTemplate,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -758,4 +761,94 @@ export async function getTrackingHistory(orderId: number) {
     .from(trackingHistory)
     .where(eq(trackingHistory.orderId, orderId))
     .orderBy(desc(trackingHistory.createdAt));
+}
+
+
+// ─── WhatsApp Templates ────────────────────────────────────────────────────────
+export async function listWhatsAppTemplates() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(whatsappTemplates);
+}
+
+export async function getWhatsAppTemplate(status: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db
+    .select()
+    .from(whatsappTemplates)
+    .where(eq(whatsappTemplates.status as any, status as any))
+    .limit(1);
+  return result[0] || null;
+}
+
+export async function updateWhatsAppTemplate(
+  status: string,
+  messageText: string,
+  emoji?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+
+  // Verificar se existe
+  const existing = await getWhatsAppTemplate(status);
+
+  if (existing) {
+    // Atualizar
+    await db
+      .update(whatsappTemplates)
+      .set({
+        messageText,
+        emoji: emoji || existing.emoji,
+        updatedAt: new Date(),
+      })
+      .where(eq(whatsappTemplates.status as any, status as any));
+  } else {
+    // Criar novo
+    await db.insert(whatsappTemplates).values({
+      status: status as any,
+      messageText,
+      emoji: emoji || "📦",
+    });
+  }
+}
+
+export async function initializeDefaultTemplates() {
+  const db = await getDb();
+  if (!db) return;
+
+  const defaultTemplates = [
+    {
+      status: "novo",
+      messageText: "Seu pedido foi recebido! 🎉",
+      emoji: "🎉",
+    },
+    {
+      status: "em_analise",
+      messageText: "Estamos analisando seu pedido 📋",
+      emoji: "📋",
+    },
+    {
+      status: "confirmado",
+      messageText: "Seu pedido foi confirmado! ✅",
+      emoji: "✅",
+    },
+    {
+      status: "cancelado",
+      messageText: "Seu pedido foi cancelado ❌",
+      emoji: "❌",
+    },
+    {
+      status: "entregue",
+      messageText: "Seu pedido foi entregue! 🎁",
+      emoji: "🎁",
+    },
+  ];
+
+  for (const template of defaultTemplates) {
+    const existing = await getWhatsAppTemplate(template.status);
+    if (!existing) {
+      await db.insert(whatsappTemplates).values(template as InsertWhatsAppTemplate);
+    }
+  }
 }

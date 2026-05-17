@@ -36,6 +36,7 @@ import {
   ExternalLink,
   ClipboardList,
   Shirt,
+  MessageCircle,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -52,6 +53,7 @@ const menuItems = [
   { icon: Truck, label: "Pedidos ao Fornecedor", path: "/pedidos" },
   { icon: Calculator, label: "Simulador", path: "/simulador" },
   { icon: ClipboardList, label: "Pedidos do Catálogo", path: "/pedidos-catalogo" },
+  { icon: MessageCircle, label: "WhatsApp", path: "/whatsapp-configuracoes" },
   { icon: Settings, label: "Configurações", path: "/configuracoes" },
 ];
 

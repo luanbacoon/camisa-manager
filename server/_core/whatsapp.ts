@@ -109,7 +109,7 @@ export async function sendWhatsAppMessage(data: WhatsAppMessage): Promise<WhatsA
 }
 
 /**
- * Enviar notificação de atualização de status do pedido
+ * Enviar notificação de atualização de status do pedido com template personalizado
  */
 export async function notifyOrderStatusChange(
   customerPhone: string,
@@ -117,23 +117,35 @@ export async function notifyOrderStatusChange(
   newStatus: string,
   customerName: string
 ): Promise<WhatsAppResponse> {
-  const statusMessages: Record<string, string> = {
-    novo: "Seu pedido foi recebido! 🎉",
-    em_analise: "Estamos analisando seu pedido 📋",
-    confirmado: "Seu pedido foi confirmado! ✅",
-    cancelado: "Seu pedido foi cancelado ❌",
-    entregue: "Seu pedido foi entregue! 🎁",
-    pendente: "Seu pedido está pendente ⏳",
-  };
+  try {
+    // Importar função de banco para carregar template
+    const { getWhatsAppTemplate } = await import("../db");
+    const template = await getWhatsAppTemplate(newStatus);
 
-  const statusLabel = statusMessages[newStatus] || `Status atualizado: ${newStatus}`;
+    // Usar template personalizado ou fallback
+    let messageText = template?.messageText || `Seu pedido #${orderId} foi atualizado!`;
 
-  const message = `Olá ${customerName}! 👋\n\n${statusLabel}\n\nPedido #${orderId}\n\nObrigado por sua compra! 🙏`;
+    // Substituir variáveis no template
+    messageText = messageText
+      .replace(/{{customerName}}/g, customerName)
+      .replace(/{{orderId}}/g, orderId.toString())
+      .replace(/{{status}}/g, newStatus);
 
-  return sendWhatsAppMessage({
-    phone: customerPhone,
-    message,
-  });
+    const message = `Olá ${customerName}!\n\n${messageText}\n\nPedido #${orderId}\n\nObrigado por sua compra! 🙏`;
+
+    return sendWhatsAppMessage({
+      phone: customerPhone,
+      message,
+    });
+  } catch (error) {
+    console.error("Erro ao carregar template:", error);
+    // Fallback para mensagem padrão
+    const message = `Olá ${customerName}!\n\nSeu pedido #${orderId} foi atualizado!\n\nObrigado por sua compra! 🙏`;
+    return sendWhatsAppMessage({
+      phone: customerPhone,
+      message,
+    });
+  }
 }
 
 /**

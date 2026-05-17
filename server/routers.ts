@@ -43,6 +43,10 @@ import {
   updateCatalogOrderStatusWithNotification,
   deleteCatalogOrder,
   listPublicProducts,
+  listWhatsAppTemplates,
+  getWhatsAppTemplate,
+  updateWhatsAppTemplate,
+  initializeDefaultTemplates,
 } from "./db";
 
 export const appRouter = router({
@@ -570,6 +574,22 @@ export const appRouter = router({
     deleteOrder: protectedProcedure
       .input(z.object({ id: z.number() }))
       .mutation(({ input }) => deleteCatalogOrder(input.id)),
+
+    templates: protectedProcedure.query(() => listWhatsAppTemplates()),
+
+    updateTemplate: protectedProcedure
+      .input(
+        z.object({
+          status: z.enum(["novo", "em_analise", "confirmado", "cancelado", "entregue"]),
+          messageText: z.string().min(1),
+          emoji: z.string().optional(),
+        })
+      )
+      .mutation(({ input }) =>
+        updateWhatsAppTemplate(input.status, input.messageText, input.emoji)
+      ),
+
+    initializeTemplates: protectedProcedure.mutation(() => initializeDefaultTemplates()),
   }),
 });
 

@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `whatsapp_templates` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`status` enum('novo','em_analise','confirmado','cancelado','entregue') NOT NULL,\n\t`messageText` text NOT NULL,\n\t`emoji` varchar(10) DEFAULT '📦',\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `whatsapp_templates_id` PRIMARY KEY(`id`),\n\tCONSTRAINT `whatsapp_templates_status_unique` UNIQUE(`status`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ifPH7viqejjM65.root --database awm2eraPRXUvnHb76ArrUX --execute CREATE TABLE `whatsapp_templates` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`status` enum('novo','em_analise','confirmado','cancelado','entregue') NOT NULL,\n\t`messageText` text NOT NULL,\n\t`emoji` varchar(10) DEFAULT '📦',\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `whatsapp_templates_id` PRIMARY KEY(`id`),\n\tCONSTRAINT `whatsapp_templates_status_unique` UNIQUE(`status`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 691
+}
