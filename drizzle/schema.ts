@@ -287,3 +287,145 @@ export const whatsappHistory = mysqlTable("whatsapp_history", {
 
 export type WhatsAppHistory = typeof whatsappHistory.$inferSelect;
 export type InsertWhatsAppHistory = typeof whatsappHistory.$inferInsert;
+
+// ─── Tenants (Multi-Loja) ─────────────────────────────────────────────────────
+export const tenants = mysqlTable("tenants", {
+  id: int("id").autoincrement().primaryKey(),
+  slug: varchar("slug", { length: 63 }).notNull().unique(), // subdomain: slug.camisamanager.com
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 30 }),
+  logo: text("logo"),
+  plan: mysqlEnum("plan", ["basico", "profissional", "premium", "enterprise"])
+    .default("basico")
+    .notNull(),
+  status: mysqlEnum("status", ["ativo", "suspenso", "cancelado"]).default("ativo").notNull(),
+  maxProducts: int("maxProducts").default(100).notNull(),
+  maxUsers: int("maxUsers").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Tenant = typeof tenants.$inferSelect;
+export type InsertTenant = typeof tenants.$inferInsert;
+
+// ─── User Tenants (Relação entre usuários e tenants) ──────────────────────────
+export const userTenants = mysqlTable("user_tenants", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  tenantId: int("tenantId").notNull(),
+  role: mysqlEnum("role", ["admin", "gerente", "vendedor", "visualizador"])
+    .default("vendedor")
+    .notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type UserTenant = typeof userTenants.$inferSelect;
+export type InsertUserTenant = typeof userTenants.$inferInsert;
+
+// ─── Roles e Permissões ────────────────────────────────────────────────────────
+export const permissions = mysqlTable("permissions", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(), // ex: "products.create"
+  description: text("description"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Permission = typeof permissions.$inferSelect;
+export type InsertPermission = typeof permissions.$inferInsert;
+
+// ─── Role Permissions (Relação entre roles e permissões) ──────────────────────
+export const rolePermissions = mysqlTable("role_permissions", {
+  id: int("id").autoincrement().primaryKey(),
+  role: mysqlEnum("role", ["admin", "gerente", "vendedor", "visualizador"]).notNull(),
+  permissionId: int("permissionId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type RolePermission = typeof rolePermissions.$inferSelect;
+export type InsertRolePermission = typeof rolePermissions.$inferInsert;
+
+// ─── Auditoria (Logs de ações) ─────────────────────────────────────────────────
+export const auditLog = mysqlTable("audit_log", {
+  id: int("id").autoincrement().primaryKey(),
+  tenantId: int("tenantId").notNull(),
+  userId: int("userId").notNull(),
+  action: varchar("action", { length: 255 }).notNull(), // ex: "products.create", "sales.update"
+  resource: varchar("resource", { length: 255 }).notNull(), // ex: "product", "sale"
+  resourceId: int("resourceId"),
+  changes: json("changes"), // JSON com antes/depois
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  userAgent: text("userAgent"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AuditLog = typeof auditLog.$inferSelect;
+export type InsertAuditLog = typeof auditLog.$inferInsert;
+
+// ─── Subscriptions (Stripe) ────────────────────────────────────────────────────
+export const subscriptions = mysqlTable("subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  tenantId: int("tenantId").notNull().unique(),
+  stripeCustomerId: varchar("stripeCustomerId", { length: 255 }).notNull().unique(),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }),
+  plan: mysqlEnum("plan", ["basico", "profissional", "premium", "enterprise"])
+    .default("basico")
+    .notNull(),
+  status: mysqlEnum("status", ["ativo", "cancelado", "suspenso", "expirado"])
+    .default("ativo")
+    .notNull(),
+  currentPeriodStart: timestamp("currentPeriodStart"),
+  currentPeriodEnd: timestamp("currentPeriodEnd"),
+  canceledAt: timestamp("canceledAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Subscription = typeof subscriptions.$inferSelect;
+export type InsertSubscription = typeof subscriptions.$inferInsert;
+
+// ─── Invoices (Faturas) ────────────────────────────────────────────────────────
+export const invoices = mysqlTable("invoices", {
+  id: int("id").autoincrement().primaryKey(),
+  tenantId: int("tenantId").notNull(),
+  stripeInvoiceId: varchar("stripeInvoiceId", { length: 255 }).notNull().unique(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).default("BRL").notNull(),
+  status: mysqlEnum("status", ["rascunho", "aberto", "pago", "falha", "cancelado"])
+    .default("aberto")
+    .notNull(),
+  paidAt: timestamp("paidAt"),
+  dueDate: timestamp("dueDate"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Invoice = typeof invoices.$inferSelect;
+export type InsertInvoice = typeof invoices.$inferInsert;
+
+// ─── 2FA Secrets (Autenticação de Dois Fatores) ────────────────────────────────
+export const twoFactorSecrets = mysqlTable("two_factor_secrets", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  secret: varchar("secret", { length: 255 }).notNull(), // Base32 encoded secret
+  enabled: boolean("enabled").default(false).notNull(),
+  backupCodes: json("backupCodes"), // Array de códigos de backup
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TwoFactorSecret = typeof twoFactorSecrets.$inferSelect;
+export type InsertTwoFactorSecret = typeof twoFactorSecrets.$inferInsert;
+
+// ─── Login Attempts (Rastreamento de tentativas de login) ──────────────────────
+export const loginAttempts = mysqlTable("login_attempts", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull(),
+  success: boolean("success").default(false).notNull(),
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  userAgent: text("userAgent"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type LoginAttempt = typeof loginAttempts.$inferSelect;
+export type InsertLoginAttempt = typeof loginAttempts.$inferInsert;

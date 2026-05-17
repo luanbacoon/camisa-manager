@@ -85,6 +85,13 @@
       "when": 1778983686714,
       "tag": "0011_past_skullbuster",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1778984740357,
+      "tag": "0012_easy_reavers",
+      "breakpoints": true
     }
   ]
 }

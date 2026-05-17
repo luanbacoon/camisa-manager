@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
@@ -63,10 +63,14 @@ export default function Settings() {
     }
   }, [settings]);
 
-  useEffect(() => {
+  const selectedProductsSet = useMemo(() => {
     const catalogProducts = products.filter((p) => p.showInCatalog);
-    setSelectedProducts(new Set(catalogProducts.map((p) => p.id)));
+    return new Set(catalogProducts.map((p) => p.id));
   }, [products]);
+
+  useEffect(() => {
+    setSelectedProducts(selectedProductsSet);
+  }, [selectedProductsSet]);
 
   function save() {
     updateSettings.mutate({ storeName, ownerName, phone, email, address, instagram, whatsapp, primaryColor });

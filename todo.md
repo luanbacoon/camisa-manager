@@ -160,3 +160,54 @@
 - [x] Integrar registro de mensagens ao envio
 - [x] Criar página de visualização de histórico
 - [x] Testar histórico de mensagens
+
+
+## CRÍTICO - Sistema Multi-Loja (SaaS) - ABORDAGEM GRADUAL
+- [x] Criar tabela de tenants com dados da loja
+- [x] Criar tabela de user_tenants para associar usuários a lojas
+- [x] Criar procedures tRPC para gerenciar tenants
+- [x] Criar middleware de tenant-middleware.ts com funções auxiliares
+- [ ] Criar painel de admin para gerenciar tenants (UI)
+- [ ] Migrar dados existentes para tenant "default"
+- [ ] Adicionar tenantId progressivamente em cada tabela
+- [ ] Implementar subdomínios dinâmicos (tenant.camisamanager.com)
+
+## CRÍTICO - Sistema de Permissões e Roles
+- [ ] Criar tabela de roles (admin, gerente, vendedor, visualizador)
+- [ ] Criar tabela de permissões por role
+- [ ] Implementar middleware de autorização
+- [ ] Adicionar verificação de permissões em todas as procedures tRPC
+- [ ] Criar tabela de auditoria de ações
+- [ ] Implementar logs de acesso e tentativas de login
+
+## CRÍTICO - Integração com Stripe
+- [ ] Configurar conta Stripe
+- [ ] Criar tabela de subscriptions
+- [ ] Implementar webhook do Stripe
+- [ ] Criar fluxo de checkout
+- [ ] Implementar cancelamento e downgrade de planos
+- [ ] Criar histórico de faturas
+
+## CRÍTICO - Segurança (2FA, Criptografia)
+- [ ] Implementar autenticação 2FA (TOTP)
+- [ ] Criptografar dados sensíveis (telefone, email)
+- [ ] Implementar rate limiting em APIs
+- [ ] Validar entrada em todas as APIs
+- [ ] Implementar CORS corretamente
+- [ ] Adicionar testes de segurança
+
+## CRÍTICO - Backup e Disaster Recovery
+- [ ] Configurar backup automático diário
+- [ ] Implementar backup em múltiplas regiões
+- [ ] Criar plano de recuperação de desastres
+- [ ] Testar restore de backup
+- [ ] Documentar procedimento de recuperação
+
+
+## CRÍTICO - Segurança
+- [ ] Implementar autenticação 2FA com TOTP (Google Authenticator)
+- [ ] Implementar rate limiting para proteção contra brute force
+- [ ] Implementar criptografia de dados sensíveis
+- [ ] Implementar auditoria de segurança (audit log)
+- [ ] Criar UI para gerenciar 2FA (ativar/desativar, backup codes)
+- [ ] Testar segurança
