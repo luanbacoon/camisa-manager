@@ -47,6 +47,9 @@ import {
   getWhatsAppTemplate,
   updateWhatsAppTemplate,
   initializeDefaultTemplates,
+  getWhatsAppHistory,
+  getWhatsAppMessageStats,
+  getWhatsAppHistoryByPhone,
 } from "./db";
 
 export const appRouter = router({
@@ -590,6 +593,16 @@ export const appRouter = router({
       ),
 
     initializeTemplates: protectedProcedure.mutation(() => initializeDefaultTemplates()),
+
+    history: protectedProcedure
+      .input(z.object({ orderId: z.number().optional(), limit: z.number().optional() }))
+      .query(({ input }) => getWhatsAppHistory(input.orderId, input.limit || 100)),
+
+    stats: protectedProcedure.query(() => getWhatsAppMessageStats()),
+
+    historyByPhone: protectedProcedure
+      .input(z.object({ phone: z.string() }))
+      .query(({ input }) => getWhatsAppHistoryByPhone(input.phone)),
   }),
 });
 

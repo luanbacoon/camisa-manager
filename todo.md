@@ -152,3 +152,11 @@
 - [x] Criar página de configuração de mensagens
 - [x] Integrar templates personalizados ao envio
 - [x] Testar personalização de mensagens
+
+## Histórico de Mensagens WhatsApp
+- [x] Criar tabela de histórico de mensagens
+- [x] Implementar funções de banco para gerenciar histórico
+- [x] Criar procedures tRPC para consultar histórico
+- [x] Integrar registro de mensagens ao envio
+- [x] Criar página de visualização de histórico
+- [x] Testar histórico de mensagens

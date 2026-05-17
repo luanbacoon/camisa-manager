@@ -118,8 +118,8 @@ export async function notifyOrderStatusChange(
   customerName: string
 ): Promise<WhatsAppResponse> {
   try {
-    // Importar função de banco para carregar template
-    const { getWhatsAppTemplate } = await import("../db");
+    // Importar funções de banco
+    const { getWhatsAppTemplate, recordWhatsAppMessage } = await import("../db");
     const template = await getWhatsAppTemplate(newStatus);
 
     // Usar template personalizado ou fallback
@@ -133,18 +133,55 @@ export async function notifyOrderStatusChange(
 
     const message = `Olá ${customerName}!\n\n${messageText}\n\nPedido #${orderId}\n\nObrigado por sua compra! 🙏`;
 
-    return sendWhatsAppMessage({
+    const response = await sendWhatsAppMessage({
       phone: customerPhone,
       message,
     });
+
+    // Registrar no histórico
+    if (response.success) {
+      await recordWhatsAppMessage({
+        orderId,
+        customerPhone,
+        customerName,
+        messageText: message,
+        status: "enviado",
+        messageId: response.messageId,
+      });
+    } else {
+      await recordWhatsAppMessage({
+        orderId,
+        customerPhone,
+        customerName,
+        messageText: message,
+        status: "falha",
+        errorMessage: response.error,
+      });
+    }
+
+    return response;
   } catch (error) {
     console.error("Erro ao carregar template:", error);
     // Fallback para mensagem padrão
     const message = `Olá ${customerName}!\n\nSeu pedido #${orderId} foi atualizado!\n\nObrigado por sua compra! 🙏`;
-    return sendWhatsAppMessage({
+    const response = await sendWhatsAppMessage({
       phone: customerPhone,
       message,
     });
+
+    // Registrar no histórico mesmo em caso de erro
+    const { recordWhatsAppMessage: record } = await import("../db");
+    await record({
+      orderId,
+      customerPhone,
+      customerName,
+      messageText: message,
+      status: response.success ? "enviado" : "falha",
+      messageId: response.messageId,
+      errorMessage: response.error,
+    });
+
+    return response;
   }
 }
 
@@ -157,12 +194,60 @@ export async function notifyTrackingUpdate(
   trackingCode: string,
   customerName: string
 ): Promise<WhatsAppResponse> {
-  const trackingUrl = `https://www.correios.com.br/rastreamento?codigo=${trackingCode}`;
+  try {
+    const trackingUrl = `https://www.correios.com.br/rastreamento?codigo=${trackingCode}`;
 
-  const message = `Olá ${customerName}! 📦\n\nSeu pedido #${orderId} está a caminho!\n\n🔗 Rastrear: ${trackingUrl}\n\nCódigo: ${trackingCode}`;
+    const message = `Olá ${customerName}! 📦\n\nSeu pedido #${orderId} está a caminho!\n\n🔗 Rastrear: ${trackingUrl}\n\nCódigo: ${trackingCode}`;
 
-  return sendWhatsAppMessage({
-    phone: customerPhone,
-    message,
-  });
+    const response = await sendWhatsAppMessage({
+      phone: customerPhone,
+      message,
+    });
+
+    // Registrar no histórico
+    const { recordWhatsAppMessage } = await import("../db");
+    if (response.success) {
+      await recordWhatsAppMessage({
+        orderId,
+        customerPhone,
+        customerName,
+        messageText: message,
+        status: "enviado",
+        messageId: response.messageId,
+      });
+    } else {
+      await recordWhatsAppMessage({
+        orderId,
+        customerPhone,
+        customerName,
+        messageText: message,
+        status: "falha",
+        errorMessage: response.error,
+      });
+    }
+
+    return response;
+  } catch (error) {
+    console.error("Erro ao enviar notificação de rastreamento:", error);
+    const trackingUrl = `https://www.correios.com.br/rastreamento?codigo=${trackingCode}`;
+    const message = `Olá ${customerName}! 📦\n\nSeu pedido #${orderId} está a caminho!\n\n🔗 Rastrear: ${trackingUrl}\n\nCódigo: ${trackingCode}`;
+    const response = await sendWhatsAppMessage({
+      phone: customerPhone,
+      message,
+    });
+
+    // Registrar no histórico mesmo em caso de erro
+    const { recordWhatsAppMessage } = await import("../db");
+    await recordWhatsAppMessage({
+      orderId,
+      customerPhone,
+      customerName,
+      messageText: message,
+      status: response.success ? "enviado" : "falha",
+      messageId: response.messageId,
+      errorMessage: response.error,
+    });
+
+    return response;
+  }
 }

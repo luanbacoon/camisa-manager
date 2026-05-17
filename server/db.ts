@@ -16,6 +16,7 @@ import {
   catalogOrders,
   trackingHistory,
   whatsappTemplates,
+  whatsappHistory,
   type InsertProduct,
   type InsertProductSize,
   type InsertProductGalleryItem,
@@ -28,6 +29,8 @@ import {
   type InsertTrackingHistory,
   type WhatsAppTemplate,
   type InsertWhatsAppTemplate,
+  type WhatsAppHistory,
+  type InsertWhatsAppHistory,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -851,4 +854,81 @@ export async function initializeDefaultTemplates() {
       await db.insert(whatsappTemplates).values(template as InsertWhatsAppTemplate);
     }
   }
+}
+
+
+// ─── WhatsApp Message History ─────────────────────────────────────────────────
+export async function recordWhatsAppMessage(data: InsertWhatsAppHistory) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  const result = await db.insert(whatsappHistory).values(data);
+  return result;
+}
+
+export async function getWhatsAppHistory(orderId?: number, limit: number = 100) {
+  const db = await getDb();
+  if (!db) return [];
+
+  let query = db.select().from(whatsappHistory);
+
+  if (orderId) {
+    query = query.where(eq(whatsappHistory.orderId, orderId)) as any;
+  }
+
+  return query.orderBy(desc(whatsappHistory.sentAt)).limit(limit);
+}
+
+export async function updateWhatsAppMessageStatus(
+  messageId: string,
+  status: "entregue" | "lido" | "falha",
+  errorMessage?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+
+  const updateData: any = {
+    status,
+    updatedAt: new Date(),
+  };
+
+  if (status === "entregue") {
+    updateData.deliveredAt = new Date();
+  } else if (status === "lido") {
+    updateData.readAt = new Date();
+  } else if (status === "falha" && errorMessage) {
+    updateData.errorMessage = errorMessage;
+  }
+
+  await db
+    .update(whatsappHistory)
+    .set(updateData)
+    .where(eq(whatsappHistory.messageId, messageId));
+}
+
+export async function getWhatsAppMessageStats() {
+  const db = await getDb();
+  if (!db) return null;
+
+  const stats = await db
+    .select({
+      total: count(),
+      enviado: count(sql`CASE WHEN status = 'enviado' THEN 1 END`),
+      entregue: count(sql`CASE WHEN status = 'entregue' THEN 1 END`),
+      lido: count(sql`CASE WHEN status = 'lido' THEN 1 END`),
+      falha: count(sql`CASE WHEN status = 'falha' THEN 1 END`),
+    })
+    .from(whatsappHistory);
+
+  return stats[0] || null;
+}
+
+export async function getWhatsAppHistoryByPhone(customerPhone: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(whatsappHistory)
+    .where(eq(whatsappHistory.customerPhone, customerPhone))
+    .orderBy(desc(whatsappHistory.sentAt));
 }

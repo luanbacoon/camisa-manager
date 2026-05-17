@@ -268,3 +268,22 @@ export const whatsappTemplates = mysqlTable("whatsapp_templates", {
 
 export type WhatsAppTemplate = typeof whatsappTemplates.$inferSelect;
 export type InsertWhatsAppTemplate = typeof whatsappTemplates.$inferInsert;
+
+// ─── WhatsApp Message History ─────────────────────────────────────────────────
+export const whatsappHistory = mysqlTable("whatsapp_history", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId"),
+  customerPhone: varchar("customerPhone", { length: 30 }).notNull(),
+  customerName: varchar("customerName", { length: 255 }).notNull(),
+  messageText: text("messageText").notNull(),
+  status: mysqlEnum("status", ["enviado", "entregue", "lido", "falha"]).notNull().default("enviado"),
+  messageId: varchar("messageId", { length: 255 }),
+  errorMessage: text("errorMessage"),
+  sentAt: timestamp("sentAt").defaultNow().notNull(),
+  deliveredAt: timestamp("deliveredAt"),
+  readAt: timestamp("readAt"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type WhatsAppHistory = typeof whatsappHistory.$inferSelect;
+export type InsertWhatsAppHistory = typeof whatsappHistory.$inferInsert;

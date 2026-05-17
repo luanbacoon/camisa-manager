@@ -16,6 +16,7 @@ import Settings from "./pages/Settings";
 import Catalog from "./pages/Catalog";
 import CatalogOrders from "./pages/CatalogOrders";
 import WhatsAppSettings from "./pages/WhatsAppSettings";
+import WhatsAppHistory from "./pages/WhatsAppHistory";
 
 function DashboardRoutes() {
   return (
@@ -31,6 +32,7 @@ function DashboardRoutes() {
         <Route path="/pedidos-catalogo" component={CatalogOrders} />
         <Route path="/configuracoes" component={Settings} />
         <Route path="/whatsapp-configuracoes" component={WhatsAppSettings} />
+        <Route path="/whatsapp-historico" component={WhatsAppHistory} />
         <Route component={NotFound} />
       </Switch>
     </DashboardLayout>
