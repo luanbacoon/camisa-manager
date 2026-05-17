@@ -25,6 +25,7 @@ export function UserManagement() {
   const updateRoleMutation = trpc.localAuth.updateUserRole.useMutation();
   const toggleActiveMutation = trpc.localAuth.toggleUserActive.useMutation();
   const deleteUserMutation = trpc.localAuth.deleteUser.useMutation();
+  const createUserMutation = trpc.localAuth.register.useMutation();
 
   const handleUpdateRole = async (userId: number, newRole: string) => {
     try {
@@ -64,6 +65,29 @@ export function UserManagement() {
       setTimeout(() => setSuccess(""), 3000);
     } catch (err: any) {
       setError(err.message || "Erro ao deletar usuário");
+    }
+  };
+
+  const handleCreateUser = async () => {
+    if (!formData.email || !formData.name) {
+      setError("Preencha todos os campos");
+      return;
+    }
+
+    try {
+      await createUserMutation.mutateAsync({
+        tenantId: 1,
+        email: formData.email,
+        password: "Senha123!",
+        name: formData.name,
+      });
+      setSuccess("Usuário criado com sucesso");
+      setFormData({ email: "", name: "", role: "viewer" });
+      setIsOpen(false);
+      listUsersQuery.refetch();
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err: any) {
+      setError(err.message || "Erro ao criar usuário");
     }
   };
 
@@ -157,7 +181,13 @@ export function UserManagement() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button className="w-full">Criar Usuário</Button>
+              <Button 
+                className="w-full" 
+                onClick={handleCreateUser}
+                disabled={createUserMutation.isPending}
+              >
+                {createUserMutation.isPending ? "Criando..." : "Criar Usuário"}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>

@@ -241,3 +241,7 @@
 - [x] Invalidar/refetch de queries após limpar histórico
 - [x] Adicionar feedback de sucesso/erro para limpeza
 - [ ] Testar fluxo completo de exclusão
+
+
+## BUG - Criação de Usuários
+- [x] Investigar e corrigir erro ao criar usuários
