@@ -68,7 +68,7 @@ export async function registerLocalUser(
 }
 
 /**
- * Fazer login com email e senha
+ * Fazer login com email e senha (retorna token temporário se 2FA estiver ativo)
  */
 export async function loginLocalUser(email: string, password: string, tenantId: number) {
   const db = await getDb();
@@ -91,6 +91,29 @@ export async function loginLocalUser(email: string, password: string, tenantId: 
 
   if (!verifyPassword(password, user.passwordHash)) {
     throw new Error("Email ou senha incorretos");
+  }
+
+  // Verificar se 2FA está ativado
+  const { getTwoFactorConfig } = await import("./two-factor-auth");
+  const twoFactorConfig = await getTwoFactorConfig(user.id);
+
+  if (twoFactorConfig?.enabled) {
+    // Retornar token temporário para verificação de 2FA
+    const tempToken = generateToken();
+    const tempExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutos
+
+    // Armazenar token temporário em cache ou sessão
+    // Por enquanto, retornar para o cliente verificar 2FA
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      tenantId: user.tenantId,
+      requiresTwoFactor: true,
+      tempToken,
+      tempExpiresAt,
+    } as any;
   }
 
   // Atualizar lastLoginAt
@@ -116,6 +139,7 @@ export async function loginLocalUser(email: string, password: string, tenantId: 
     tenantId: user.tenantId,
     token,
     expiresAt,
+    requiresTwoFactor: false,
   };
 }
 
@@ -336,4 +360,49 @@ export async function deleteLocalUser(userId: number) {
   await db.delete(localUsers).where(eq(localUsers.id, userId));
 
   return { success: true };
+}
+
+/**
+ * Completar login após verificação de 2FA
+ */
+export async function completeTwoFactorLogin(userId: number, tempToken: string) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+
+  // Buscar usuário
+  const user = await db
+    .select()
+    .from(localUsers)
+    .where(eq(localUsers.id, userId))
+    .limit(1)
+    .then((rows) => rows[0] || null);
+
+  if (!user) {
+    throw new Error("Usuário não encontrado");
+  }
+
+  // Atualizar lastLoginAt
+  await db.update(localUsers).set({ lastLoginAt: new Date() }).where(eq(localUsers.id, user.id));
+
+  // Criar session token permanente
+  const token = generateToken();
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
+
+  await db.insert(sessionTokens).values({
+    userId: user.id,
+    token,
+    expiresAt,
+    ipAddress: "0.0.0.0",
+    userAgent: "unknown",
+  });
+
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+    tenantId: user.tenantId,
+    token,
+    expiresAt,
+  };
 }

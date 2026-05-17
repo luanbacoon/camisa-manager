@@ -13,7 +13,9 @@ import {
   updateUserRole,
   toggleUserActive,
   deleteLocalUser,
+  completeTwoFactorLogin,
 } from "../_core/local-auth";
+import { verifyTwoFactorToken, verifyBackupCode } from "../_core/two-factor-auth";
 
 export const localAuthRouter = router({
   /**
@@ -271,6 +273,72 @@ export const localAuthRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: error.message || "Erro ao deletar usuário",
+        });
+      }
+    }),
+
+  /**
+   * Verificar 2FA token após login
+   */
+  verifyTwoFactor: publicProcedure
+    .input(
+      z.object({
+        userId: z.number(),
+        token: z.string(),
+        useBackupCode: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const { getTwoFactorConfig } = await import("../_core/two-factor-auth");
+        const twoFactorConfig = await getTwoFactorConfig(input.userId);
+
+        if (!twoFactorConfig?.enabled) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "2FA nao esta ativado para este usuario",
+          });
+        }
+
+        let isValid = false;
+        if (input.useBackupCode) {
+          isValid = await verifyBackupCode(input.userId, input.token);
+        } else {
+          // Buscar secret do usuario
+          const { getDb } = await import("../db");
+          const dbInstance = await getDb();
+          if (!dbInstance) throw new Error("DB not available");
+
+          const { twoFactorSecrets } = await import("../../drizzle/schema");
+          const { eq } = await import("drizzle-orm");
+          
+          const config = await dbInstance
+            .select()
+            .from(twoFactorSecrets)
+            .where(eq(twoFactorSecrets.userId, input.userId))
+            .limit(1)
+            .then((rows: any) => rows[0] || null);
+
+          if (config?.secret) {
+            isValid = await verifyTwoFactorToken(config.secret, input.token);
+          }
+        }
+
+        if (!isValid) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Token 2FA invalido",
+          });
+        }
+
+        // Completar login
+        const result = await completeTwoFactorLogin(input.userId, "");
+        return { success: true, ...result };
+      } catch (error: any) {
+        if (error instanceof TRPCError) throw error;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error.message || "Erro ao verificar 2FA",
         });
       }
     }),

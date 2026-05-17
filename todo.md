@@ -227,9 +227,10 @@
 
 ## Implementação Completa de 2FA
 - [x] Criar módulos helpers de 2FA (gerar secret, verificar token, ativar/desativar)
-- [ ] Integrar 2FA ao fluxo de autenticação no backend
+- [x] Integrar 2FA ao fluxo de autenticação no backend
 - [ ] Criar UI de login com verificação de 2FA
 - [ ] Criar página de gerenciamento de 2FA (ativar/desativar, backup codes)
+- [ ] Implementar rate limiting para login
 - [ ] Testar fluxo completo de 2FA
 
 

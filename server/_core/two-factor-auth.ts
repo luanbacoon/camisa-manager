@@ -1,5 +1,4 @@
-const otplib = require("otplib");
-const { generateSecret, verify } = otplib.authenticator;
+import { generateSecret, verify } from "otplib";
 
 import { getDb } from "../db";
 import { twoFactorSecrets } from "../../drizzle/schema";
@@ -9,10 +8,7 @@ import { eq } from "drizzle-orm";
  * Gerar novo secret TOTP para um usuário
  */
 export function generateTwoFactorSecret(email: string): { secret: string; keyUri: string } {
-  const secret = generateSecret({
-    name: `CamisaManager (${email})`,
-    issuer: "CamisaManager",
-  }) as any;
+  const secret = generateSecret() as any;
 
   const secretStr = typeof secret === "string" ? secret : (secret.secret as string);
   const keyUriStr = typeof secret === "string" ? secret : (secret.keyUri as string);
@@ -26,9 +22,10 @@ export function generateTwoFactorSecret(email: string): { secret: string; keyUri
 /**
  * Verificar se um token TOTP é válido
  */
-export function verifyTwoFactorToken(secret: string, token: string): boolean {
+export async function verifyTwoFactorToken(secret: string, token: string): Promise<boolean> {
   try {
-    return verify({ secret, encoding: "base32", token });
+    const result = await verify({ secret, token });
+    return (result as unknown as { valid: boolean }).valid === true;
   } catch (error) {
     return false;
   }
