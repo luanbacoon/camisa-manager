@@ -21,6 +21,11 @@ function fmt(v: number | string) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(v));
 }
 
+// Gerar link de rastreio dos Correios
+function getTrackingUrl(trackingCode: string): string {
+  return `https://www.correios.com.br/rastreamento?codigo=${trackingCode}`;
+}
+
 const STATUS_LABELS: Record<string, string> = {
   pendente: "Pendente",
   em_transito: "Em Trânsito",
@@ -99,6 +104,28 @@ export default function SupplierOrders() {
   const [editTracking, setEditTracking] = useState("");
   const [editStatus, setEditStatus] = useState("");
   const [editNotes, setEditNotes] = useState("");
+  const [trackingInfo, setTrackingInfo] = useState<any>(null);
+  const [loadingTracking, setLoadingTracking] = useState(false);
+
+  const trackPackage = trpc.supplierOrders.trackPackage.useQuery(
+    { trackingCode: editTracking },
+    { enabled: false, retry: false }
+  );
+
+  async function fetchTrackingInfo() {
+    if (!editTracking) return;
+    setLoadingTracking(true);
+    try {
+      const result = await trackPackage.refetch();
+      if (result.data) {
+        setTrackingInfo(result.data);
+      }
+    } catch (error) {
+      toast.error("Erro ao buscar informações de rastreio");
+    } finally {
+      setLoadingTracking(false);
+    }
+  }
 
   function openNew() {
     setCartItems([]);
@@ -192,6 +219,7 @@ export default function SupplierOrders() {
     setEditTracking(order.trackingCode ?? "");
     setEditStatus(order.status);
     setEditNotes(order.notes ?? "");
+    setTrackingInfo(null);
     setShowEdit(order.id);
   }
 
@@ -266,6 +294,17 @@ export default function SupplierOrders() {
                     </span>
                   </td>
                   <td className="px-4 py-3 flex gap-2">
+                    {order.trackingCode && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => window.open(getTrackingUrl(order.trackingCode!), "_blank")}
+                        className="gap-1 text-blue-600 hover:text-blue-700"
+                        title="Rastrear pacote nos Correios"
+                      >
+                        <ExternalLink className="w-3 h-3" /> Rastrear
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       variant="outline"
@@ -484,8 +523,43 @@ export default function SupplierOrders() {
           <div className="space-y-4">
             <div>
               <Label>Código de Rastreio</Label>
-              <Input value={editTracking} onChange={(e) => setEditTracking(e.target.value)} />
+              <div className="flex gap-2">
+                <Input value={editTracking} onChange={(e) => setEditTracking(e.target.value)} />
+                <Button
+                  onClick={fetchTrackingInfo}
+                  disabled={!editTracking || loadingTracking}
+                  className="gap-1"
+                  variant="outline"
+                >
+                  {loadingTracking ? "Carregando..." : "Rastrear"}
+                </Button>
+              </div>
             </div>
+            {trackingInfo && (
+              <div className="p-3 bg-muted/50 rounded-lg border border-border space-y-2">
+                <p className="text-sm font-semibold">Status de Rastreamento:</p>
+                {trackingInfo.success ? (
+                  <div className="space-y-2 text-sm">
+                    <p><strong>Status:</strong> {trackingInfo.status}</p>
+                    {trackingInfo.lastUpdate && (
+                      <p><strong>Ultima Atualizacao:</strong> {new Date(trackingInfo.lastUpdate).toLocaleString('pt-BR')}</p>
+                    )}
+                    {trackingInfo.events && trackingInfo.events.length > 0 && (
+                      <div>
+                        <p><strong>Eventos:</strong></p>
+                        <ul className="ml-4 space-y-1">
+                          {trackingInfo.events.slice(0, 3).map((event: any, idx: number) => (
+                            <li key={idx} className="text-xs text-muted-foreground">• {event.description || event.status}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-red-600">{trackingInfo.error}</p>
+                )}
+              </div>
+            )}
             <div>
               <Label>Status</Label>
               <Select value={editStatus} onValueChange={setEditStatus}>

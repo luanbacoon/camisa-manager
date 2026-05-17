@@ -120,3 +120,12 @@
 - [x] Aumentar campos de dados do pedido para 3 colunas
 - [x] Aumentar campos de adicionar item para 4 colunas
 - [x] Manter estrutura original com layout mais horizontal
+
+## Busca de Produtos
+- [x] Campo de busca no painel esquerdo do modal de novo pedido para filtrar camisas por nome em tempo real
+
+## Integração com Correios
+- [x] Implementar link de rastreio clicável para Correios (https://www.correios.com.br/rastreamento)
+- [x] Adicionar botão com ícone ExternalLink na tabela de pedidos para rastrear
+- [x] Integrar API dos Correios para buscar status de entrega em tempo real
+- [x] Exibir status de rastreamento na UI (modal de edição e tabela)

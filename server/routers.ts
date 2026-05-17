@@ -427,6 +427,46 @@ export const appRouter = router({
     markReceived: protectedProcedure
       .input(z.object({ id: z.number() }))
       .mutation(({ input }) => markSupplierOrderReceived(input.id)),
+
+    trackPackage: protectedProcedure
+      .input(z.object({ trackingCode: z.string().min(1) }))
+      .query(async ({ input }) => {
+        try {
+          const response = await fetch(
+            `https://www.correios.com.br/rastreamento/api/v1/rastreamento?codigo=${input.trackingCode}`,
+            {
+              headers: {
+                "Accept": "application/json",
+                "User-Agent": "Mozilla/5.0",
+              },
+            }
+          );
+
+          if (!response.ok) {
+            return {
+              success: false,
+              error: "Nao foi possivel rastrear o pacote",
+              trackingCode: input.trackingCode,
+            };
+          }
+
+          const data = await response.json();
+          return {
+            success: true,
+            trackingCode: input.trackingCode,
+            status: data.status || "Desconhecido",
+            lastUpdate: data.lastUpdate || null,
+            events: data.events || [],
+            data,
+          };
+        } catch (error) {
+          return {
+            success: false,
+            error: error instanceof Error ? error.message : "Erro ao rastrear pacote",
+            trackingCode: input.trackingCode,
+          };
+        }
+      }),
   }),
 
   // ─── Simulator ─────────────────────────────────────────────────────────────
