@@ -6,6 +6,7 @@ import { tenantsRouter } from "./routers/tenants";
 import { backupsRouter } from "./routers/backups";
 import { localAuthRouter } from "./routers/local-auth";
 import { reportsRouter } from "./routers/reports";
+import { suppliersRouter } from "./routers/suppliers";
 
 import { z } from "zod";
 import { eq } from "drizzle-orm";
@@ -64,6 +65,7 @@ export const appRouter = router({
   backups: backupsRouter,
   localAuth: localAuthRouter,
   reports: reportsRouter,
+  suppliers: suppliersRouter,
 
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),

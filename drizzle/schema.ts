@@ -492,3 +492,30 @@ export const sessionTokens = mysqlTable("session_tokens", {
 
 export type SessionToken = typeof sessionTokens.$inferSelect;
 export type InsertSessionToken = typeof sessionTokens.$inferInsert;
+
+
+// ─── Suppliers (Fornecedores) ────────────────────────────────────────────────
+export const suppliers = mysqlTable("suppliers", {
+  id: int("id").autoincrement().primaryKey(),
+  tenantId: int("tenantId").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }),
+  phone: varchar("phone", { length: 30 }),
+  whatsapp: varchar("whatsapp", { length: 30 }),
+  address: text("address"),
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 2 }),
+  zipCode: varchar("zipCode", { length: 10 }),
+  cnpj: varchar("cnpj", { length: 20 }),
+  contactPerson: varchar("contactPerson", { length: 255 }),
+  paymentTerms: varchar("paymentTerms", { length: 100 }),
+  deliveryTime: varchar("deliveryTime", { length: 100 }),
+  minOrder: decimal("minOrder", { precision: 10, scale: 2 }),
+  notes: text("notes"),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Supplier = typeof suppliers.$inferSelect;
+export type InsertSupplier = typeof suppliers.$inferInsert;

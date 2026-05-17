@@ -261,3 +261,11 @@
 - [ ] Implementar exportação para PDF
 - [ ] Implementar exportação para Excel
 - [ ] Testar geração de relatórios
+
+
+## Gerenciamento de Fornecedores
+- [x] Criar tabela de fornecedores com contatos
+- [x] Criar procedures tRPC para CRUD de fornecedores
+- [ ] Criar UI de gerenciamento de fornecedores
+- [ ] Integrar fornecedores com pedidos ao fornecedor
+- [ ] Testar gerenciamento de fornecedores
