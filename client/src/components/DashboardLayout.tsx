@@ -65,6 +65,7 @@ const menuItems = [
   { icon: Factory, label: "Fornecedores", path: "/fornecedores" },
   { icon: Shield, label: "Segurança 2FA", path: "/seguranca/2fa" },
   { icon: Users, label: "Usuários", path: "/usuarios" },
+  { icon: Factory, label: "Tenants", path: "/admin/tenants" },
   { icon: Settings, label: "Configurações", path: "/configuracoes" },
 ];
 
