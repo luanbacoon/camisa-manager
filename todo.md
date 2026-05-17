@@ -252,3 +252,12 @@
 
 ## BUG - Criação de Usuários
 - [x] Investigar e corrigir erro ao criar usuários
+
+
+## Relatórios Avançados (PDF/Excel)
+- [x] Criar helpers para gerar dados de relatórios (vendas, estoque)
+- [ ] Criar procedures tRPC para gerar relatórios
+- [ ] Implementar exportação para PDF
+- [ ] Implementar exportação para Excel
+- [ ] Criar UI de relatórios com filtros
+- [ ] Testar geração de relatórios
