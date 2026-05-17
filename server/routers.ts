@@ -54,6 +54,7 @@ import {
   getWhatsAppHistory,
   getWhatsAppMessageStats,
   getWhatsAppHistoryByPhone,
+  clearWhatsAppHistory,
 } from "./db";
 
 export const appRouter = router({
@@ -610,6 +611,10 @@ export const appRouter = router({
     historyByPhone: protectedProcedure
       .input(z.object({ phone: z.string() }))
       .query(({ input }) => getWhatsAppHistoryByPhone(input.phone)),
+
+    clearHistory: protectedProcedure
+      .input(z.object({ olderThanDays: z.number().optional().default(0) }))
+      .mutation(({ input }) => clearWhatsAppHistory(input.olderThanDays)),
   }),
 });
 

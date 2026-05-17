@@ -235,3 +235,9 @@
 - [x] Criar UI de login customizada (sem Manus OAuth)
 - [x] Criar painel de admin para gerenciar usuários e clientes
 - [x] Testar autenticação local
+
+## Funcionalidades Adicionais
+- [x] Botão para apagar histórico do WhatsApp
+- [x] Invalidar/refetch de queries após limpar histórico
+- [x] Adicionar feedback de sucesso/erro para limpeza
+- [ ] Testar fluxo completo de exclusão

@@ -2,7 +2,8 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CheckCircle2, AlertCircle, Clock, MessageCircle, TrendingUp } from "lucide-react";
+import { CheckCircle2, AlertCircle, Clock, MessageCircle, TrendingUp, Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,8 @@ const STATUS_CONFIG: Record<string, { icon: React.ReactNode; color: string; labe
 export default function WhatsAppHistory() {
   const [searchPhone, setSearchPhone] = useState("");
   const [selectedPhone, setSelectedPhone] = useState<string | null>(null);
+  const [showClearDialog, setShowClearDialog] = useState(false);
+  const [clearDays, setClearDays] = useState(0);
 
   const { data: stats = null } = trpc.catalog.stats.useQuery();
   const { data: history = [], isLoading } = trpc.catalog.history.useQuery({
@@ -52,6 +55,20 @@ export default function WhatsAppHistory() {
     { phone: selectedPhone || "" },
     { enabled: !!selectedPhone }
   );
+
+  const utils = trpc.useUtils();
+  const clearHistoryMutation = trpc.catalog.clearHistory.useMutation({
+    onSuccess: () => {
+      utils.catalog.history.invalidate();
+      utils.catalog.historyByPhone.invalidate();
+      utils.catalog.stats.invalidate();
+      setShowClearDialog(false);
+      setClearDays(0);
+    },
+    onError: (error) => {
+      console.error("Erro ao limpar histórico:", error);
+    },
+  });
 
   const handleSearch = () => {
     if (searchPhone.trim()) {
@@ -78,6 +95,15 @@ export default function WhatsAppHistory() {
             </p>
           </div>
         </div>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => setShowClearDialog(true)}
+          className="gap-2"
+        >
+          <Trash2 className="h-4 w-4" />
+          Limpar Histórico
+        </Button>
       </div>
 
       {/* Statistics Cards */}
@@ -249,6 +275,48 @@ export default function WhatsAppHistory() {
           </CardContent>
         </Card>
       )}
+
+      {/* Clear History Dialog */}
+      <Dialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Limpar Histórico de Mensagens</DialogTitle>
+            <DialogDescription>
+              Escolha quantos dias de histórico deseja manter. Mensagens mais antigas serão deletadas.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Manter mensagens dos últimos (dias)</label>
+              <Input
+                type="number"
+                min="0"
+                value={clearDays}
+                onChange={(e) => setClearDays(parseInt(e.target.value) || 0)}
+                placeholder="0 para apagar tudo"
+                className="mt-2"
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                {clearDays === 0
+                  ? "Será apagado TODO o histórico"
+                  : `Será mantido histórico dos últimos ${clearDays} dias`}
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowClearDialog(false)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => clearHistoryMutation.mutate({ olderThanDays: clearDays })}
+              disabled={clearHistoryMutation.isPending}
+            >
+              {clearHistoryMutation.isPending ? "Apagando..." : "Apagar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

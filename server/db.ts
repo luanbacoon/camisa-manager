@@ -1,5 +1,6 @@
 import { and, desc, eq, gte, lte, sql, sum, count, ne, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import { lt } from "drizzle-orm";
 import {
   InsertUser,
   users,
@@ -931,4 +932,26 @@ export async function getWhatsAppHistoryByPhone(customerPhone: string) {
     .from(whatsappHistory)
     .where(eq(whatsappHistory.customerPhone, customerPhone))
     .orderBy(desc(whatsappHistory.sentAt));
+}
+
+
+export async function clearWhatsAppHistory(olderThanDays: number = 0) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  
+  let whereClause;
+  if (olderThanDays > 0) {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
+    whereClause = lt(whatsappHistory.sentAt, cutoffDate);
+  } else {
+    // Apagar tudo
+    whereClause = undefined;
+  }
+  
+  const result = await db
+    .delete(whatsappHistory)
+    .where(whereClause);
+  
+  return result;
 }
