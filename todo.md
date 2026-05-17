@@ -235,6 +235,8 @@
 - [x] Criar UI de login customizada (sem Manus OAuth)
 - [x] Criar painel de admin para gerenciar usuários e clientes
 - [x] Testar autenticação local
+- [x] Integrar autenticação local ao contexto tRPC
+- [x] Adicionar testes de hashing de senha
 
 ## Funcionalidades Adicionais
 - [x] Botão para apagar histórico do WhatsApp

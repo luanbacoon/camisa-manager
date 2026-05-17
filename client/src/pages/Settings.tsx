@@ -419,7 +419,7 @@ export default function Settings() {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="bg-muted/30 rounded-lg p-3">
                 <p className="text-xs text-muted-foreground">Método de Login</p>
-                <p className="font-medium mt-1 capitalize">{user?.loginMethod ?? "—"}</p>
+                <p className="font-medium mt-1 capitalize">{(user as any)?.loginMethod ?? "Local"}</p>
               </div>
               <div className="bg-muted/30 rounded-lg p-3">
                 <p className="text-xs text-muted-foreground">Perfil</p>
