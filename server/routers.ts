@@ -4,6 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { tenantsRouter } from "./routers/tenants";
 import { backupsRouter } from "./routers/backups";
+import { localAuthRouter } from "./routers/local-auth";
 
 import { z } from "zod";
 import { eq } from "drizzle-orm";
@@ -59,6 +60,7 @@ export const appRouter = router({
   system: systemRouter,
   tenants: tenantsRouter,
   backups: backupsRouter,
+  localAuth: localAuthRouter,
 
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),

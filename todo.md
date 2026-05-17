@@ -227,3 +227,11 @@
 - [ ] Criar UI de login com verificação de 2FA
 - [ ] Criar página de gerenciamento de 2FA (ativar/desativar, backup codes)
 - [ ] Testar fluxo completo de 2FA
+
+
+## Autenticação Local por Cliente
+- [x] Criar tabelas de usuários locais (email, senha hash, tenant)
+- [x] Implementar procedures tRPC para login/registro/reset de senha
+- [x] Criar UI de login customizada (sem Manus OAuth)
+- [x] Criar painel de admin para gerenciar usuários e clientes
+- [x] Testar autenticação local

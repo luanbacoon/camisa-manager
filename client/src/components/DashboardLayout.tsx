@@ -58,6 +58,7 @@ const menuItems = [
   { icon: MessageCircle, label: "WhatsApp", path: "/whatsapp-configuracoes" },
   { icon: History, label: "Histórico WhatsApp", path: "/whatsapp-historico" },
   { icon: HardDrive, label: "Backups", path: "/backups" },
+  { icon: Users, label: "Usuários", path: "/usuarios" },
   { icon: Settings, label: "Configurações", path: "/configuracoes" },
 ];
 
