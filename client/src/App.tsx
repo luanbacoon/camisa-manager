@@ -20,6 +20,7 @@ import WhatsAppHistory from "./pages/WhatsAppHistory";
 import Backups from "./pages/Backups";
 import { UserManagement } from "./pages/UserManagement";
 import { LocalLogin } from "./pages/LocalLogin";
+import Reports from "./pages/Reports";
 
 function DashboardRoutes() {
   return (
@@ -38,6 +39,7 @@ function DashboardRoutes() {
         <Route path="/whatsapp-historico" component={WhatsAppHistory} />
         <Route path="/backups" component={Backups} />
         <Route path="/usuarios" component={UserManagement} />
+        <Route path="/relatorios" component={Reports} />
         <Route component={NotFound} />
       </Switch>
     </DashboardLayout>

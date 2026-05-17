@@ -256,8 +256,8 @@
 
 ## Relatórios Avançados (PDF/Excel)
 - [x] Criar helpers para gerar dados de relatórios (vendas, estoque)
-- [ ] Criar procedures tRPC para gerar relatórios
+- [x] Criar procedures tRPC para gerar relatórios
+- [x] Criar UI de relatórios com filtros
 - [ ] Implementar exportação para PDF
 - [ ] Implementar exportação para Excel
-- [ ] Criar UI de relatórios com filtros
 - [ ] Testar geração de relatórios
