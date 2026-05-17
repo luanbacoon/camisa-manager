@@ -170,9 +170,10 @@
 - [ ] Criar painel de admin para gerenciar tenants (UI)
 - [ ] Migrar dados existentes para tenant "default"
 - [x] Adicionar tenantId à tabela de produtos
-- [ ] Adicionar tenantId às demais tabelas de domínio (customers, sales, etc)
+- [x] Adicionar tenantId às tabelas de customers, sales, supplier_orders, catalogOrders
+- [x] Atualizar procedures para usar tenantId do contexto
+- [ ] Atualizar queries de listagem para filtrar por tenantId
 - [ ] Implementar subdomínios dinâmicos (tenant.camisamanager.com)
-- [ ] Atualizar procedures para usar tenantId do contexto
 - [ ] Implementar isolamento de dados em todas as queries
 
 ## CRÍTICO - Sistema de Permissões e Roles

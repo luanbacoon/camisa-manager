@@ -216,7 +216,10 @@ export const appRouter = router({
           notes: z.string().optional(),
         })
       )
-      .mutation(({ input }) => createCustomer(input)),
+      .mutation(({ input, ctx }) => {
+        const tenantId = (ctx.user as any)?.tenantId || 1;
+        return createCustomer({ ...input, tenantId });
+      }),
 
     update: protectedProcedure
       .input(
@@ -287,7 +290,8 @@ export const appRouter = router({
           ),
         })
       )
-      .mutation(({ input }) => {
+      .mutation(({ input, ctx }) => {
+        const tenantId = (ctx.user as any)?.tenantId || 1;
         const subtotal = input.items.reduce((acc, i) => acc + i.unitPrice * i.quantity, 0);
         const discount = input.discountValue ? input.discountValue : (subtotal * (input.discountPercent || 0)) / 100;
         const total = Math.max(0, subtotal - discount);
@@ -297,6 +301,7 @@ export const appRouter = router({
         ) - discount;
         return createSale(
           {
+            tenantId,
             customerId: input.customerId,
             paymentMethod: input.paymentMethod,
             total: String(total),
@@ -364,9 +369,11 @@ export const appRouter = router({
           trackingCode: z.string().optional(),
         })
       )
-      .mutation(({ input }) => {
+      .mutation(({ input, ctx }) => {
+        const tenantId = (ctx.user as any)?.tenantId || 1;
         const totalCost = input.quantity * input.unitCost;
         return createSupplierOrder({
+          tenantId,
           productId: input.productId,
           size: input.size,
           quantity: input.quantity,
@@ -406,9 +413,11 @@ export const appRouter = router({
           ),
         })
       )
-      .mutation(({ input }) => {
+      .mutation(({ input, ctx }) => {
+        const tenantId = (ctx.user as any)?.tenantId || 1;
         return createSupplierOrderWithItems(
           {
+            tenantId,
             supplier: input.supplier,
             orderType: input.orderType,
             currency: input.currency,
@@ -549,14 +558,16 @@ export const appRouter = router({
           notes: z.string().optional(),
         })
       )
-      .mutation(({ input }) =>
-        createCatalogOrder({
+      .mutation(({ input, ctx }) => {
+        const tenantId = (ctx.user as any)?.tenantId || 1;
+        return createCatalogOrder({
+          tenantId,
           customerName: input.customerName,
           customerPhone: input.customerPhone,
           items: input.items.map((i) => ({ ...i, price: i.unitPrice })),
           notes: input.notes,
-        })
-      ),
+        });
+      }),
 
     // Protected endpoints
     orders: protectedProcedure.query(() => listCatalogOrders()),

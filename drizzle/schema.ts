@@ -98,6 +98,7 @@ export type InsertProductGalleryItem = typeof productGallery.$inferInsert;
 // ─── Customers ────────────────────────────────────────────────────────────────
 export const customers = mysqlTable("customers", {
   id: int("id").autoincrement().primaryKey(),
+  tenantId: int("tenantId").notNull().references(() => tenants.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
   phone: varchar("phone", { length: 30 }),
   email: varchar("email", { length: 320 }),
@@ -117,6 +118,7 @@ export type InsertCustomer = typeof customers.$inferInsert;
 // ─── Sales ────────────────────────────────────────────────────────────────────
 export const sales = mysqlTable("sales", {
   id: int("id").autoincrement().primaryKey(),
+  tenantId: int("tenantId").notNull().references(() => tenants.id, { onDelete: "cascade" }),
   customerId: int("customerId").notNull(),
   paymentMethod: mysqlEnum("paymentMethod", [
     "dinheiro",
@@ -165,6 +167,7 @@ export type InsertSaleItem = typeof saleItems.$inferInsert;
 // ─── Supplier Orders ──────────────────────────────────────────────────────────
 export const supplierOrders = mysqlTable("supplier_orders", {
   id: int("id").autoincrement().primaryKey(),
+  tenantId: int("tenantId").notNull().references(() => tenants.id, { onDelete: "cascade" }),
   productId: int("productId").notNull(),
   size: varchar("size", { length: 20 }).notNull(),
   quantity: int("quantity").notNull(),
@@ -242,6 +245,7 @@ export type StockAdjustment = typeof stockAdjustments.$inferSelect;
 // ─── Catalog Orders (public) ──────────────────────────────────────────────────
 export const catalogOrders = mysqlTable("catalog_orders", {
   id: int("id").autoincrement().primaryKey(),
+  tenantId: int("tenantId").notNull().references(() => tenants.id, { onDelete: "cascade" }),
   customerName: varchar("customerName", { length: 255 }).notNull(),
   customerPhone: varchar("customerPhone", { length: 30 }),
   customerEmail: varchar("customerEmail", { length: 320 }),
