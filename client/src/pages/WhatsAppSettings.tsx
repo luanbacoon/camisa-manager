@@ -41,11 +41,8 @@ export default function WhatsAppSettings() {
     onError: (e) => toast.error(e.message),
   });
 
-  useEffect(() => {
-    if (templatesData) {
-      setTemplates(templatesData);
-    }
-  }, [templatesData]);
+  // Use templatesData directly instead of syncing to state to avoid infinite loops
+  const displayTemplates = templates.length > 0 ? templates : templatesData;
 
   const handleEdit = (template: any) => {
     setEditingStatus(template.status);
@@ -97,7 +94,7 @@ export default function WhatsAppSettings() {
 
       {isLoading ? (
         <div className="text-center py-8 text-muted-foreground">Carregando templates...</div>
-      ) : templates.length === 0 ? (
+      ) : displayTemplates.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="py-8 text-center">
             <p className="text-muted-foreground mb-4">Nenhum template configurado</p>
@@ -106,7 +103,7 @@ export default function WhatsAppSettings() {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {templates.map((template) => (
+          {displayTemplates.map((template) => (
             <Card key={template.status} className="overflow-hidden">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
