@@ -308,6 +308,16 @@
 - [x] Detectar atividades suspeitas
 - [ ] Testar validação em procedures tRPC
 
+## Admin de Tenants
+- [x] Criar procedures tRPC para gerenciar tenants
+- [x] Implementar listagem de tenants (admin only)
+- [x] Implementar criação de novo tenant
+- [x] Implementar atualização de tenant
+- [x] Implementar deleção de tenant
+- [x] Implementar gerenciamento de usuários por tenant
+- [x] Integrar admin-tenants router ao appRouter
+- [ ] Criar UI de admin para gerenciar tenants
+
 ## Fase 1 - Correção Isolamento Multi-Tenant (db.ts)
 - [x] Corrigir listCustomers() com tenantId
 - [x] Corrigir listSales() com tenantId

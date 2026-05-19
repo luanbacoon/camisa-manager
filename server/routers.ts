@@ -8,6 +8,7 @@ import { localAuthRouter } from "./routers/local-auth";
 import { reportsRouter } from "./routers/reports";
 import { suppliersRouter } from "./routers/suppliers";
 import { rbacRouter } from "./routers/rbac";
+import { adminTenantsRouter } from "./routers/admin-tenants";
 
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -69,6 +70,7 @@ export const appRouter = router({
   reports: reportsRouter,
   suppliers: suppliersRouter,
   rbac: rbacRouter,
+  adminTenants: adminTenantsRouter,
 
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
