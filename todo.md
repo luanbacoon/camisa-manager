@@ -272,6 +272,11 @@
 - [x] Testar gerenciamento de fornecedores
 
 
+## Bug - Catálogo com Produtos de Teste
+- [x] Remover 4 produtos de teste (Test Camisa...) do banco de dados
+- [x] Deletar dependências (tamanhos, pedidos, vendas, ajustes)
+- [x] Validar que catálogo mostra apenas produtos reais
+
 ## Fase 1 - Correção Isolamento Multi-Tenant (db.ts)
 - [x] Corrigir listCustomers() com tenantId
 - [x] Corrigir listSales() com tenantId

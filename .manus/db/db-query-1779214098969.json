@@ -1,0 +1,9 @@
+{
+  "query": "-- Delete product_sizes first (foreign key constraint)\nDELETE FROM product_sizes WHERE productId IN (SELECT id FROM products WHERE name LIKE 'Test Camisa%');\n\n-- Delete supplier_orders\nDELETE FROM supplier_orders WHERE productId IN (SELECT id FROM products WHERE name LIKE 'Test Camisa%');\n\n-- Delete sale_items\nDELETE FROM sale_items WHERE productId IN (SELECT id FROM products WHERE name LIKE 'Test Camisa%');\n\n-- Delete stock_adjustments\nDELETE FROM stock_adjustments WHERE productId IN (SELECT id FROM products WHERE name LIKE 'Test Camisa%');\n\n-- Finally delete the products\nDELETE FROM products WHERE name LIKE 'Test Camisa%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ifPH7viqejjM65.root --database awm2eraPRXUvnHb76ArrUX --execute -- Delete product_sizes first (foreign key constraint)\nDELETE FROM product_sizes WHERE productId IN (SELECT id FROM products WHERE name LIKE 'Test Camisa%');\n\n-- Delete supplier_orders\nDELETE FROM supplier_orders WHERE productId IN (SELECT id FROM products WHERE name LIKE 'Test Camisa%');\n\n-- Delete sale_items\nDELETE FROM sale_items WHERE productId IN (SELECT id FROM products WHERE name LIKE 'Test Camisa%');\n\n-- Delete stock_adjustments\nDELETE FROM stock_adjustments WHERE productId IN (SELECT id FROM products WHERE name LIKE 'Test Camisa%');\n\n-- Finally delete the products\nDELETE FROM products WHERE name LIKE 'Test Camisa%';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 649
+}

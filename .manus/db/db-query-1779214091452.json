@@ -1,0 +1,34 @@
+{
+  "query": "SELECT id, name, showInCatalog, imageUrl FROM products WHERE name LIKE 'Test Camisa%' OR name LIKE 'test%' ORDER BY createdAt DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ifPH7viqejjM65.root --database awm2eraPRXUvnHb76ArrUX --execute SELECT id, name, showInCatalog, imageUrl FROM products WHERE name LIKE 'Test Camisa%' OR name LIKE 'test%' ORDER BY createdAt DESC;",
+  "rows": [
+    {
+      "id": "150004",
+      "name": "Test Camisa 1779159526003",
+      "showInCatalog": "1",
+      "imageUrl": "NULL"
+    },
+    {
+      "id": "150003",
+      "name": "Test Camisa 1779159515029",
+      "showInCatalog": "1",
+      "imageUrl": "NULL"
+    },
+    {
+      "id": "150002",
+      "name": "Test Camisa 1779159498600",
+      "showInCatalog": "1",
+      "imageUrl": "NULL"
+    },
+    {
+      "id": "150001",
+      "name": "Test Camisa 1779159483587",
+      "showInCatalog": "1",
+      "imageUrl": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tshowInCatalog\timageUrl\n150004\tTest Camisa 1779159526003\t1\tNULL\n150003\tTest Camisa 1779159515029\t1\tNULL\n150002\tTest Camisa 1779159498600\t1\tNULL\n150001\tTest Camisa 1779159483587\t1\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 373
+}
