@@ -259,9 +259,9 @@
 - [x] Criar procedures tRPC para gerar relatórios
 - [x] Criar UI de relatórios com filtros
 - [x] Criar helpers de exportação para PDF (docx) e Excel (xlsx)
-- [ ] Integrar exportação com procedures tRPC
-- [ ] Adicionar botões de download na UI de relatórios
-- [ ] Testar geração e download de relatórios
+- [x] Integrar exportação com procedures tRPC
+- [x] Adicionar botões de download na UI de relatórios
+- [x] Testar geração e download de relatórios (72 testes passando)
 
 
 ## Gerenciamento de Fornecedores

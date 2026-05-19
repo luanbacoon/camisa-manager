@@ -1,6 +1,6 @@
-import { Document, Packer, Paragraph, Table, TableCell, TableRow, BorderStyle, WidthType, VerticalAlign, AlignmentType } from 'docx';
+import { Document, Packer, Paragraph, Table, TableCell, TableRow, BorderStyle, WidthType, VerticalAlign, AlignmentType, TextRun } from 'docx';
 import * as XLSX from 'xlsx';
-import { generateSalesReportData, generateStockReportData } from './reports';
+import { generateSalesReportData, generateStockReportData, SalesReportData, StockReportData } from './reports';
 
 /**
  * Exportar relatório de vendas para PDF (usando docx como intermediário)
@@ -10,7 +10,11 @@ export async function exportSalesReportToPDF(
   fromDate?: Date,
   toDate?: Date
 ): Promise<Buffer> {
-  const data = await generateSalesReportData(tenantId, fromDate, toDate);
+  const data = await generateSalesReportData(tenantId, fromDate || new Date(0), toDate || new Date());
+
+  const totalRevenueNum = parseFloat(data.totalRevenue);
+  const totalProfitNum = parseFloat(data.totalProfit);
+  const averageTicketNum = parseFloat(data.averageTicket);
 
   const rows = [
     new TableRow({
@@ -22,25 +26,25 @@ export async function exportSalesReportToPDF(
     new TableRow({
       children: [
         new TableCell({ children: [new Paragraph('Receita Total')] }),
-        new TableCell({ children: [new Paragraph(`R$ ${data.totalRevenue.toFixed(2)}`)] }),
+        new TableCell({ children: [new Paragraph(`R$ ${totalRevenueNum.toFixed(2)}`)] }),
       ],
     }),
     new TableRow({
       children: [
         new TableCell({ children: [new Paragraph('Lucro Total')] }),
-        new TableCell({ children: [new Paragraph(`R$ ${data.totalProfit.toFixed(2)}`)] }),
+        new TableCell({ children: [new Paragraph(`R$ ${totalProfitNum.toFixed(2)}`)] }),
       ],
     }),
     new TableRow({
       children: [
         new TableCell({ children: [new Paragraph('Ticket Médio')] }),
-        new TableCell({ children: [new Paragraph(`R$ ${data.averageTicket.toFixed(2)}`)] }),
+        new TableCell({ children: [new Paragraph(`R$ ${averageTicketNum.toFixed(2)}`)] }),
       ],
     }),
     new TableRow({
       children: [
         new TableCell({ children: [new Paragraph('Itens Vendidos')] }),
-        new TableCell({ children: [new Paragraph(data.totalItems.toString())] }),
+        new TableCell({ children: [new Paragraph(data.itemsSold.toString())] }),
       ],
     }),
   ];
@@ -50,9 +54,7 @@ export async function exportSalesReportToPDF(
       {
         children: [
           new Paragraph({
-            text: 'Relatório de Vendas',
-            bold: true,
-            size: 28,
+            children: [new TextRun({ text: 'Relatório de Vendas', bold: true, size: 28 })],
             alignment: AlignmentType.CENTER,
           }),
           new Paragraph(''),
@@ -62,25 +64,25 @@ export async function exportSalesReportToPDF(
           }),
           new Paragraph(''),
           new Paragraph({
-            text: 'Top Produtos',
-            bold: true,
-            size: 20,
+            children: [new TextRun({ text: 'Top Produtos', bold: true, size: 20 })],
           }),
           ...data.topProducts.map(
-            (p) =>
-              new Paragraph(`${p.name}: ${p.quantity} unidades (R$ ${p.revenue.toFixed(2)})`)
+            (p) => {
+              const revenueNum = parseFloat(p.revenue);
+              return new Paragraph(`${p.name}: ${p.quantity} unidades (R$ ${revenueNum.toFixed(2)})`);
+            }
           ),
           new Paragraph(''),
           new Paragraph({
-            text: 'Top Clientes',
-            bold: true,
-            size: 20,
+            children: [new TextRun({ text: 'Top Clientes', bold: true, size: 20 })],
           }),
           ...data.topCustomers.map(
-            (c) =>
-              new Paragraph(
-                `${c.customerName}: ${c.totalPurchases} compras (R$ ${c.totalSpent.toFixed(2)})`
-              )
+            (c) => {
+              const totalNum = parseFloat(c.total);
+              return new Paragraph(
+                `${c.name}: ${c.purchases} compras (R$ ${totalNum.toFixed(2)})`
+              );
+            }
           ),
         ],
       },
@@ -98,28 +100,38 @@ export async function exportSalesReportToExcel(
   fromDate?: Date,
   toDate?: Date
 ): Promise<Buffer> {
-  const data = await generateSalesReportData(tenantId, fromDate, toDate);
+  const data = await generateSalesReportData(tenantId, fromDate || new Date(0), toDate || new Date());
+
+  const totalRevenueNum2 = parseFloat(data.totalRevenue);
+  const totalProfitNum2 = parseFloat(data.totalProfit);
+  const averageTicketNum2 = parseFloat(data.averageTicket);
 
   const metricsData = [
     ['Métrica', 'Valor'],
-    ['Receita Total', `R$ ${data.totalRevenue.toFixed(2)}`],
-    ['Lucro Total', `R$ ${data.totalProfit.toFixed(2)}`],
-    ['Ticket Médio', `R$ ${data.averageTicket.toFixed(2)}`],
-    ['Itens Vendidos', data.totalItems.toString()],
+    ['Receita Total', `R$ ${totalRevenueNum2.toFixed(2)}`],
+    ['Lucro Total', `R$ ${totalProfitNum2.toFixed(2)}`],
+    ['Ticket Médio', `R$ ${averageTicketNum2.toFixed(2)}`],
+    ['Itens Vendidos', data.itemsSold.toString()],
   ];
 
   const topProductsData = [
     ['Produto', 'Quantidade', 'Receita'],
-    ...data.topProducts.map((p) => [p.name, p.quantity.toString(), `R$ ${p.revenue.toFixed(2)}`]),
+    ...data.topProducts.map((p) => {
+      const revenueNum = parseFloat(p.revenue);
+      return [p.name, p.quantity.toString(), `R$ ${revenueNum.toFixed(2)}`];
+    }),
   ];
 
   const topCustomersData = [
     ['Cliente', 'Compras', 'Total Gasto'],
-    ...data.topCustomers.map((c) => [
-      c.customerName,
-      c.totalPurchases.toString(),
-      `R$ ${c.totalSpent.toFixed(2)}`,
-    ]),
+    ...data.topCustomers.map((c) => {
+      const totalNum = parseFloat(c.total);
+      return [
+        c.name,
+        c.purchases.toString(),
+        `R$ ${totalNum.toFixed(2)}`,
+      ];
+    }),
   ];
 
   const workbook = XLSX.utils.book_new();
@@ -142,7 +154,9 @@ export async function exportStockReportToExcel(tenantId: number): Promise<Buffer
 
   const stockData = [
     ['Produto', 'Tamanho', 'Quantidade'],
-    ...data.stockBySize.map((s) => [s.productName, s.size, s.quantity.toString()]),
+    ...data.products.flatMap((p) =>
+      p.sizes.map((s) => [p.name, s.size, s.stock.toString()])
+    ),
   ];
 
   const workbook = XLSX.utils.book_new();

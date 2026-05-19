@@ -204,3 +204,50 @@ describe("Multi-Tenant Isolation", () => {
     ).rejects.toThrow("Tenant ID");
   });
 });
+
+describe("Reports Export", () => {
+  it("exportSalesPDF returns base64 buffer and filename", async () => {
+    const ctx = createAuthContext(1);
+    const caller = appRouter.createCaller(ctx);
+    
+    const result = await caller.reports.exportSalesPDF({
+      from: new Date("2026-01-01"),
+      to: new Date("2026-12-31"),
+    });
+    
+    expect(result).toBeDefined();
+    expect(result.success).toBe(true);
+    expect(typeof result.buffer).toBe("string");
+    expect(result.filename).toContain("relatorio-vendas");
+    expect(result.filename).toContain(".docx");
+  });
+
+  it("exportSalesExcel returns base64 buffer and filename", async () => {
+    const ctx = createAuthContext(1);
+    const caller = appRouter.createCaller(ctx);
+    
+    const result = await caller.reports.exportSalesExcel({
+      from: new Date("2026-01-01"),
+      to: new Date("2026-12-31"),
+    });
+    
+    expect(result).toBeDefined();
+    expect(result.success).toBe(true);
+    expect(typeof result.buffer).toBe("string");
+    expect(result.filename).toContain("relatorio-vendas");
+    expect(result.filename).toContain(".xlsx");
+  });
+
+  it("exportStockExcel returns base64 buffer and filename", async () => {
+    const ctx = createAuthContext(1);
+    const caller = appRouter.createCaller(ctx);
+    
+    const result = await caller.reports.exportStockExcel();
+    
+    expect(result).toBeDefined();
+    expect(result.success).toBe(true);
+    expect(typeof result.buffer).toBe("string");
+    expect(result.filename).toContain("relatorio-estoque");
+    expect(result.filename).toContain(".xlsx");
+  });
+});

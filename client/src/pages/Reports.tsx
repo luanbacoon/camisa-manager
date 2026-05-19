@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
 import { FileDown, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Reports() {
   const [salesFrom, setSalesFrom] = useState<string>(
@@ -34,8 +35,73 @@ export default function Reports() {
       },
       {
         onSuccess: (data) => {
-          // Aqui você poderia gerar o PDF no cliente
-          console.log("PDF data:", data);
+          try {
+            // Converter base64 para Blob
+            const binaryString = atob(data.buffer);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
+            const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+            
+            // Criar link de download
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = data.filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            toast.success('Relatório exportado com sucesso!');
+          } catch (error) {
+            toast.error('Erro ao exportar relatório');
+          }
+        },
+        onError: (error) => {
+          toast.error('Erro ao exportar relatório: ' + (error as any).message);
+        },
+      }
+    );
+  };
+
+  const exportSalesExcel = trpc.reports.exportSalesExcel.useMutation();
+
+  const handleExportSalesExcel = () => {
+    exportSalesExcel.mutate(
+      {
+        from: new Date(salesFrom),
+        to: new Date(salesTo),
+      },
+      {
+        onSuccess: (data) => {
+          try {
+            // Converter base64 para Blob
+            const binaryString = atob(data.buffer);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
+            const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            
+            // Criar link de download
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = data.filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            toast.success('Relatório exportado com sucesso!');
+          } catch (error) {
+            toast.error('Erro ao exportar relatório');
+          }
+        },
+        onError: (error) => {
+          toast.error('Erro ao exportar relatório: ' + (error as any).message);
         },
       }
     );
@@ -44,8 +110,32 @@ export default function Reports() {
   const handleExportStockExcel = () => {
     exportStockExcel.mutate(undefined, {
       onSuccess: (data) => {
-        // Aqui você poderia gerar o Excel no cliente
-        console.log("Excel data:", data);
+        try {
+          // Converter base64 para Blob
+          const binaryString = atob(data.buffer);
+          const bytes = new Uint8Array(binaryString.length);
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          
+          // Criar link de download
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = data.filename;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          
+          toast.success('Relatório exportado com sucesso!');
+        } catch (error) {
+          toast.error('Erro ao exportar relatório');
+        }
+      },
+      onError: (error) => {
+        toast.error('Erro ao exportar relatório: ' + (error as any).message);
       },
     });
   };
@@ -191,24 +281,42 @@ export default function Reports() {
                     </Card>
                   )}
 
-                  {/* Botão de Exportação */}
-                  <Button
-                    onClick={handleExportSalesPDF}
-                    disabled={exportSalesPDF.isPending}
-                    className="w-full"
-                  >
-                    {exportSalesPDF.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Exportando...
-                      </>
-                    ) : (
-                      <>
-                        <FileDown className="mr-2 h-4 w-4" />
-                        Exportar como PDF
-                      </>
-                    )}
-                  </Button>
+                  {/* Botões de Exportação */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      onClick={handleExportSalesPDF}
+                      disabled={exportSalesPDF.isPending}
+                      variant="outline"
+                    >
+                      {exportSalesPDF.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Exportando...
+                        </>
+                      ) : (
+                        <>
+                          <FileDown className="mr-2 h-4 w-4" />
+                          PDF (DOCX)
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      onClick={handleExportSalesExcel}
+                      disabled={exportSalesExcel.isPending}
+                    >
+                      {exportSalesExcel.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Exportando...
+                        </>
+                      ) : (
+                        <>
+                          <FileDown className="mr-2 h-4 w-4" />
+                          Excel
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               ) : null}
             </CardContent>

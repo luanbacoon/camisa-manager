@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { tenantsRouter } from "./routers/tenants";
 import { backupsRouter } from "./routers/backups";
 import { localAuthRouter } from "./routers/local-auth";
@@ -615,14 +616,14 @@ export const appRouter = router({
     // Protected endpoints
     orders: protectedProcedure.query(({ ctx }) => {
       const tenantId = (ctx.user as any)?.tenantId;
-      return listCatalogOrders(tenantId);
+      return listCatalogOrders(tenantId || 0);
     }),
 
     orderDetail: protectedProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input, ctx }) => {
         const tenantId = (ctx.user as any)?.tenantId;
-        const orders = await listCatalogOrders(tenantId);
+        const orders = await listCatalogOrders(tenantId || 0);
         return orders.find((o) => o.id === input.id) ?? null;
       }),
 
