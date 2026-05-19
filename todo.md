@@ -296,8 +296,8 @@
 - [x] Implementar funções de hash de senha (bcrypt)
 - [x] Criar funções de máscara de dados (telefone, email, CPF, CNPJ)
 - [x] Integrar criptografia com dados de clientes e fornecedores
-- [x] Aplicar criptografia em procedures tRPC (estrutura pronta)
-- [x] Testar criptografia end-to-end (26 testes passando)
+- [x] Aplicar criptografia em procedures tRPC (createCustomer, updateCustomer, getCustomer)
+- [x] Testar criptografia end-to-end (26 testes passando, descriptografia em getCustomer)
 
 ## Validação de Entrada e CORS
 - [x] Criar schemas de validação com Zod

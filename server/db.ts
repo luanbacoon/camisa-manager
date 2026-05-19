@@ -187,12 +187,28 @@ export async function listCustomers(tenantId?: number) {
 export async function getCustomer(id: number, tenantId?: number) {
   const db = await getDb();
   if (!db) return null;
+  
+  let customer;
   if (tenantId) {
-    const [customer] = await db.select().from(customers).where(and(eq(customers.id, id), eq(customers.tenantId, tenantId))).limit(1);
-    return customer ?? null;
+    const [result] = await db.select().from(customers).where(and(eq(customers.id, id), eq(customers.tenantId, tenantId))).limit(1);
+    customer = result ?? null;
+  } else {
+    const [result] = await db.select().from(customers).where(eq(customers.id, id)).limit(1);
+    customer = result ?? null;
   }
-  const [customer] = await db.select().from(customers).where(eq(customers.id, id)).limit(1);
-  return customer ?? null;
+  
+  // Descriptografar dados sensíveis
+  if (customer) {
+    const { decrypt } = await import("./_core/encryption");
+    try {
+      if (customer.phone) customer.phone = decrypt(customer.phone);
+      if (customer.email) customer.email = decrypt(customer.email);
+    } catch (error) {
+      console.warn("Erro ao descriptografar dados do cliente", error);
+    }
+  }
+  
+  return customer;
 }
 
 export async function createCustomer(data: InsertCustomer) {
