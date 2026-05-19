@@ -1,0 +1,24 @@
+{
+  "query": "SELECT u.id, u.name, u.email, ut.tenantId, t.name as tenantName \nFROM users u \nLEFT JOIN user_tenants ut ON u.id = ut.userId \nLEFT JOIN tenants t ON ut.tenantId = t.id \nORDER BY u.createdAt DESC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ifPH7viqejjM65.root --database awm2eraPRXUvnHb76ArrUX --execute SELECT u.id, u.name, u.email, ut.tenantId, t.name as tenantName \nFROM users u \nLEFT JOIN user_tenants ut ON u.id = ut.userId \nLEFT JOIN tenants t ON ut.tenantId = t.id \nORDER BY u.createdAt DESC LIMIT 5;",
+  "rows": [
+    {
+      "id": "1830001",
+      "name": "Luan Gustavo",
+      "email": "luangustavo2710@gmail.com",
+      "tenantId": "NULL",
+      "tenantName": "NULL"
+    },
+    {
+      "id": "1",
+      "name": "cabradabolafc",
+      "email": "cabradabolafc@gmail.com",
+      "tenantId": "1",
+      "tenantName": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\ttenantId\ttenantName\n1830001\tLuan Gustavo\tluangustavo2710@gmail.com\tNULL\tNULL\n1\tcabradabolafc\tcabradabolafc@gmail.com\t1\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 384
+}

@@ -1,0 +1,17 @@
+{
+  "query": "SELECT u.id, u.name, u.email, ut.tenantId, t.name as tenantName \nFROM users u \nLEFT JOIN user_tenants ut ON u.id = ut.userId \nLEFT JOIN tenants t ON ut.tenantId = t.id \nWHERE u.email = 'cabradabolafc@gmail.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ifPH7viqejjM65.root --database awm2eraPRXUvnHb76ArrUX --execute SELECT u.id, u.name, u.email, ut.tenantId, t.name as tenantName \nFROM users u \nLEFT JOIN user_tenants ut ON u.id = ut.userId \nLEFT JOIN tenants t ON ut.tenantId = t.id \nWHERE u.email = 'cabradabolafc@gmail.com';",
+  "rows": [
+    {
+      "id": "1",
+      "name": "cabradabolafc",
+      "email": "cabradabolafc@gmail.com",
+      "tenantId": "1",
+      "tenantName": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\ttenantId\ttenantName\n1\tcabradabolafc\tcabradabolafc@gmail.com\t1\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 373
+}

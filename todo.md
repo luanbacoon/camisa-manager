@@ -277,6 +277,12 @@
 - [x] Deletar dependências (tamanhos, pedidos, vendas, ajustes)
 - [x] Validar que catálogo mostra apenas produtos reais
 
+## Bug - Camisa Brasil Amarela Não Aparecia em Produtos
+- [x] Investigar por que camisa Brasil Amarela estava apenas no catálogo
+- [x] Identificar problema de isolamento de tenant (user associado a tenantId 1 que não existia)
+- [x] Corrigir associação de user para tenantId 30001 correto
+- [x] Validar que camisa agora aparece em Produtos após login novamente
+
 ## Fase 1 - Correção Isolamento Multi-Tenant (db.ts)
 - [x] Corrigir listCustomers() com tenantId
 - [x] Corrigir listSales() com tenantId

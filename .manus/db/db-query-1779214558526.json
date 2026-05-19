@@ -1,0 +1,22 @@
+{
+  "query": "SELECT id, name FROM tenants ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ifPH7viqejjM65.root --database awm2eraPRXUvnHb76ArrUX --execute SELECT id, name FROM tenants ORDER BY id;",
+  "rows": [
+    {
+      "id": "23",
+      "name": "Test Tenant Suppliers"
+    },
+    {
+      "id": "24",
+      "name": "Test Tenant 2"
+    },
+    {
+      "id": "30001",
+      "name": "cabradabolafc"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\n23\tTest Tenant Suppliers\n24\tTest Tenant 2\n30001\tcabradabolafc\n",
+  "stderr": "",
+  "execution_time_ms": 368
+}

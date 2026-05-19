@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE user_tenants SET tenantId = 30001 WHERE userId = 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ifPH7viqejjM65.root --database awm2eraPRXUvnHb76ArrUX --execute UPDATE user_tenants SET tenantId = 30001 WHERE userId = 1;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 396
+}
