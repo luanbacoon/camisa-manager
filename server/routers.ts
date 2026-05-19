@@ -386,7 +386,7 @@ export const appRouter = router({
 
     history: protectedProcedure
       .input(z.object({ productId: z.number().optional() }).optional())
-      .query(({ input }) => getStockHistory(input?.productId)),
+      .query(async ({ input }) => await getStockHistory(input?.productId)),
   }),
 
   // ─── Supplier Orders ────────────────────────────────────────────────────────
@@ -605,10 +605,10 @@ export const appRouter = router({
           notes: z.string().optional(),
         })
       )
-      .mutation(({ input, ctx }) => {
+      .mutation(async ({ input, ctx }) => {
         const tenantId = (ctx.user as any)?.tenantId;
         if (!tenantId) throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Tenant ID not found in context' });
-        return createCatalogOrder({
+        return await createCatalogOrder({
           tenantId,
           customerName: input.customerName,
           customerPhone: input.customerPhone,
@@ -618,16 +618,16 @@ export const appRouter = router({
       }),
 
     // Protected endpoints
-    orders: protectedProcedure.query(({ ctx }) => {
+    orders: protectedProcedure.query(async ({ ctx }) => {
       const tenantId = (ctx.user as any)?.tenantId;
-      return listCatalogOrders(tenantId || 0);
+      return await listCatalogOrders(tenantId || 0);
     }),
 
     orderDetail: protectedProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input, ctx }) => {
         const tenantId = (ctx.user as any)?.tenantId;
-        const orders = await listCatalogOrders(tenantId || 0);
+        const orders = await listCatalogOrders(tenantId);
         return orders.find((o) => o.id === input.id) ?? null;
       }),
 

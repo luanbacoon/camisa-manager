@@ -198,14 +198,28 @@ export async function getCustomer(id: number, tenantId?: number) {
 export async function createCustomer(data: InsertCustomer) {
   const db = await getDb();
   if (!db) throw new Error("DB not available");
-  const [result] = await db.insert(customers).values(data);
+  
+  // Criptografar dados sensíveis
+  const { encrypt } = await import("./_core/encryption");
+  const encryptedData = { ...data };
+  if (encryptedData.phone) encryptedData.phone = encrypt(encryptedData.phone);
+  if (encryptedData.email) encryptedData.email = encrypt(encryptedData.email);
+  
+  const [result] = await db.insert(customers).values(encryptedData);
   return (result as any).insertId as number;
 }
 
 export async function updateCustomer(id: number, data: Partial<InsertCustomer>) {
   const db = await getDb();
   if (!db) return;
-  await db.update(customers).set(data).where(eq(customers.id, id));
+  
+  // Criptografar dados sensíveis
+  const { encrypt } = await import("./_core/encryption");
+  const encryptedData = { ...data };
+  if (encryptedData.phone) encryptedData.phone = encrypt(encryptedData.phone);
+  if (encryptedData.email) encryptedData.email = encrypt(encryptedData.email);
+  
+  await db.update(customers).set(encryptedData).where(eq(customers.id, id));
 }
 
 export async function getCustomerSales(customerId: number, tenantId?: number) {
