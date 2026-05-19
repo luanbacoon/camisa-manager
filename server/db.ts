@@ -489,6 +489,46 @@ export async function getStockHistory(productId?: number) {
   return db.select().from(stockAdjustments).orderBy(desc(stockAdjustments.createdAt)).limit(100);
 }
 
+// ─── Suppliers (Fornecedores) ────────────────────────────────────────────────────
+export async function listSuppliers(tenantId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  if (tenantId) {
+    return db.select().from(suppliers).where(eq(suppliers.tenantId, tenantId)).orderBy(desc(suppliers.createdAt));
+  }
+  return db.select().from(suppliers).orderBy(desc(suppliers.createdAt));
+}
+
+export async function getSupplier(id: number, tenantId?: number) {
+  const db = await getDb();
+  if (!db) return null;
+  if (tenantId) {
+    const [supplier] = await db.select().from(suppliers).where(and(eq(suppliers.id, id), eq(suppliers.tenantId, tenantId))).limit(1);
+    return supplier ?? null;
+  }
+  const [supplier] = await db.select().from(suppliers).where(eq(suppliers.id, id)).limit(1);
+  return supplier ?? null;
+}
+
+export async function createSupplier(data: InsertSupplier) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  const [result] = await db.insert(suppliers).values(data);
+  return (result as any).insertId as number;
+}
+
+export async function updateSupplier(id: number, data: Partial<InsertSupplier>) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(suppliers).set(data).where(eq(suppliers.id, id));
+}
+
+export async function deleteSupplier(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(suppliers).where(eq(suppliers.id, id));
+}
+
 // ─── Supplier Orders ──────────────────────────────────────────────────────────
 export async function listSupplierOrders(tenantId?: number) {
   const db = await getDb();
