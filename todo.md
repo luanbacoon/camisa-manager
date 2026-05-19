@@ -283,6 +283,22 @@
 - [x] Corrigir associação de user para tenantId 30001 correto
 - [x] Validar que camisa agora aparece em Produtos após login novamente
 
+## RBAC (Role-Based Access Control)
+- [x] Criar tabelas de roles e permissões no schema
+- [x] Implementar helpers de RBAC (hasPermission, hasAnyPermission, hasAllPermissions)
+- [x] Criar procedures tRPC para gerenciar roles e permissões
+- [x] Integrar RBAC router ao appRouter
+- [x] Criar 4 roles padrão (admin, gerente, vendedor, visualizador)
+- [x] Definir permissões por módulo (produtos, vendas, clientes, etc)
+
+## Criptografia de Dados Sensíveis
+- [x] Criar helpers de criptografia (AES-256-GCM)
+- [x] Implementar funções de hash de senha (bcrypt)
+- [x] Criar funções de máscara de dados (telefone, email, CPF, CNPJ)
+- [x] Integrar criptografia com dados de clientes e fornecedores
+- [ ] Aplicar criptografia em procedures tRPC
+- [ ] Testar criptografia end-to-end
+
 ## Fase 1 - Correção Isolamento Multi-Tenant (db.ts)
 - [x] Corrigir listCustomers() com tenantId
 - [x] Corrigir listSales() com tenantId

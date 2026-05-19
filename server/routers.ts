@@ -2,14 +2,15 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { TRPCError } from "@trpc/server";
 import { tenantsRouter } from "./routers/tenants";
 import { backupsRouter } from "./routers/backups";
 import { localAuthRouter } from "./routers/local-auth";
 import { reportsRouter } from "./routers/reports";
 import { suppliersRouter } from "./routers/suppliers";
+import { rbacRouter } from "./routers/rbac";
 
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { getDb } from "./db";
 import { products } from "../drizzle/schema";
@@ -67,6 +68,7 @@ export const appRouter = router({
   localAuth: localAuthRouter,
   reports: reportsRouter,
   suppliers: suppliersRouter,
+  rbac: rbacRouter,
 
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
