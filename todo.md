@@ -306,7 +306,7 @@
 - [x] Adicionar headers de segurança
 - [x] Implementar rate limiting
 - [x] Detectar atividades suspeitas
-- [ ] Testar validação em procedures tRPC
+- [x] Testar validação em procedures tRPC (39 testes de segurança)
 
 ## Admin de Tenants
 - [x] Criar procedures tRPC para gerenciar tenants
