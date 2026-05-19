@@ -193,9 +193,9 @@
 - [ ] Criar histórico de faturas
 
 ## CRÍTICO - Segurança (2FA, Criptografia)
-- [ ] Implementar autenticação 2FA (TOTP)
+- [x] Implementar autenticação 2FA (TOTP)
 - [ ] Criptografar dados sensíveis (telefone, email)
-- [ ] Implementar rate limiting em APIs
+- [x] Implementar rate limiting em APIs (express-rate-limit)
 - [ ] Validar entrada em todas as APIs
 - [ ] Implementar CORS corretamente
 - [ ] Adicionar testes de segurança
@@ -258,9 +258,10 @@
 - [x] Criar helpers para gerar dados de relatórios (vendas, estoque)
 - [x] Criar procedures tRPC para gerar relatórios
 - [x] Criar UI de relatórios com filtros
-- [ ] Implementar exportação para PDF
-- [ ] Implementar exportação para Excel
-- [ ] Testar geração de relatórios
+- [x] Criar helpers de exportação para PDF (docx) e Excel (xlsx)
+- [ ] Integrar exportação com procedures tRPC
+- [ ] Adicionar botões de download na UI de relatórios
+- [ ] Testar geração e download de relatórios
 
 
 ## Gerenciamento de Fornecedores

@@ -601,7 +601,8 @@ export const appRouter = router({
         })
       )
       .mutation(({ input, ctx }) => {
-        const tenantId = (ctx.user as any)?.tenantId || 1;
+        const tenantId = (ctx.user as any)?.tenantId;
+        if (!tenantId) throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Tenant ID not found in context' });
         return createCatalogOrder({
           tenantId,
           customerName: input.customerName,

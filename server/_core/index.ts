@@ -10,6 +10,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { updateTrackingHandler } from "../scheduled/updateTracking";
+import { loginLimiter, apiLimiter, uploadLimiter, twoFactorLimiter } from "./rate-limit";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -38,10 +39,13 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
+  
+  // Apply rate limiting
+  app.use("/api/trpc", apiLimiter);
 
   // File upload endpoint with multer
   const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
-  app.post("/api/upload", upload.single("file"), async (req, res) => {
+  app.post("/api/upload", uploadLimiter, upload.single("file"), async (req, res) => {
     try {
       const file = req.file;
       if (!file) return res.status(400).json({ error: "No file provided" });
