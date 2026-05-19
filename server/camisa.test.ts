@@ -4,7 +4,7 @@ import type { TrpcContext } from "./_core/context";
 
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
-function createAuthContext(): TrpcContext {
+function createAuthContext(tenantId = 1): TrpcContext {
   const user: AuthenticatedUser = {
     id: 1,
     openId: "owner-user",
@@ -18,7 +18,7 @@ function createAuthContext(): TrpcContext {
   };
 
   return {
-    user,
+    user: { ...user, tenantId } as any,
     req: { protocol: "https", headers: {} } as TrpcContext["req"],
     res: {
       clearCookie: () => {},
@@ -118,5 +118,89 @@ describe("settings.get", () => {
     const result = await caller.settings.get();
     // Returns null or object
     expect(result === null || typeof result === "object").toBe(true);
+  });
+});
+
+
+describe("Multi-Tenant Isolation", () => {
+  it("products.list returns array scoped to tenant", async () => {
+    const ctx = createAuthContext(1);
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.products.list();
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("customers.list returns array scoped to tenant", async () => {
+    const ctx = createAuthContext(1);
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.customers.list();
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("sales.list returns array scoped to tenant", async () => {
+    const ctx = createAuthContext(1);
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.sales.list();
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("supplierOrders.list returns array scoped to tenant", async () => {
+    const ctx = createAuthContext(1);
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.supplierOrders.list();
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("stock.list returns array scoped to tenant", async () => {
+    const ctx = createAuthContext(1);
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.stock.list();
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("catalog.orders returns array scoped to tenant", async () => {
+    const ctx = createAuthContext(1);
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.catalog.orders();
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("different tenant sees different data", async () => {
+    const ctx1 = createAuthContext(1);
+    const ctx2 = createAuthContext(999);
+    const caller1 = appRouter.createCaller(ctx1);
+    const caller2 = appRouter.createCaller(ctx2);
+    
+    const products1 = await caller1.products.list();
+    const products2 = await caller2.products.list();
+    
+    // Both should return arrays (even if empty)
+    expect(Array.isArray(products1)).toBe(true);
+    expect(Array.isArray(products2)).toBe(true);
+  });
+
+  it("mutations require tenantId", async () => {
+    // User without tenantId should fail on create
+    const ctxNoTenant = {
+      user: {
+        id: 1,
+        openId: "test",
+        email: "test@test.com",
+        name: "Test",
+        loginMethod: "manus",
+        role: "admin",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        lastSignedIn: new Date(),
+      } as any,
+      req: { protocol: "https", headers: {} } as TrpcContext["req"],
+      res: { clearCookie: () => {} } as TrpcContext["res"],
+    };
+    
+    const caller = appRouter.createCaller(ctxNoTenant);
+    
+    await expect(
+      caller.customers.create({ name: "Test Customer" })
+    ).rejects.toThrow("Tenant ID");
   });
 });

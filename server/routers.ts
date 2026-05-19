@@ -101,11 +101,17 @@ export const appRouter = router({
   products: router({
     list: protectedProcedure
       .input(z.object({ activeOnly: z.boolean().optional() }).optional())
-      .query(({ input }) => listProducts(input?.activeOnly)),
+      .query(({ input, ctx }) => {
+        const tenantId = (ctx.user as any)?.tenantId;
+        return listProducts(input?.activeOnly, tenantId);
+      }),
 
     get: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .query(({ input }) => getProductWithSizes(input.id)),
+      .query(({ input, ctx }) => {
+        const tenantId = (ctx.user as any)?.tenantId;
+        return getProductWithSizes(input.id, tenantId);
+      }),
 
     create: protectedProcedure
       .input(
@@ -125,7 +131,8 @@ export const appRouter = router({
       )
       .mutation(({ input, ctx }) => {
         const { sizes, ...productData } = input;
-        const tenantId = (ctx.user as any)?.tenantId || 1;
+        const tenantId = (ctx.user as any)?.tenantId;
+        if (!tenantId) throw new Error("Tenant ID não encontrado");
         return createProduct(
           {
             ...productData,
@@ -200,15 +207,24 @@ export const appRouter = router({
 
   // ─── Customers ─────────────────────────────────────────────────────────────
   customers: router({
-    list: protectedProcedure.query(() => listCustomers()),
+    list: protectedProcedure.query(({ ctx }) => {
+      const tenantId = (ctx.user as any)?.tenantId;
+      return listCustomers(tenantId);
+    }),
 
     get: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .query(({ input }) => getCustomer(input.id)),
+      .query(({ input, ctx }) => {
+        const tenantId = (ctx.user as any)?.tenantId;
+        return getCustomer(input.id, tenantId);
+      }),
 
     history: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .query(({ input }) => getCustomerSales(input.id)),
+      .query(({ input, ctx }) => {
+        const tenantId = (ctx.user as any)?.tenantId;
+        return getCustomerSales(input.id, tenantId);
+      }),
 
     create: protectedProcedure
       .input(
@@ -221,7 +237,8 @@ export const appRouter = router({
         })
       )
       .mutation(({ input, ctx }) => {
-        const tenantId = (ctx.user as any)?.tenantId || 1;
+        const tenantId = (ctx.user as any)?.tenantId;
+        if (!tenantId) throw new Error("Tenant ID não encontrado");
         return createCustomer({ ...input, tenantId });
       }),
 
@@ -251,11 +268,17 @@ export const appRouter = router({
           to: z.date().optional(),
         }).optional()
       )
-      .query(({ input }) => listSales(input?.from, input?.to)),
+      .query(({ input, ctx }) => {
+        const tenantId = (ctx.user as any)?.tenantId;
+        return listSales(input?.from, input?.to, tenantId);
+      }),
 
     get: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .query(({ input }) => getSaleWithItems(input.id)),
+      .query(({ input, ctx }) => {
+        const tenantId = (ctx.user as any)?.tenantId;
+        return getSaleWithItems(input.id, tenantId);
+      }),
 
     create: protectedProcedure
       .input(
@@ -295,7 +318,8 @@ export const appRouter = router({
         })
       )
       .mutation(({ input, ctx }) => {
-        const tenantId = (ctx.user as any)?.tenantId || 1;
+        const tenantId = (ctx.user as any)?.tenantId;
+        if (!tenantId) throw new Error("Tenant ID não encontrado");
         const subtotal = input.items.reduce((acc, i) => acc + i.unitPrice * i.quantity, 0);
         const discount = input.discountValue ? input.discountValue : (subtotal * (input.discountPercent || 0)) / 100;
         const total = Math.max(0, subtotal - discount);
@@ -322,16 +346,25 @@ export const appRouter = router({
 
     metrics: protectedProcedure
       .input(z.object({ from: z.date(), to: z.date() }))
-      .query(({ input }) => getDashboardMetrics(input.from, input.to)),
+      .query(({ input, ctx }) => {
+        const tenantId = (ctx.user as any)?.tenantId;
+        return getDashboardMetrics(input.from, input.to, tenantId);
+      }),
 
     chartData: protectedProcedure
       .input(z.object({ from: z.date(), to: z.date() }))
-      .query(({ input }) => getChartData(input.from, input.to)),
+      .query(({ input, ctx }) => {
+        const tenantId = (ctx.user as any)?.tenantId;
+        return getChartData(input.from, input.to, tenantId);
+      }),
   }),
 
   // ─── Stock ─────────────────────────────────────────────────────────────────
   stock: router({
-    list: protectedProcedure.query(() => listStockWithProducts()),
+    list: protectedProcedure.query(({ ctx }) => {
+      const tenantId = (ctx.user as any)?.tenantId;
+      return listStockWithProducts(tenantId);
+    }),
 
     adjust: protectedProcedure
       .input(
@@ -353,7 +386,10 @@ export const appRouter = router({
 
   // ─── Supplier Orders ────────────────────────────────────────────────────────
   supplierOrders: router({
-    list: protectedProcedure.query(() => listSupplierOrders()),
+    list: protectedProcedure.query(({ ctx }) => {
+      const tenantId = (ctx.user as any)?.tenantId;
+      return listSupplierOrders(tenantId);
+    }),
 
     create: protectedProcedure
       .input(
@@ -374,7 +410,8 @@ export const appRouter = router({
         })
       )
       .mutation(({ input, ctx }) => {
-        const tenantId = (ctx.user as any)?.tenantId || 1;
+        const tenantId = (ctx.user as any)?.tenantId;
+        if (!tenantId) throw new Error("Tenant ID não encontrado");
         const totalCost = input.quantity * input.unitCost;
         return createSupplierOrder({
           tenantId,
@@ -418,7 +455,8 @@ export const appRouter = router({
         })
       )
       .mutation(({ input, ctx }) => {
-        const tenantId = (ctx.user as any)?.tenantId || 1;
+        const tenantId = (ctx.user as any)?.tenantId;
+        if (!tenantId) throw new Error("Tenant ID não encontrado");
         return createSupplierOrderWithItems(
           {
             tenantId,
@@ -574,12 +612,16 @@ export const appRouter = router({
       }),
 
     // Protected endpoints
-    orders: protectedProcedure.query(() => listCatalogOrders()),
+    orders: protectedProcedure.query(({ ctx }) => {
+      const tenantId = (ctx.user as any)?.tenantId;
+      return listCatalogOrders(tenantId);
+    }),
 
     orderDetail: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .query(async ({ input }) => {
-        const orders = await listCatalogOrders();
+      .query(async ({ input, ctx }) => {
+        const tenantId = (ctx.user as any)?.tenantId;
+        const orders = await listCatalogOrders(tenantId);
         return orders.find((o) => o.id === input.id) ?? null;
       }),
 

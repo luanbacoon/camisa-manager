@@ -1,0 +1,19 @@
+{
+  "query": "SELECT COUNT(*) as total_products FROM products; SELECT COUNT(*) as null_tenant FROM products WHERE tenantId IS NULL; SELECT DISTINCT tenantId FROM products LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ifPH7viqejjM65.root --database awm2eraPRXUvnHb76ArrUX --execute SELECT COUNT(*) as total_products FROM products; SELECT COUNT(*) as null_tenant FROM products WHERE tenantId IS NULL; SELECT DISTINCT tenantId FROM products LIMIT 10;",
+  "rows": [
+    {
+      "total_products": "0"
+    },
+    {
+      "total_products": "null_tenant"
+    },
+    {
+      "total_products": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_products\n0\nnull_tenant\n0\n",
+  "stderr": "",
+  "execution_time_ms": 748
+}

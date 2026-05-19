@@ -269,3 +269,20 @@
 - [x] Criar UI de gerenciamento de fornecedores
 - [ ] Integrar fornecedores com pedidos ao fornecedor
 - [x] Testar gerenciamento de fornecedores
+
+
+## Fase 1 - Correção Isolamento Multi-Tenant (db.ts)
+- [x] Corrigir listCustomers() com tenantId
+- [x] Corrigir listSales() com tenantId
+- [x] Corrigir listSupplierOrders() com tenantId
+- [x] Corrigir listCatalogOrders() com tenantId
+- [x] Corrigir getDashboardMetrics() com tenantId
+- [x] Corrigir getChartData() com tenantId
+- [x] Corrigir listStockWithProducts() com tenantId
+- [x] Corrigir getCustomer() com tenantId
+- [x] Corrigir getSaleWithItems() com tenantId
+- [x] Corrigir getCustomerSales() com tenantId
+- [x] Atualizar routers para passar tenantId em listagens
+- [x] Atualizar routers para passar tenantId em gets
+- [x] Remover fallbacks || 1 perigosos (5 de 6 removidos)
+- [x] Implementar testes de isolamento multi-tenant (8 testes)

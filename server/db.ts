@@ -175,15 +175,22 @@ export async function upsertProductSizes(productId: number, sizes: { size: strin
 }
 
 // ─── Customers ────────────────────────────────────────────────────────────────
-export async function listCustomers() {
+export async function listCustomers(tenantId?: number) {
   const db = await getDb();
   if (!db) return [];
+  if (tenantId) {
+    return db.select().from(customers).where(eq(customers.tenantId, tenantId)).orderBy(desc(customers.createdAt));
+  }
   return db.select().from(customers).orderBy(desc(customers.createdAt));
 }
 
-export async function getCustomer(id: number) {
+export async function getCustomer(id: number, tenantId?: number) {
   const db = await getDb();
   if (!db) return null;
+  if (tenantId) {
+    const [customer] = await db.select().from(customers).where(and(eq(customers.id, id), eq(customers.tenantId, tenantId))).limit(1);
+    return customer ?? null;
+  }
   const [customer] = await db.select().from(customers).where(eq(customers.id, id)).limit(1);
   return customer ?? null;
 }
@@ -201,13 +208,15 @@ export async function updateCustomer(id: number, data: Partial<InsertCustomer>) 
   await db.update(customers).set(data).where(eq(customers.id, id));
 }
 
-export async function getCustomerSales(customerId: number) {
+export async function getCustomerSales(customerId: number, tenantId?: number) {
   const db = await getDb();
   if (!db) return [];
+  const conditions = [eq(sales.customerId, customerId)];
+  if (tenantId) conditions.push(eq(sales.tenantId, tenantId));
   const salesList = await db
     .select()
     .from(sales)
-    .where(eq(sales.customerId, customerId))
+    .where(and(...conditions))
     .orderBy(desc(sales.createdAt));
   const result = [];
   for (const sale of salesList) {
@@ -223,11 +232,12 @@ export async function getCustomerSales(customerId: number) {
 }
 
 // ─── Sales ────────────────────────────────────────────────────────────────────
-export async function listSales(from?: Date, to?: Date) {
+export async function listSales(from?: Date, to?: Date, tenantId?: number) {
   const db = await getDb();
   if (!db) return [];
   let query = db.select().from(sales);
   const conditions = [];
+  if (tenantId) conditions.push(eq(sales.tenantId, tenantId));
   if (from) conditions.push(gte(sales.createdAt, from));
   if (to) conditions.push(lte(sales.createdAt, to));
   if (conditions.length > 0) {
@@ -236,10 +246,12 @@ export async function listSales(from?: Date, to?: Date) {
   return query.orderBy(desc(sales.createdAt));
 }
 
-export async function getSaleWithItems(saleId: number) {
+export async function getSaleWithItems(saleId: number, tenantId?: number) {
   const db = await getDb();
   if (!db) return null;
-  const [sale] = await db.select().from(sales).where(eq(sales.id, saleId)).limit(1);
+  const conditions = [eq(sales.id, saleId)];
+  if (tenantId) conditions.push(eq(sales.tenantId, tenantId));
+  const [sale] = await db.select().from(sales).where(and(...conditions)).limit(1);
   if (!sale) return null;
   const items = await db.select().from(saleItems).where(eq(saleItems.saleId, saleId));
   const itemsWithProduct = [];
@@ -313,14 +325,16 @@ export async function createSale(
   return saleId;
 }
 
-export async function getDashboardMetrics(from: Date, to: Date) {
+export async function getDashboardMetrics(from: Date, to: Date, tenantId?: number) {
   const db = await getDb();
   if (!db) return null;
 
+  const conditions = [gte(sales.createdAt, from), lte(sales.createdAt, to)];
+  if (tenantId) conditions.push(eq(sales.tenantId, tenantId));
   const salesInPeriod = await db
     .select()
     .from(sales)
-    .where(and(gte(sales.createdAt, from), lte(sales.createdAt, to)));
+    .where(and(...conditions));
 
   const totalRevenue = salesInPeriod.reduce((acc, s) => acc + parseFloat(String(s.total)), 0);
   const totalProfit = salesInPeriod.reduce((acc, s) => acc + parseFloat(String(s.profit)), 0);
@@ -333,14 +347,16 @@ export async function getDashboardMetrics(from: Date, to: Date) {
   return { totalRevenue, totalProfit, totalSales, avgTicket, margin, activeCustomers };
 }
 
-export async function getChartData(from: Date, to: Date) {
+export async function getChartData(from: Date, to: Date, tenantId?: number) {
   const db = await getDb();
   if (!db) return [];
 
+  const conditions = [gte(sales.createdAt, from), lte(sales.createdAt, to)];
+  if (tenantId) conditions.push(eq(sales.tenantId, tenantId));
   const salesInPeriod = await db
     .select()
     .from(sales)
-    .where(and(gte(sales.createdAt, from), lte(sales.createdAt, to)))
+    .where(and(...conditions))
     .orderBy(sales.createdAt);
 
   // Group by day
@@ -357,14 +373,19 @@ export async function getChartData(from: Date, to: Date) {
 }
 
 // ─── Stock ────────────────────────────────────────────────────────────────────
-export async function listStockWithProducts() {
+export async function listStockWithProducts(tenantId?: number) {
   const db = await getDb();
   if (!db) return [];
   const sizes = await db.select().from(productSizes);
   const result = [];
   for (const ps of sizes) {
-    const [product] = await db.select().from(products).where(eq(products.id, ps.productId)).limit(1);
-    if (product) result.push({ ...ps, product });
+    if (tenantId) {
+      const [product] = await db.select().from(products).where(and(eq(products.id, ps.productId), eq(products.tenantId, tenantId))).limit(1);
+      if (product) result.push({ ...ps, product });
+    } else {
+      const [product] = await db.select().from(products).where(eq(products.id, ps.productId)).limit(1);
+      if (product) result.push({ ...ps, product });
+    }
   }
   return result;
 }
@@ -422,10 +443,15 @@ export async function getStockHistory(productId?: number) {
 }
 
 // ─── Supplier Orders ──────────────────────────────────────────────────────────
-export async function listSupplierOrders() {
+export async function listSupplierOrders(tenantId?: number) {
   const db = await getDb();
   if (!db) return [];
-  const orders = await db.select().from(supplierOrders).orderBy(desc(supplierOrders.createdAt));
+  let orders;
+  if (tenantId) {
+    orders = await db.select().from(supplierOrders).where(eq(supplierOrders.tenantId, tenantId)).orderBy(desc(supplierOrders.createdAt));
+  } else {
+    orders = await db.select().from(supplierOrders).orderBy(desc(supplierOrders.createdAt));
+  }
   const result = [];
   for (const order of orders) {
     const [product] = await db.select().from(products).where(eq(products.id, order.productId)).limit(1);
@@ -546,10 +572,13 @@ export async function markSupplierOrderReceived(id: number) {
   }
 }
 
-// ─── Catalog Orders ───────────────────────────────────────────────────────────
-export async function listCatalogOrders() {
+/// ─── Catalog Orders ─────────────────────────────────────────────────────────
+export async function listCatalogOrders(tenantId?: number) {
   const db = await getDb();
   if (!db) return [];
+  if (tenantId) {
+    return db.select().from(catalogOrders).where(eq(catalogOrders.tenantId, tenantId)).orderBy(desc(catalogOrders.createdAt));
+  }
   return db.select().from(catalogOrders).orderBy(desc(catalogOrders.createdAt));
 }
 
