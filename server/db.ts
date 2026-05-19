@@ -178,10 +178,27 @@ export async function upsertProductSizes(productId: number, sizes: { size: strin
 export async function listCustomers(tenantId?: number) {
   const db = await getDb();
   if (!db) return [];
+  
+  let query;
   if (tenantId) {
-    return db.select().from(customers).where(eq(customers.tenantId, tenantId)).orderBy(desc(customers.createdAt));
+    query = db.select().from(customers).where(eq(customers.tenantId, tenantId)).orderBy(desc(customers.createdAt));
+  } else {
+    query = db.select().from(customers).orderBy(desc(customers.createdAt));
   }
-  return db.select().from(customers).orderBy(desc(customers.createdAt));
+  
+  const results = await query;
+  
+  // Descriptografar dados sensíveis
+  const { decrypt } = await import("./_core/encryption");
+  return results.map(customer => {
+    try {
+      if (customer.phone) customer.phone = decrypt(customer.phone);
+      if (customer.email) customer.email = decrypt(customer.email);
+    } catch (error) {
+      console.warn("Erro ao descriptografar dados do cliente", error);
+    }
+    return customer;
+  });
 }
 
 export async function getCustomer(id: number, tenantId?: number) {
