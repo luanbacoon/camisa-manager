@@ -268,7 +268,7 @@
 - [x] Criar tabela de fornecedores com contatos
 - [x] Criar procedures tRPC para CRUD de fornecedores
 - [x] Criar UI de gerenciamento de fornecedores
-- [ ] Integrar fornecedores com pedidos ao fornecedor
+- [ ] Integrar fornecedores com pedidos ao fornecedor (requer migração de schema para adicionar supplierId)
 - [x] Testar gerenciamento de fornecedores
 
 
