@@ -299,6 +299,15 @@
 - [ ] Aplicar criptografia em procedures tRPC
 - [ ] Testar criptografia end-to-end
 
+## Validação de Entrada e CORS
+- [x] Criar schemas de validação com Zod
+- [x] Implementar sanitização de entrada
+- [x] Configurar CORS seguro
+- [x] Adicionar headers de segurança
+- [x] Implementar rate limiting
+- [x] Detectar atividades suspeitas
+- [ ] Testar validação em procedures tRPC
+
 ## Fase 1 - Correção Isolamento Multi-Tenant (db.ts)
 - [x] Corrigir listCustomers() com tenantId
 - [x] Corrigir listSales() com tenantId
