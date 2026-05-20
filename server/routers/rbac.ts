@@ -42,6 +42,7 @@ export const rbacRouter = router({
   listPermissions: protectedProcedure.query(async ({ ctx }) => {
     try {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       const perms = await db.select().from(permissions);
 
@@ -67,6 +68,7 @@ export const rbacRouter = router({
     .query(async ({ input, ctx }) => {
       try {
         const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
         // Admin tem todas as permissões
         if (input.role === "admin") {
@@ -148,6 +150,7 @@ export const rbacRouter = router({
 
       try {
         const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
         // Admin não pode ter permissões alteradas
         if (input.role === "admin") {

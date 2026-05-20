@@ -24,6 +24,7 @@ import Reports from "./pages/Reports";
 import Suppliers from "./pages/Suppliers";
 import TwoFactorSettings from "./pages/TwoFactorSettings";
 import { AdminTenants } from "./pages/AdminTenants";
+import { AuditLogs } from "./pages/AuditLogs";
 
 function DashboardRoutes() {
   return (
@@ -46,6 +47,7 @@ function DashboardRoutes() {
         <Route path="/fornecedores" component={Suppliers} />
         <Route path="/seguranca/2fa" component={TwoFactorSettings} />
         <Route path="/admin/tenants" component={AdminTenants} />
+        <Route path="/auditoria" component={AuditLogs} />
         <Route component={NotFound} />
       </Switch>
     </DashboardLayout>

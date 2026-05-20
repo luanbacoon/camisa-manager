@@ -20,6 +20,7 @@ export const adminTenantsRouter = router({
 
     try {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
       const allTenants = await db.select().from(tenants);
       return allTenants;
     } catch (error) {
@@ -47,6 +48,7 @@ export const adminTenantsRouter = router({
 
       try {
         const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
         const tenant = await db
           .select()
           .from(tenants)
@@ -96,20 +98,18 @@ export const adminTenantsRouter = router({
 
       try {
         const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
         const result = await db.insert(tenants).values({
+          slug: input.name.toLowerCase().replace(/\s+/g, '-'),
           name: input.name,
           email: input.email,
           phone: input.phone,
-          address: input.address,
-          city: input.city,
-          state: input.state,
-          zipCode: input.zipCode,
         });
 
         return {
           success: true,
-          tenantId: result.insertId,
+          tenantId: (result as any).insertId || 1,
           message: "Tenant criado com sucesso",
         };
       } catch (error) {
@@ -148,6 +148,7 @@ export const adminTenantsRouter = router({
 
       try {
         const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
         const updateData: any = {};
         if (input.name) updateData.name = input.name;
@@ -192,7 +193,7 @@ export const adminTenantsRouter = router({
 
       try {
         const db = await getDb();
-
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
         // Verificar se há usuários associados
         const usersCount = await db
           .select()
@@ -237,6 +238,7 @@ export const adminTenantsRouter = router({
 
       try {
         const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
         const tenantUsers = await db
           .select()
           .from(users)
@@ -274,7 +276,7 @@ export const adminTenantsRouter = router({
 
       try {
         const db = await getDb();
-
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
         // Verificar se o usuário existe
         const user = await db
           .select()
@@ -327,7 +329,7 @@ export const adminTenantsRouter = router({
 
       try {
         const db = await getDb();
-
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
         // Remover usuário do tenant (set tenantId to null)
         await db
           .update(users)

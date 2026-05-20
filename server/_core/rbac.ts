@@ -145,6 +145,7 @@ export async function initializeDefaultPermissions(): Promise<void> {
     ];
 
     // Inserir permissões que não existem
+    if (!db) return;
     for (const perm of defaultPermissions) {
       const exists = await db
         .select()
@@ -256,6 +257,7 @@ export async function initializeDefaultRolePermissions(): Promise<void> {
     };
 
     // Inserir permissões para cada role
+    if (!db) return;
     for (const [role, permNames] of Object.entries(rolePermissionMap)) {
       for (const permName of permNames) {
         // Buscar a permissão
