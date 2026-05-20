@@ -180,9 +180,9 @@
 - [ ] Criar tabela de roles (admin, gerente, vendedor, visualizador)
 - [ ] Criar tabela de permissões por role
 - [ ] Implementar middleware de autorização
-- [ ] Adicionar verificação de permissões em todas as procedures tRPC
-- [ ] Criar tabela de auditoria de ações
-- [ ] Implementar logs de acesso e tentativas de login
+- [x] Adicionar verificação de permissões em todas as procedures tRPC (permissionProcedure criado)
+- [x] Criar tabela de auditoria de ações (helpers de auditoria implementados)
+- [x] Implementar logs de acesso e tentativas de login (logAuditAction implementado)
 
 ## CRÍTICO - Integração com Stripe
 - [ ] Configurar conta Stripe

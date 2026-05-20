@@ -43,3 +43,12 @@ export const adminProcedure = t.procedure.use(
     });
   }),
 );
+
+/**
+ * Procedure com verificação de permissão
+ * Uso: permissionProcedure.input(...).query/mutation(async ({ ctx, input }) => {
+ *   // ctx.user está garantido
+ *   // Verificar permissão com hasPermission(ctx.user.role, 'permission_name')
+ * })
+ */
+export const permissionProcedure = t.procedure.use(requireUser);

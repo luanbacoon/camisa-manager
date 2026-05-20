@@ -1,0 +1,13 @@
+{
+  "query": "SHOW TABLES LIKE 'audit_log';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ifPH7viqejjM65.root --database awm2eraPRXUvnHb76ArrUX --execute SHOW TABLES LIKE 'audit_log';",
+  "rows": [
+    {
+      "Tables_in_awm2eraPRXUvnHb76ArrUX (audit_log)": "audit_log"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_awm2eraPRXUvnHb76ArrUX (audit_log)\naudit_log\n",
+  "stderr": "",
+  "execution_time_ms": 371
+}
