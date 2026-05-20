@@ -167,7 +167,7 @@
 - [x] Criar tabela de user_tenants para associar usuários a lojas
 - [x] Criar procedures tRPC para gerenciar tenants
 - [x] Criar middleware de tenant-middleware.ts com funções auxiliares
-- [ ] Criar painel de admin para gerenciar tenants (UI)
+- [x] Criar painel de admin para gerenciar tenants (UI) - AdminTenants.tsx integrado em /admin/tenants
 - [ ] Migrar dados existentes para tenant "default"
 - [x] Adicionar tenantId à tabela de produtos
 - [x] Adicionar tenantId às tabelas de customers, sales, supplier_orders, catalogOrders
@@ -194,10 +194,10 @@
 
 ## CRÍTICO - Segurança (2FA, Criptografia)
 - [x] Implementar autenticação 2FA (TOTP)
-- [ ] Criptografar dados sensíveis (telefone, email)
+- [x] Criptografar dados sensíveis (telefone, email)
 - [x] Implementar rate limiting em APIs (express-rate-limit)
-- [ ] Validar entrada em todas as APIs
-- [ ] Implementar CORS corretamente
+- [x] Validar entrada em todas as APIs
+- [x] Implementar CORS corretamente
 - [ ] Adicionar testes de segurança
 
 ## CRÍTICO - Backup e Disaster Recovery
