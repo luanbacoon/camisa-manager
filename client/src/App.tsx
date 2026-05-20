@@ -27,6 +27,9 @@ import { AdminTenants } from "./pages/AdminTenants";
 import { AuditLogs } from "./pages/AuditLogs";
 import { ClientSignUp } from "./pages/ClientSignUp";
 import { ClientLogin } from "./pages/ClientLogin";
+import { ClientDashboard } from "./pages/ClientDashboard";
+import { ClientSales } from "./pages/ClientSales";
+import { ClientCustomers } from "./pages/ClientCustomers";
 
 function DashboardRoutes() {
   return (
@@ -68,6 +71,10 @@ function App() {
             {/* Client signup and login - no auth needed */}
             <Route path="/client-signup" component={ClientSignUp} />
             <Route path="/client-login" component={ClientLogin} />
+            {/* Client dashboard and features */}
+            <Route path="/client-dashboard" component={ClientDashboard} />
+            <Route path="/client/vendas" component={ClientSales} />
+            <Route path="/client/clientes" component={ClientCustomers} />
             {/* All other routes use DashboardLayout */}
             <Route component={DashboardRoutes} />
           </Switch>
