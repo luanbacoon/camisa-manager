@@ -57,7 +57,7 @@ export function AuditLogs() {
     return auditData.logs.filter((log) =>
       log.action.toLowerCase().includes(searchLower) ||
       log.userId.toString().includes(searchLower) ||
-      (log.details && JSON.stringify(log.details).toLowerCase().includes(searchLower))
+      (log.changes && JSON.stringify(log.changes).toLowerCase().includes(searchLower))
     );
   }, [auditData?.logs, filters.search]);
 
@@ -69,7 +69,7 @@ export function AuditLogs() {
         log.userId,
         log.action,
         log.resourceId,
-        JSON.stringify(log.details || {}),
+        JSON.stringify(log.changes || {}),
       ]),
     ]
       .map((row) => row.map((cell) => `"${cell}"`).join(","))
@@ -133,12 +133,12 @@ export function AuditLogs() {
             </div>
 
             {/* Action Filter */}
-            <Select value={filters.action} onValueChange={(value) => setFilters({ ...filters, action: value })}>
+            <Select value={filters.action || "all"} onValueChange={(value) => setFilters({ ...filters, action: value === "all" ? "" : value })}>
               <SelectTrigger>
                 <SelectValue placeholder="Ação" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas as ações</SelectItem>
+                <SelectItem value="all">Todas as ações</SelectItem>
                 <SelectItem value="CREATE">Criar</SelectItem>
                 <SelectItem value="UPDATE">Atualizar</SelectItem>
                 <SelectItem value="DELETE">Deletar</SelectItem>
@@ -228,10 +228,10 @@ export function AuditLogs() {
                         </Badge>
                       </td>
                       <td className="py-3 px-4 text-muted-foreground">
-                        {log.resourceType} #{log.resourceId}
+                        {log.resource} #{log.resourceId}
                       </td>
                       <td className="py-3 px-4 text-xs text-muted-foreground max-w-xs truncate">
-                        {log.details ? JSON.stringify(log.details).substring(0, 50) : "-"}
+                        {log.changes ? JSON.stringify(log.changes).substring(0, 50) : "-"}
                       </td>
                     </tr>
                   ))}
