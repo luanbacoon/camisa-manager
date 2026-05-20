@@ -30,6 +30,12 @@ import { ClientLogin } from "./pages/ClientLogin";
 import { ClientDashboard } from "./pages/ClientDashboard";
 import { ClientSales } from "./pages/ClientSales";
 import { ClientCustomers } from "./pages/ClientCustomers";
+import { ClientForgotPassword } from "./pages/ClientForgotPassword";
+import { ClientResetPassword } from "./pages/ClientResetPassword";
+import { ClientOnboarding } from "./pages/ClientOnboarding";
+import { ClientAccount } from "./pages/ClientAccount";
+import { ClientWhatsApp } from "./pages/ClientWhatsApp";
+import { ClientCatalog } from "./pages/ClientCatalog";
 
 function DashboardRoutes() {
   return (
@@ -75,6 +81,12 @@ function App() {
             <Route path="/client-dashboard" component={ClientDashboard} />
             <Route path="/client/vendas" component={ClientSales} />
             <Route path="/client/clientes" component={ClientCustomers} />
+            <Route path="/client-forgot-password" component={ClientForgotPassword} />
+            <Route path="/client-reset-password" component={ClientResetPassword} />
+            <Route path="/client-onboarding" component={ClientOnboarding} />
+            <Route path="/client-account" component={ClientAccount} />
+            <Route path="/client/whatsapp" component={ClientWhatsApp} />
+            <Route path="/client/catalogo" component={ClientCatalog} />
             {/* All other routes use DashboardLayout */}
             <Route component={DashboardRoutes} />
           </Switch>

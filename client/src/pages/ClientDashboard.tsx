@@ -12,6 +12,8 @@ import {
   Shirt,
   TrendingUp,
   Calendar,
+  MessageCircle,
+  ShoppingBag,
 } from "lucide-react";
 
 export function ClientDashboard() {
@@ -38,7 +40,9 @@ export function ClientDashboard() {
     { icon: Package, label: "Produtos", path: "/client/produtos", color: "bg-purple-500" },
     { icon: BarChart3, label: "Estoque", path: "/client/estoque", color: "bg-yellow-500" },
     { icon: TrendingUp, label: "Pedidos", path: "/client/pedidos", color: "bg-red-500" },
-    { icon: Settings, label: "Configurações", path: "/client/configuracoes", color: "bg-gray-500" },
+    { icon: MessageCircle, label: "WhatsApp", path: "/client/whatsapp", color: "bg-green-600" },
+    { icon: ShoppingBag, label: "Catalogo", path: "/client/catalogo", color: "bg-indigo-500" },
+    { icon: Settings, label: "Configuracoes", path: "/client/configuracoes", color: "bg-gray-500" },
   ];
 
   return (
@@ -55,15 +59,25 @@ export function ClientDashboard() {
               <p className="text-sm text-slate-400">Portal do Cliente</p>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLogout}
-            className="text-slate-400 hover:text-white"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Sair
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation("/client-account")}
+              className="text-slate-400 hover:text-white"
+            >
+              Minha Conta
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="text-slate-400 hover:text-white"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sair
+            </Button>
+          </div>
         </div>
       </header>
 

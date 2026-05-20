@@ -11,6 +11,7 @@ import { rbacRouter } from "./routers/rbac";
 import { adminTenantsRouter } from "./routers/admin-tenants";
 import { auditRouter } from "./routers/audit";
 import { clientAuthRouter } from "./routers/client-auth";
+import { clientPasswordResetRouter } from "./routers/client-password-reset";
 
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -685,6 +686,7 @@ export const appRouter = router({
       .mutation(({ input }) => clearWhatsAppHistory(input.olderThanDays)),
   }),
   clientAuth: clientAuthRouter,
+  clientPasswordReset: clientPasswordResetRouter,
 });
 
 export type AppRouter = typeof appRouter;

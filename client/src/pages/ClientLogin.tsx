@@ -115,6 +115,14 @@ export function ClientLogin() {
                 Crie uma aqui
               </button>
             </div>
+            <div className="text-center">
+              <a
+                href="/client-forgot-password"
+                className="text-sm text-yellow-500 hover:text-yellow-400"
+              >
+                Esqueceu sua senha?
+              </a>
+            </div>
           </form>
         </CardContent>
       </Card>

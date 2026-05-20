@@ -350,9 +350,16 @@
 - [x] Criar página de Login com email/senha
 - [x] Implementar autenticação por email (sem Manus OAuth)
 - [x] Criar sistema de tenants automático (um tenant por cliente)
-- [ ] Criar dashboard simplificado para cliente
-- [ ] Adaptar todas as funcionalidades para modo cliente (isolamento de dados)
+- [x] Criar dashboard simplificado para cliente
+- [x] Adaptar todas as funcionalidades para modo cliente (isolamento de dados)
 - [ ] Criar página de boas-vindas/onboarding
 - [ ] Implementar recuperação de senha
 - [ ] Criar interface de gerenciamento de conta do cliente
 - [ ] Testar fluxo completo de Sign Up → Login → Dashboard
+
+## Portal SaaS para Clientes - Proximos Passos (COMPLETO)
+- [x] Recuperacao de senha por email
+- [x] Pagina de onboarding e boas-vindas
+- [x] Interface de gerenciamento de conta do cliente
+- [x] Integracao com WhatsApp (templates e historico)
+- [x] Catalogo online para cliente
