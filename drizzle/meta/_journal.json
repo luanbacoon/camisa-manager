@@ -141,6 +141,13 @@
       "when": 1779254579304,
       "tag": "0019_curious_golden_guardian",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1779255815583,
+      "tag": "0020_curved_hardball",
+      "breakpoints": true
     }
   ]
 }

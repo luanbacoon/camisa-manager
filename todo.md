@@ -363,3 +363,14 @@
 - [x] Interface de gerenciamento de conta do cliente
 - [x] Integracao com WhatsApp (templates e historico)
 - [x] Catalogo online para cliente
+
+
+## Painel de Admin para Gerenciar Clientes
+- [ ] Criar tabela de convites com tokens
+- [ ] Implementar sistema de envio de emails com convites
+- [ ] Criar pagina de aceitar convite
+- [ ] Criar painel de admin para listar clientes
+- [ ] Adicionar opcoes de ativar/desativar clientes
+- [ ] Adicionar opcoes de resetar senha
+- [ ] Adicionar opcoes de deletar clientes
+- [ ] Testar fluxo completo de convites

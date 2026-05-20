@@ -36,6 +36,8 @@ import { ClientOnboarding } from "./pages/ClientOnboarding";
 import { ClientAccount } from "./pages/ClientAccount";
 import { ClientWhatsApp } from "./pages/ClientWhatsApp";
 import { ClientCatalog } from "./pages/ClientCatalog";
+import { ClientAcceptInvite } from "./pages/ClientAcceptInvite";
+import { AdminClients } from "./pages/AdminClients";
 
 function DashboardRoutes() {
   return (
@@ -87,6 +89,9 @@ function App() {
             <Route path="/client-account" component={ClientAccount} />
             <Route path="/client/whatsapp" component={ClientWhatsApp} />
             <Route path="/client/catalogo" component={ClientCatalog} />
+            <Route path="/client-accept-invite" component={ClientAcceptInvite} />
+            {/* Admin routes */}
+            <Route path="/admin/clientes" component={AdminClients} />
             {/* All other routes use DashboardLayout */}
             <Route component={DashboardRoutes} />
           </Switch>

@@ -12,6 +12,7 @@ import { adminTenantsRouter } from "./routers/admin-tenants";
 import { auditRouter } from "./routers/audit";
 import { clientAuthRouter } from "./routers/client-auth";
 import { clientPasswordResetRouter } from "./routers/client-password-reset";
+import { clientInvitesRouter } from "./routers/client-invites";
 
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -687,6 +688,7 @@ export const appRouter = router({
   }),
   clientAuth: clientAuthRouter,
   clientPasswordReset: clientPasswordResetRouter,
+  clientInvites: clientInvitesRouter,
 });
 
 export type AppRouter = typeof appRouter;
