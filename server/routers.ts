@@ -10,6 +10,7 @@ import { suppliersRouter } from "./routers/suppliers";
 import { rbacRouter } from "./routers/rbac";
 import { adminTenantsRouter } from "./routers/admin-tenants";
 import { auditRouter } from "./routers/audit";
+import { clientAuthRouter } from "./routers/client-auth";
 
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -683,6 +684,7 @@ export const appRouter = router({
       .input(z.object({ olderThanDays: z.number().optional().default(0) }))
       .mutation(({ input }) => clearWhatsAppHistory(input.olderThanDays)),
   }),
+  clientAuth: clientAuthRouter,
 });
 
 export type AppRouter = typeof appRouter;

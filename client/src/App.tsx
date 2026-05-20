@@ -25,6 +25,8 @@ import Suppliers from "./pages/Suppliers";
 import TwoFactorSettings from "./pages/TwoFactorSettings";
 import { AdminTenants } from "./pages/AdminTenants";
 import { AuditLogs } from "./pages/AuditLogs";
+import { ClientSignUp } from "./pages/ClientSignUp";
+import { ClientLogin } from "./pages/ClientLogin";
 
 function DashboardRoutes() {
   return (
@@ -63,6 +65,9 @@ function App() {
           <Switch>
             {/* Public catalog route - no auth needed */}
             <Route path="/catalogo" component={Catalog} />
+            {/* Client signup and login - no auth needed */}
+            <Route path="/client-signup" component={ClientSignUp} />
+            <Route path="/client-login" component={ClientLogin} />
             {/* All other routes use DashboardLayout */}
             <Route component={DashboardRoutes} />
           </Switch>

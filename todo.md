@@ -343,3 +343,16 @@
 - [x] Atualizar routers para passar tenantId em gets
 - [x] Remover fallbacks || 1 perigosos (5 de 6 removidos)
 - [x] Implementar testes de isolamento multi-tenant (8 testes)
+
+
+## Portal SaaS para Clientes
+- [x] Criar página de Sign Up com email/senha
+- [x] Criar página de Login com email/senha
+- [x] Implementar autenticação por email (sem Manus OAuth)
+- [x] Criar sistema de tenants automático (um tenant por cliente)
+- [ ] Criar dashboard simplificado para cliente
+- [ ] Adaptar todas as funcionalidades para modo cliente (isolamento de dados)
+- [ ] Criar página de boas-vindas/onboarding
+- [ ] Implementar recuperação de senha
+- [ ] Criar interface de gerenciamento de conta do cliente
+- [ ] Testar fluxo completo de Sign Up → Login → Dashboard
