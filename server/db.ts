@@ -1,6 +1,5 @@
-import { and, desc, eq, gte, lte, sql, sum, count, ne, inArray } from "drizzle-orm";
+import { and, desc, eq, gte, lte, sql, sum, count, ne, inArray, lt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { lt } from "drizzle-orm";
 import {
   InsertUser,
   users,
@@ -49,6 +48,15 @@ export async function getDb() {
     }
   }
   return _db;
+}
+
+/**
+ * Get database connection or throw error if unavailable
+ */
+export async function getDbOrThrow() {
+  const db = await getDb();
+  if (!db) throw new Error("Database connection not available");
+  return db;
 }
 
 // ─── Users ────────────────────────────────────────────────────────────────────

@@ -35,7 +35,8 @@ export async function logAuditAction(
   tenantId: number,
   action: AuditAction,
   details: Record<string, any> = {},
-  resourceId?: string
+  resourceId?: number,
+  resource: string = "OTHER"
 ) {
   try {
     const db = await getDb();
@@ -44,13 +45,16 @@ export async function logAuditAction(
       return;
     }
 
+    // Parse userId to number if it's a string
+    const userIdNum = typeof userId === 'string' ? parseInt(userId, 10) : userId;
+
     await db.insert(auditLog).values({
-      userId,
+      userId: userIdNum,
       tenantId,
       action,
-      details: JSON.stringify(details),
+      resource,
       resourceId,
-      timestamp: new Date(),
+      changes: details,
       ipAddress: process.env.CLIENT_IP || "unknown",
     });
   } catch (error) {
@@ -75,13 +79,14 @@ export async function getAuditLogs(
       .select()
       .from(auditLog)
       .where(eq(auditLog.tenantId, tenantId))
-      .orderBy(auditLog.timestamp)
+      .orderBy(auditLog.createdAt)
       .limit(limit)
       .offset(offset);
 
     return logs.map((log) => ({
       ...log,
-      details: typeof log.details === "string" ? JSON.parse(log.details) : log.details,
+      timestamp: log.createdAt,
+      changes: typeof log.changes === "string" ? JSON.parse(log.changes) : log.changes,
     }));
   } catch (error) {
     console.error("[Audit] Failed to fetch logs:", error);
@@ -101,16 +106,20 @@ export async function getUserAuditLogs(
     const db = await getDb();
     if (!db) return [];
 
+    // Parse userId to number
+    const userIdNum = typeof userId === 'string' ? parseInt(userId, 10) : userId;
+
     const logs = await db
       .select()
       .from(auditLog)
-      .where(and(eq(auditLog.userId, userId), eq(auditLog.tenantId, tenantId)))
-      .orderBy(auditLog.timestamp)
+      .where(and(eq(auditLog.userId, userIdNum), eq(auditLog.tenantId, tenantId)))
+      .orderBy(auditLog.createdAt)
       .limit(limit);
 
     return logs.map((log) => ({
       ...log,
-      details: typeof log.details === "string" ? JSON.parse(log.details) : log.details,
+      timestamp: log.createdAt,
+      changes: typeof log.changes === "string" ? JSON.parse(log.changes) : log.changes,
     }));
   } catch (error) {
     console.error("[Audit] Failed to fetch user logs:", error);

@@ -9,6 +9,7 @@ import { reportsRouter } from "./routers/reports";
 import { suppliersRouter } from "./routers/suppliers";
 import { rbacRouter } from "./routers/rbac";
 import { adminTenantsRouter } from "./routers/admin-tenants";
+import { auditRouter } from "./routers/audit";
 
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -71,6 +72,7 @@ export const appRouter = router({
   suppliers: suppliersRouter,
   rbac: rbacRouter,
   adminTenants: adminTenantsRouter,
+  audit: auditRouter,
 
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),

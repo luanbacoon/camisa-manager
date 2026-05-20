@@ -11,6 +11,7 @@ export async function hasPermission(
 ): Promise<boolean> {
   try {
     const db = await getDb();
+    if (!db) return false;
 
     // Admin tem todas as permissões
     if (userRole === "admin") {

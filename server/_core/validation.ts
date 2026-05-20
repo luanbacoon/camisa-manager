@@ -109,7 +109,8 @@ export function validateAndSanitize<T>(
     return schema.parse(data);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      throw new Error(`Validação falhou: ${error.errors.map((e) => e.message).join(", ")}`);
+      const messages = error.issues?.map((e: any) => e.message).join(", ") || "Validação falhou";
+      throw new Error(`Validação falhou: ${messages}`);
     }
     throw error;
   }
