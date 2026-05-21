@@ -168,7 +168,7 @@
 - [x] Criar procedures tRPC para gerenciar tenants
 - [x] Criar middleware de tenant-middleware.ts com funções auxiliares
 - [x] Criar painel de admin para gerenciar tenants (UI) - AdminTenants.tsx integrado em /admin/tenants
-- [ ] Migrar dados existentes para tenant "default"
+- [x] Migrar dados existentes para tenant "default"
 - [x] Adicionar tenantId à tabela de produtos
 - [x] Adicionar tenantId às tabelas de customers, sales, supplier_orders, catalogOrders
 - [x] Atualizar procedures para usar tenantId do contexto
