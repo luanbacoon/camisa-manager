@@ -7,17 +7,18 @@
   ],
   "dev_command": "pnpm run dev",
   "env_vars": {
-    "DATABASE_URL": "mysql://2ifPH7viqejjM65.root:98MT0C4VyGRm7RkbW8Da@gateway06.us-east-1.prod.aws.tidbcloud.com:4000/awm2eraPRXUvnHb76ArrUX?ssl={\"rejectUnauthorized\":true}"
+    "DATABASE_URL": "mysql://2ifPH7viqejjM65.root:98MT0C4VyGRm7RkbW8Da@gateway06.us-east-1.prod.aws.tidbcloud.com:4000/awm2eraPRXUvnHb76ArrUX?ssl={\"rejectUnauthorized\":true}",
+    "DRIZZLE_DATABASE_URL": "mysql://2ifPH7viqejjM65.root:98MT0C4VyGRm7RkbW8Da@gateway06.us-east-1.prod.aws.tidbcloud.com:4000/awm2eraPRXUvnHb76ArrUX?ssl={\"rejectUnauthorized\":true}"
   },
   "experiments": [
     "no_db_push"
   ],
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663654956026/awm2eraPRXUvnHb76ArrUX",
-    "access_key_id": "ASIAZV3A2ECZIXBX4RWR",
-    "secret_access_key": "2JPtDycVoGy7ACixZUfq3srR8ofkerexRHWqKYeI",
-    "session_token": "IQoJb3JpZ2luX2VjEB4aCXVzLWVhc3QtMSJIMEYCIQCFGQuFVkmvNd2Cxd5jMA5Yzat+HanAdaRDnJZmhYIN5wIhANjhNMyrDGfafr/4MMnbbPVBD7RJrAKZOLWuFoz04J6HKv8DCOb//////////wEQBBoMNjY1Mzg2MDk4ODY2IgxppcMQm22otJMOlRQq0wNYl8OZI5XEaZ3qQGIF+j+idt1jlc20SJPYhqTtYxar+rcLhqjZugreX4vj7XTn34mIVNbTqvD6TwfDWfiuPLIF25t+iVQIYD67zHUKieHkkLdqUrvwkdxGYMFrmiKAbd66goChQ1uApuUjweeL2/1gUhXB+UlUF3gGL3ZpKrj9Jwx5LOisOH5Z7g+4HXQueqAH37L209tJUwFTfJRqLP6dWX10Jm20lTwUcuaoCE0BYoNU4N27/EsbR1etV5Q0nl3zrEM9wbyR/hUHS4+6KDgyKa1mlLC+h1yvk1BeSo1E61eNygAWXzYhbzWlnyFfVV1w+43Pei4eH/xlLNlX6DJOhalmxXYRT6597AZ8z3zmUBs8HoFy1uA0g0zHy4dguf8BjNPsW7QPFf5SyFnUaA+szQPUTjO5MPaTHV4H5z48KGMp0Hwx9O+GX4CwH6bZQCqfniOecax4y22NnIZyF316wQepwZ0Px7gkSfNLW4dU9VbQCGOti3qomdDiR0+V/3o6O3glH5TyVxN7Jy5dp1RC1oJ1IPcKJqfsjRyGvLn+VOz7HKML7SZm2L8OtwSR6WQxu0e37/6D1QzTf6cSOknYh3zKsU/mi2mYUzfm0OTqXd/1STDthrXQBjqcAeXAf0JRtNnrjYJS8G+1E8k90lFXxnXDMrK8JVGZ4D1cC7uMfJkzcczDDiG8VXZ4t8iD0zyiIcZptOC793pKg6OmtrRVt69I5Fow700f3SsBTJKuT/9uSuCcIPyd63VX6KczPgosdQjHFf+/bQma1y93tZ5NzHQxgJFMJxXmzDlBIFRJYqtcZjIdKTXvxTU68NNMDm00eUDN/6ITRQ==",
-    "expiration": "2026-05-20T17:15:25.000Z"
+    "access_key_id": "ASIAZV3A2ECZHPHIO2JH",
+    "secret_access_key": "ECp/RPiAxELsM+YM7DWJTgEtDtzyCzBveb0tOwFK",
+    "session_token": "IQoJb3JpZ2luX2VjEDIaCXVzLWVhc3QtMSJHMEUCIQCrdDpTShm16dbc5TK/thfkOlT8t2ulQhbxeYHumds+QQIgM6CsT53k3b16smWxwaAcFt612ztC0qziENBSZ0wb0msq/wMI+///////////ARAEGgw2NjUzODYwOTg4NjYiDONScY4KG36LLU9hSyrTAyWRG2RDz71S3EBu5YcWlp11j1SPvfEUyFnYCQv0qEzMfr1p+QmPme/zmEiOPilrguefhW1DGGt1lC2rBvTXpUoeSaZeftivxoTZIA7KPmBaDpnXQipbuTidAdP43RMPxorLGY4pqLGe44BZ0mLIqTFCV2kFzEOnss43vfqNGvJEkEV7/geDrj1qV7Z48tzS7vwFvevTjl5rm276jpse+2P+IiLCJYU6UVOl3ZflpaQpSJlvP21/sqSQC2MzEx4ZsDsbodxQhDgRcMg2HjehWzL1qK2lCDEyXZxiHyTaJCGhgF5We64VP/hY4bFBjVmz4HzP7X4uSSZgynAwt/6ZOSXAYvWX9DXn7T4dsJ1v/5H2UjCk8/XNLNtG3QT87Bm/8CrMfA/oYpWV3IoJ65nrHHzEM0yDxEgB0NQvQ1kO3NvRYFAhMxDewGoj7P513NqZPQPLc0IL+hVlBgj7jQ70ZYq+Y1f+b/hCT0dxXBqS1lNORoDURQKKUIWT56unKRfdwpWPtSrhpA1wAUv7kYxlNElbOABIrpgIpNnwI9k0zDHpKhn3OXlZqejbRIXgNynRgX+xrqa/aPuLm5a0F/lMY17ZnUTW6lkjN31G85/pg+yL6ZU/MLnIudAGOp0BR10axXOgx8cs9LgO5RdjkXMWyC9dRpFhDKuZKldhlMbKGmdjawakXFsfwH4mQbdCAd6GatvjdMyHR7337HZqq1EULN4xfHvWlBy95fmhyY/qOMxzYYMgTjROG9sQSPl/cDWiXjRxIM854bIUaK42m+Ek9tipU+ovVsihRjIbqbb+W6NfO13s+DO7lncdZixpEHnSQqqL+FQffrzcjw==",
+    "expiration": "2026-05-21T13:47:37.000Z"
   },
   "name": "camisa-manager",
   "path": "/home/ubuntu/camisa-manager",
@@ -29,6 +30,7 @@
     "OAUTH_SERVER_URL": "https://api.manus.im",
     "OWNER_NAME": "cabradabolafc",
     "OWNER_OPEN_ID": "Db9AVH5fTW7KFUs46TX5Hp",
+    "SENDGRID_API_KEY": "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",
     "VITE_ANALYTICS_ENDPOINT": "https://manus-analytics.com",
     "VITE_ANALYTICS_WEBSITE_ID": "15324a48-d4f4-4ce3-b41e-e47ac723c87f",
     "VITE_APP_ID": "awm2eraPRXUvnHb76ArrUX",

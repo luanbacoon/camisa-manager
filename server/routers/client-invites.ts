@@ -2,9 +2,11 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
 import { TRPCError } from "@trpc/server";
-import { clientInvites, tenants } from "../../drizzle/schema";
+import { clientInvites, tenants, users } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import crypto from "crypto";
+import { sendWelcomeEmail, sendInviteEmail } from "../_core/email";
+import bcrypt from "bcrypt";
 
 export const clientInvitesRouter = router({
   /**
@@ -34,13 +36,9 @@ export const clientInvitesRouter = router({
         createdBy: ctx.user.id,
       });
 
-      // TODO: Enviar email com link de convite
-      // const inviteUrl = `${process.env.FRONTEND_URL}/client-accept-invite?token=${token}`;
-      // await sendEmail({
-      //   to: input.email,
-      //   subject: `Convite para gerenciar ${input.storeName}`,
-      //   html: `Clique aqui para aceitar: <a href="${inviteUrl}">${inviteUrl}</a>`,
-      // });
+      // Enviar email com link de convite
+      const inviteUrl = `${process.env.VITE_FRONTEND_URL || "http://localhost:3000"}/client-accept-invite?token=${token}`;
+      await sendInviteEmail(input.email, input.storeName, inviteUrl, "7 dias");
 
       return {
         success: true,

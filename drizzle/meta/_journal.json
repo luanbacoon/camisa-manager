@@ -148,6 +148,13 @@
       "when": 1779255815583,
       "tag": "0020_curved_hardball",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "5",
+      "when": 1779328185838,
+      "tag": "0021_violet_weapon_omega",
+      "breakpoints": true
     }
   ]
 }
