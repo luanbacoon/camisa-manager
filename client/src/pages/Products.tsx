@@ -87,6 +87,11 @@ export default function Products() {
     setCost(String(p.cost)); setPrice(String(p.price));
     setShowInCatalog(p.showInCatalog);
     setSelectedSizes({});
+    setImageUrl(p.imageUrl ?? "");
+    setImagePreview(p.imageUrl ?? null);
+    setGender(p.gender ?? "");
+    setCategory(p.category ?? "");
+    setVersion(p.version ?? "");
     setShowForm(true);
     // Load sizes
     utils.products.get.fetch({ id: p.id }).then((detail) => {
