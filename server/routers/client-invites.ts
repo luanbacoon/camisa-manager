@@ -36,9 +36,10 @@ export const clientInvitesRouter = router({
         createdBy: ctx.user.id,
       });
 
-      // Enviar email com link de convite
+      // Gerar link de convite (sem enviar email)
       const inviteUrl = `${process.env.VITE_FRONTEND_URL || "http://localhost:3000"}/client-accept-invite?token=${token}`;
-      await sendInviteEmail(input.email, input.storeName, inviteUrl, "7 dias");
+      console.log("[CONVITE] Link gerado para:", input.email);
+      console.log("[CONVITE] URL:", inviteUrl);
 
       return {
         success: true,

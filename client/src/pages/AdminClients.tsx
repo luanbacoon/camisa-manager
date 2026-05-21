@@ -112,9 +112,9 @@ export function AdminClients() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Enviar Convite para Cliente</DialogTitle>
+                <DialogTitle>Gerar Link de Convite</DialogTitle>
                 <DialogDescription>
-                  O cliente receberá um email com um link para criar sua conta
+                  Gere um link e envie para o cliente via WhatsApp, SMS ou email
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSendInvite} className="space-y-4">
@@ -140,7 +140,7 @@ export function AdminClients() {
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={sendInviteMutation.isPending}>
-                  {sendInviteMutation.isPending ? "Enviando..." : "Enviar Convite"}
+                  {sendInviteMutation.isPending ? "Gerando..." : "Gerar Link de Convite"}
                 </Button>
               </form>
             </DialogContent>
@@ -189,18 +189,7 @@ export function AdminClients() {
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
-                          {invite.status === "pending" && (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setResendId(invite.id)}
-                                title="Reenviar convite"
-                              >
-                                <Mail className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
+
                           <Button
                             variant="ghost"
                             size="sm"

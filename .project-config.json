@@ -15,10 +15,10 @@
   ],
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663654956026/awm2eraPRXUvnHb76ArrUX",
-    "access_key_id": "ASIAZV3A2ECZHPHIO2JH",
-    "secret_access_key": "ECp/RPiAxELsM+YM7DWJTgEtDtzyCzBveb0tOwFK",
-    "session_token": "IQoJb3JpZ2luX2VjEDIaCXVzLWVhc3QtMSJHMEUCIQCrdDpTShm16dbc5TK/thfkOlT8t2ulQhbxeYHumds+QQIgM6CsT53k3b16smWxwaAcFt612ztC0qziENBSZ0wb0msq/wMI+///////////ARAEGgw2NjUzODYwOTg4NjYiDONScY4KG36LLU9hSyrTAyWRG2RDz71S3EBu5YcWlp11j1SPvfEUyFnYCQv0qEzMfr1p+QmPme/zmEiOPilrguefhW1DGGt1lC2rBvTXpUoeSaZeftivxoTZIA7KPmBaDpnXQipbuTidAdP43RMPxorLGY4pqLGe44BZ0mLIqTFCV2kFzEOnss43vfqNGvJEkEV7/geDrj1qV7Z48tzS7vwFvevTjl5rm276jpse+2P+IiLCJYU6UVOl3ZflpaQpSJlvP21/sqSQC2MzEx4ZsDsbodxQhDgRcMg2HjehWzL1qK2lCDEyXZxiHyTaJCGhgF5We64VP/hY4bFBjVmz4HzP7X4uSSZgynAwt/6ZOSXAYvWX9DXn7T4dsJ1v/5H2UjCk8/XNLNtG3QT87Bm/8CrMfA/oYpWV3IoJ65nrHHzEM0yDxEgB0NQvQ1kO3NvRYFAhMxDewGoj7P513NqZPQPLc0IL+hVlBgj7jQ70ZYq+Y1f+b/hCT0dxXBqS1lNORoDURQKKUIWT56unKRfdwpWPtSrhpA1wAUv7kYxlNElbOABIrpgIpNnwI9k0zDHpKhn3OXlZqejbRIXgNynRgX+xrqa/aPuLm5a0F/lMY17ZnUTW6lkjN31G85/pg+yL6ZU/MLnIudAGOp0BR10axXOgx8cs9LgO5RdjkXMWyC9dRpFhDKuZKldhlMbKGmdjawakXFsfwH4mQbdCAd6GatvjdMyHR7337HZqq1EULN4xfHvWlBy95fmhyY/qOMxzYYMgTjROG9sQSPl/cDWiXjRxIM854bIUaK42m+Ek9tipU+ovVsihRjIbqbb+W6NfO13s+DO7lncdZixpEHnSQqqL+FQffrzcjw==",
-    "expiration": "2026-05-21T13:47:37.000Z"
+    "access_key_id": "ASIAZV3A2ECZICEMMOFF",
+    "secret_access_key": "r+eIMhv4imhVHuXKTeYCTI1kjfu4Y5YV43OEkuPm",
+    "session_token": "IQoJb3JpZ2luX2VjEDIaCXVzLWVhc3QtMSJGMEQCIAM4tcjI5+zBIogu6rbQiAR1Q0WuYA0wfTdM95WMp0+4AiApXHwm2AtswIillW+0BVsIFLJil1bSq8IDQyXRggfXvCr/Awj7//////////8BEAQaDDY2NTM4NjA5ODg2NiIMoZ4BDh/DETgdqVFGKtMDu//y4x1fHYfXrs2/q2N1OLmhRTFagcZrFxS7PO2GwYOceJBMp9x1EqZlpUCDdjlarGAGKLHnyujzvkPaPdmAbhtSVKnjvANEXD6pUjgg4VsOgCfw41uHrIN2mQE1W/2LKsUerHuHpE1PoCZTczvdr9qHlZGnfB6MylY4bg1i+VA5cMqTdNvoeC0aYZmpqltTXSymGVZRRdk1vWZW1ZmOJydoqernSDjDg5aoIGRr7kiM3pcS42ZgEgtsoLEaQrsOu6i6auClFJFVnxN8y7PQrs0eJYvupO7JcG7+oo31QMfeZUjo3iV4QfgssZvGTRHIq5KnKMQbhDG0YB6XC7cVs9Mn3N20IZdUf9D2hk2QwUdei64eLdCjbloheinTNGt2CTm9mxGuZrnjuBeMiS4WebMMOeSWpTCUXnn1ZovkXWksHAnprdzARqfvbY+8qw7hUsWFyPj3W2flZRZEXUzSZPao3SAq7pOMn0pnRDsTdM6V2BzjYsLpaHH2aJGRWFXk+nx2TCee0zzA5vLQQe0FuPJCzwGgAPlPsGJUGOb07ScUz225j7SiBZ7diII8C3aBuANxtRwz1H8SVYNEpB1XfZ7Jh513JIlVtD4WbfXlFOfs0u4whs+50AY6ngHC6UnqpLPOhtzSYA3a2q5g8ln1Hr7mgdRlsDXYJde35jnn9aqeJJ5d/mdfRHvq50vpRmUJReDTUnMIgtRHEox1Mwe9SyvVOv8bZAoBsKW8VblCuu+WYg1/ByZpbOSk1NFJ2HgacK/QoAnBW1p6W/cdmXxlNCI9OOAhVYzsfyghiK9USGK0nggq7r+LRMEUnwTxKmwiGloqvwV4MuTnVA==",
+    "expiration": "2026-05-21T14:01:42.000Z"
   },
   "name": "camisa-manager",
   "path": "/home/ubuntu/camisa-manager",
@@ -30,7 +30,7 @@
     "OAUTH_SERVER_URL": "https://api.manus.im",
     "OWNER_NAME": "cabradabolafc",
     "OWNER_OPEN_ID": "Db9AVH5fTW7KFUs46TX5Hp",
-    "SENDGRID_API_KEY": "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",
+    "SENDGRID_API_KEY": "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",
     "VITE_ANALYTICS_ENDPOINT": "https://manus-analytics.com",
     "VITE_ANALYTICS_WEBSITE_ID": "15324a48-d4f4-4ce3-b41e-e47ac723c87f",
     "VITE_APP_ID": "awm2eraPRXUvnHb76ArrUX",
