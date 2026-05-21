@@ -23,6 +23,24 @@ export const clientInvitesRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 
+      // Verificar se já existe convite para este email do mesmo usuário
+      const existingInvite = await db
+        .select()
+        .from(clientInvites)
+        .where(and(
+          eq(clientInvites.email, input.email),
+          eq(clientInvites.createdBy, ctx.user.id),
+          eq(clientInvites.status, "pending")
+        ))
+        .limit(1);
+
+      if (existingInvite && existingInvite.length > 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Já existe um convite pendente para este email",
+        });
+      }
+
       // Gerar token único
       const token = crypto.randomBytes(32).toString("hex");
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
@@ -49,7 +67,7 @@ export const clientInvitesRouter = router({
     }),
 
   /**
-   * Listar convites pendentes
+   * Listar convites pendentes (apenas do usuário logado)
    */
   listInvites: protectedProcedure
     .input(
@@ -59,17 +77,23 @@ export const clientInvitesRouter = router({
         offset: z.number().default(0),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 
-      let query: any = db.select().from(clientInvites);
+      // Filtrar por usuário que criou o convite (isolamento de tenant)
+      const conditions: any[] = [eq(clientInvites.createdBy, ctx.user.id)];
 
       if (input.status) {
-        query = query.where(eq(clientInvites.status, input.status));
+        conditions.push(eq(clientInvites.status, input.status));
       }
 
-      const invites = await query.limit(input.limit).offset(input.offset);
+      const invites = await db
+        .select()
+        .from(clientInvites)
+        .where(and(...conditions))
+        .limit(input.limit)
+        .offset(input.offset);
 
       return {
         invites,
@@ -154,7 +178,7 @@ export const clientInvitesRouter = router({
     }),
 
   /**
-   * Deletar convite
+   * Deletar convite (apenas do usuário logado)
    */
   deleteInvite: protectedProcedure
     .input(z.object({ inviteId: z.number() }))
@@ -162,7 +186,29 @@ export const clientInvitesRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 
-      await db.delete(clientInvites).where(eq(clientInvites.id, input.inviteId));
+      // Verificar se o convite pertence ao usuário logado
+      const invite = await db
+        .select()
+        .from(clientInvites)
+        .where(and(
+          eq(clientInvites.id, input.inviteId),
+          eq(clientInvites.createdBy, ctx.user.id)
+        ))
+        .limit(1);
+
+      if (!invite || invite.length === 0) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Você não tem permissão para deletar este convite",
+        });
+      }
+
+      await db
+        .delete(clientInvites)
+        .where(and(
+          eq(clientInvites.id, input.inviteId),
+          eq(clientInvites.createdBy, ctx.user.id)
+        ));
 
       return {
         success: true,
@@ -171,7 +217,7 @@ export const clientInvitesRouter = router({
     }),
 
   /**
-   * Reenviar convite
+   * Reenviar convite (apenas do usuário logado)
    */
   resendInvite: protectedProcedure
     .input(z.object({ inviteId: z.number() }))
@@ -179,15 +225,21 @@ export const clientInvitesRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 
-      // Buscar convite
+      // Buscar convite (apenas do usuário logado)
       const invite = await db
         .select()
         .from(clientInvites)
-        .where(eq(clientInvites.id, input.inviteId))
+        .where(and(
+          eq(clientInvites.id, input.inviteId),
+          eq(clientInvites.createdBy, ctx.user.id)
+        ))
         .limit(1);
 
       if (!invite || invite.length === 0) {
-        throw new Error("Convite não encontrado");
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Você não tem permissão para reenviar este convite",
+        });
       }
 
       // TODO: Reenviar email

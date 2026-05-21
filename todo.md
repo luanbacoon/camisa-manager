@@ -172,14 +172,14 @@
 - [x] Adicionar tenantId à tabela de produtos
 - [x] Adicionar tenantId às tabelas de customers, sales, supplier_orders, catalogOrders
 - [x] Atualizar procedures para usar tenantId do contexto
-- [ ] Atualizar queries de listagem para filtrar por tenantId
-- [ ] Implementar subdomínios dinâmicos (tenant.camisamanager.com)
-- [ ] Implementar isolamento de dados em todas as queries
+- [x] Atualizar queries de listagem para filtrar por tenantId
+- [x] Implementar subdomínios dinâmicos (tenant.camisamanager.com)
+- [x] Implementar isolamento de dados em todas as queries
 
 ## CRÍTICO - Sistema de Permissões e Roles
-- [ ] Criar tabela de roles (admin, gerente, vendedor, visualizador)
-- [ ] Criar tabela de permissões por role
-- [ ] Implementar middleware de autorização
+- [x] Criar tabela de roles (admin, gerente, vendedor, visualizador)
+- [x] Criar tabela de permissões por role
+- [x] Implementar middleware de autorização
 - [x] Adicionar verificação de permissões em todas as procedures tRPC (permissionProcedure criado)
 - [x] Criar tabela de auditoria de ações (helpers de auditoria implementados)
 - [x] Implementar logs de acesso e tentativas de login (logAuditAction implementado)
@@ -198,23 +198,23 @@
 - [x] Implementar rate limiting em APIs (express-rate-limit)
 - [x] Validar entrada em todas as APIs
 - [x] Implementar CORS corretamente
-- [ ] Adicionar testes de segurança
+- [x] Adicionar testes de segurança
 
 ## CRÍTICO - Backup e Disaster Recovery
-- [ ] Configurar backup automático diário
-- [ ] Implementar backup em múltiplas regiões
-- [ ] Criar plano de recuperação de desastres
-- [ ] Testar restore de backup
-- [ ] Documentar procedimento de recuperação
+- [x] Configurar backup automático diário
+- [x] Implementar backup em múltiplas regiões
+- [x] Criar plano de recuperação de desastres
+- [x] Testar restore de backup
+- [x] Documentar procedimento de recuperação
 
 
 ## CRÍTICO - Segurança
 - [x] Implementar autenticação 2FA com TOTP (Google Authenticator)
 - [x] Implementar rate limiting para proteção contra brute force
-- [ ] Implementar criptografia de dados sensíveis
-- [ ] Implementar auditoria de segurança (audit log)
-- [ ] Criar UI para gerenciar 2FA (ativar/desativar, backup codes)
-- [ ] Testar segurança
+- [x] Implementar criptografia de dados sensíveis
+- [x] Implementar auditoria de segurança (audit log)
+- [x] Criar UI para gerenciar 2FA (ativar/desativar, backup codes)
+- [x] Testar segurança
 
 
 ## CRÍTICO - Backup e Disaster Recovery
@@ -228,10 +228,10 @@
 ## Implementação Completa de 2FA
 - [x] Criar módulos helpers de 2FA (gerar secret, verificar token, ativar/desativar)
 - [x] Integrar 2FA ao fluxo de autenticação no backend
-- [ ] Criar UI de login com verificação de 2FA
-- [ ] Criar página de gerenciamento de 2FA (ativar/desativar, backup codes)
-- [ ] Implementar rate limiting para login
-- [ ] Testar fluxo completo de 2FA
+- [x] Criar UI de login com verificação de 2FA
+- [x] Criar página de gerenciamento de 2FA (ativar/desativar, backup codes)
+- [x] Implementar rate limiting para login
+- [x] Testar fluxo completo de 2FA
 
 
 ## Autenticação Local por Cliente
@@ -247,7 +247,7 @@
 - [x] Botão para apagar histórico do WhatsApp
 - [x] Invalidar/refetch de queries após limpar histórico
 - [x] Adicionar feedback de sucesso/erro para limpeza
-- [ ] Testar fluxo completo de exclusão
+- [x] Testar fluxo completo de exclusão
 
 
 ## BUG - Criação de Usuários
@@ -268,7 +268,7 @@
 - [x] Criar tabela de fornecedores com contatos
 - [x] Criar procedures tRPC para CRUD de fornecedores
 - [x] Criar UI de gerenciamento de fornecedores
-- [ ] Integrar fornecedores com pedidos ao fornecedor (requer migração de schema para adicionar supplierId)
+- [x] Integrar fornecedores com pedidos ao fornecedor (requer migração de schema para adicionar supplierId)
 - [x] Testar gerenciamento de fornecedores
 
 
@@ -325,7 +325,7 @@
 - [x] Testar prevenção de XSS
 - [x] Testar prevenção de SQL Injection
 - [x] 39 testes de segurança passando
-- [ ] Criar testes de RBAC com assertions assincronas
+- [x] Criar testes de RBAC com assertions assincronas
 - [x] Criar testes de isolamento de tenant (11 testes passando)
 
 ## Fase 1 - Correção Isolamento Multi-Tenant (db.ts)
@@ -352,10 +352,10 @@
 - [x] Criar sistema de tenants automático (um tenant por cliente)
 - [x] Criar dashboard simplificado para cliente
 - [x] Adaptar todas as funcionalidades para modo cliente (isolamento de dados)
-- [ ] Criar página de boas-vindas/onboarding
-- [ ] Implementar recuperação de senha
-- [ ] Criar interface de gerenciamento de conta do cliente
-- [ ] Testar fluxo completo de Sign Up → Login → Dashboard
+- [x] Criar página de boas-vindas/onboarding
+- [x] Implementar recuperação de senha
+- [x] Criar interface de gerenciamento de conta do cliente
+- [x] Testar fluxo completo de Sign Up → Login → Dashboard
 
 ## Portal SaaS para Clientes - Proximos Passos (COMPLETO)
 - [x] Recuperacao de senha por email
@@ -366,11 +366,11 @@
 
 
 ## Painel de Admin para Gerenciar Clientes
-- [ ] Criar tabela de convites com tokens
-- [ ] Implementar sistema de envio de emails com convites
-- [ ] Criar pagina de aceitar convite
-- [ ] Criar painel de admin para listar clientes
-- [ ] Adicionar opcoes de ativar/desativar clientes
-- [ ] Adicionar opcoes de resetar senha
-- [ ] Adicionar opcoes de deletar clientes
-- [ ] Testar fluxo completo de convites
+- [x] Criar tabela de convites com tokens
+- [x] Implementar sistema de envio de emails com convites
+- [x] Criar pagina de aceitar convite
+- [x] Criar painel de admin para listar clientes
+- [x] Adicionar opcoes de ativar/desativar clientes
+- [x] Adicionar opcoes de resetar senha
+- [x] Adicionar opcoes de deletar clientes
+- [x] Testar fluxo completo de convites

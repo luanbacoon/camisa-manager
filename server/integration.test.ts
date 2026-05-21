@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 
 describe("Integration Tests - Full System", () => {
   let db: any;
-  const testTenantId = 30001; // Use existing tenant from context
+  const testTenantId = 1; // Use default tenant
 
   beforeAll(async () => {
     db = await getDb();
