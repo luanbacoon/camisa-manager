@@ -155,6 +155,13 @@
       "when": 1779328185838,
       "tag": "0021_violet_weapon_omega",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1779337260102,
+      "tag": "0022_silky_smasher",
+      "breakpoints": true
     }
   ]
 }

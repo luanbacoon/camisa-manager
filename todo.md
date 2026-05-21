@@ -185,12 +185,12 @@
 - [x] Implementar logs de acesso e tentativas de login (logAuditAction implementado)
 
 ## CRÍTICO - Integração com Stripe
-- [ ] Configurar conta Stripe
-- [ ] Criar tabela de subscriptions
-- [ ] Implementar webhook do Stripe
-- [ ] Criar fluxo de checkout
-- [ ] Implementar cancelamento e downgrade de planos
-- [ ] Criar histórico de faturas
+- [x] Configurar conta Stripe
+- [x] Criar tabela de subscriptions
+- [x] Implementar webhook do Stripe
+- [x] Criar fluxo de checkout
+- [x] Implementar cancelamento e downgrade de planos
+- [x] Criar histórico de faturas
 
 ## CRÍTICO - Segurança (2FA, Criptografia)
 - [x] Implementar autenticação 2FA (TOTP)

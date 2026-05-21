@@ -15,10 +15,10 @@
   ],
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663654956026/awm2eraPRXUvnHb76ArrUX",
-    "access_key_id": "ASIAZV3A2ECZICEMMOFF",
-    "secret_access_key": "r+eIMhv4imhVHuXKTeYCTI1kjfu4Y5YV43OEkuPm",
-    "session_token": "IQoJb3JpZ2luX2VjEDIaCXVzLWVhc3QtMSJGMEQCIAM4tcjI5+zBIogu6rbQiAR1Q0WuYA0wfTdM95WMp0+4AiApXHwm2AtswIillW+0BVsIFLJil1bSq8IDQyXRggfXvCr/Awj7//////////8BEAQaDDY2NTM4NjA5ODg2NiIMoZ4BDh/DETgdqVFGKtMDu//y4x1fHYfXrs2/q2N1OLmhRTFagcZrFxS7PO2GwYOceJBMp9x1EqZlpUCDdjlarGAGKLHnyujzvkPaPdmAbhtSVKnjvANEXD6pUjgg4VsOgCfw41uHrIN2mQE1W/2LKsUerHuHpE1PoCZTczvdr9qHlZGnfB6MylY4bg1i+VA5cMqTdNvoeC0aYZmpqltTXSymGVZRRdk1vWZW1ZmOJydoqernSDjDg5aoIGRr7kiM3pcS42ZgEgtsoLEaQrsOu6i6auClFJFVnxN8y7PQrs0eJYvupO7JcG7+oo31QMfeZUjo3iV4QfgssZvGTRHIq5KnKMQbhDG0YB6XC7cVs9Mn3N20IZdUf9D2hk2QwUdei64eLdCjbloheinTNGt2CTm9mxGuZrnjuBeMiS4WebMMOeSWpTCUXnn1ZovkXWksHAnprdzARqfvbY+8qw7hUsWFyPj3W2flZRZEXUzSZPao3SAq7pOMn0pnRDsTdM6V2BzjYsLpaHH2aJGRWFXk+nx2TCee0zzA5vLQQe0FuPJCzwGgAPlPsGJUGOb07ScUz225j7SiBZ7diII8C3aBuANxtRwz1H8SVYNEpB1XfZ7Jh513JIlVtD4WbfXlFOfs0u4whs+50AY6ngHC6UnqpLPOhtzSYA3a2q5g8ln1Hr7mgdRlsDXYJde35jnn9aqeJJ5d/mdfRHvq50vpRmUJReDTUnMIgtRHEox1Mwe9SyvVOv8bZAoBsKW8VblCuu+WYg1/ByZpbOSk1NFJ2HgacK/QoAnBW1p6W/cdmXxlNCI9OOAhVYzsfyghiK9USGK0nggq7r+LRMEUnwTxKmwiGloqvwV4MuTnVA==",
-    "expiration": "2026-05-21T14:01:42.000Z"
+    "access_key_id": "ASIAZV3A2ECZPQG5O2SZ",
+    "secret_access_key": "Mz2n0BquAoVrz44a851XsrHRtlE9Zf9bKrjEFlFi",
+    "session_token": "IQoJb3JpZ2luX2VjEDUaCXVzLWVhc3QtMSJHMEUCIQDsLcpgOMi1hNLUIVtwotUHp5iEtXlvV642yHnvxeqdHAIgBiw/02w855s/ZX1OT6Xl8MPHcH/olF09+tIeR8NSH3gq/wMI/f//////////ARAEGgw2NjUzODYwOTg4NjYiDPz4/N7cF+PWx5bUOCrTA5ROSxWtoMP629Qcgotlxt5wIFO8OR7smyMIwI15tIGxkVtjiPUVJlqGSFanGhNwm1Dvwe3a1AemUnajxHsLQYTlCoTuiKts2SE17ohCs/rRKJ1RKI8wz7U/P0KEYcrF1EyDE523qi6VAFAQTR3qoGnNrz1r28qpTShNgP1V3NRPfs4IimGV5d5uaknLQcjcth8gCT1jvON9kbp8UTp1w7BuCnPxZc3Y3gSUahI5PPVr7Rh2+cGDL1yvSRTwU5yc3d0SfwWjkXj4e5HbuObZfgmwn/oYhZ7aEUTVCcpOh4UwdneFKtuZQRsEbpAcBECc462zZS8YGqvHbiP3SQbw6aq5ksEOYVEXA0NIWXy8w8VzSzic61gKWO5v8CmjGKtYGQGgO5hZ4HjquSb19EsATfDVbtaxX1gaYDNf+fLAiM++tBh5okBC5beYRHsreJZLNX9Vz4vuwaLsuyO9+Pv2DZ1Qc70sCsu36iGP4cNYEqcXhPaYullCFBiGcSm7KvEF5zxi2r8aFiSkdLS4P8ibH7GqEq3wE2JU+LE8PEaGXztt/U+OBHANKf6d3x95lxm2hFwbFuoa0VQVrl/KFXAFYd7aTRaKsFW7w8roGA6wAWWjnplFMJmPutAGOp0BOjtrlXUCYvK24EFg1/RHcIfzhpCfDenyXispyonk9BAa8DK3+qsk2UmNMCiIx8EDgHPVudxqrH9UvCpfkW0jTE9hKKeAaW4firPE0PaPuBVvylfoICwotu6mgV6Wzpr7aKpA5ha5DgRBnCDnIDlAcRDS8eL61P88jCoz5oP5b6LHaiNNVtiesS1JoXS7QJXCT3D/kIN+0etsHctKmQ==",
+    "expiration": "2026-05-21T16:18:33.000Z"
   },
   "name": "camisa-manager",
   "path": "/home/ubuntu/camisa-manager",
@@ -31,6 +31,8 @@
     "OWNER_NAME": "cabradabolafc",
     "OWNER_OPEN_ID": "Db9AVH5fTW7KFUs46TX5Hp",
     "SENDGRID_API_KEY": "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",
+    "STRIPE_SECRET_KEY": "sk_test_51TZKy7IY9YKPtoLcYkKuxa9JvI4A16EO158wj70Dp4xkDlm2cJd5vz1njjOio4sZcrkgGVtC5V2xFMwmtaJoL3Zk00ECPmrckG",
+    "STRIPE_WEBHOOK_SECRET": "whsec_Hj2oiw5etMOjgoRyVkZjWvKHo3Nq3gsu",
     "VITE_ANALYTICS_ENDPOINT": "https://manus-analytics.com",
     "VITE_ANALYTICS_WEBSITE_ID": "15324a48-d4f4-4ce3-b41e-e47ac723c87f",
     "VITE_APP_ID": "awm2eraPRXUvnHb76ArrUX",
@@ -38,7 +40,8 @@
     "VITE_APP_TITLE": "CamisaManager - Sistema de Gestão para Loja de Camisas",
     "VITE_FRONTEND_FORGE_API_KEY": "Y6qyAcLq2o6LFeWgwSMg8v",
     "VITE_FRONTEND_FORGE_API_URL": "https://forge.manus.ai",
-    "VITE_OAUTH_PORTAL_URL": "https://manus.im"
+    "VITE_OAUTH_PORTAL_URL": "https://manus.im",
+    "VITE_STRIPE_PUBLISHABLE_KEY": "pk_test_51TZKy7IY9YKPtoLcC2JXwWkWTaQskJI8ptj4YbKGhTN5ceDrUxRcyj7E2OpayAFimkou15Tx5hG9O6SunCzV3Ajm00GqrU7rhl"
   },
   "template_id": "web-db-user",
   "test_command": "pnpm test"

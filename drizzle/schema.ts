@@ -538,3 +538,104 @@ export const clientInvites = mysqlTable("client_invites", {
 
 export type ClientInvite = typeof clientInvites.$inferSelect;
 export type InsertClientInvite = typeof clientInvites.$inferInsert;
+
+// ─── Stripe Integration ────────────────────────────────────────────────────────
+
+export const stripeSubscriptions = mysqlTable("stripe_subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  tenantId: int("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Stripe identifiers
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }).notNull().unique(),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).notNull(),
+  stripePriceId: varchar("stripe_price_id", { length: 255 }).notNull(),
+  
+  // Subscription metadata
+  planName: varchar("plan_name", { length: 100 }).notNull(),
+  status: mysqlEnum("status", ["active", "past_due", "canceled", "unpaid"]).notNull().default("active"),
+  
+  // Dates
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  canceledAt: timestamp("canceled_at"),
+  
+  // Business metadata
+  notes: text("notes"),
+});
+
+export const stripePayments = mysqlTable("stripe_payments", {
+  id: int("id").autoincrement().primaryKey(),
+  tenantId: int("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Stripe identifiers
+  stripePaymentIntentId: varchar("stripe_payment_intent_id", { length: 255 }).notNull().unique(),
+  stripeInvoiceId: varchar("stripe_invoice_id", { length: 255 }),
+  
+  // Payment details
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).notNull().default("USD"),
+  status: mysqlEnum("status", ["succeeded", "processing", "requires_payment_method", "requires_action"]).notNull(),
+  
+  // Dates
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  paidAt: timestamp("paid_at"),
+  
+  // Business metadata
+  description: text("description"),
+  notes: text("notes"),
+});
+
+export const stripeInvoices = mysqlTable("stripe_invoices", {
+  id: int("id").autoincrement().primaryKey(),
+  tenantId: int("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Stripe identifiers
+  stripeInvoiceId: varchar("stripe_invoice_id", { length: 255 }).notNull().unique(),
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }).notNull(),
+  
+  // Invoice details
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).notNull().default("USD"),
+  status: mysqlEnum("status", ["draft", "open", "paid", "void", "uncollectible"]).notNull(),
+  
+  // Dates
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  dueAt: timestamp("due_at"),
+  paidAt: timestamp("paid_at"),
+  
+  // Business metadata
+  invoiceNumber: varchar("invoice_number", { length: 50 }),
+  notes: text("notes"),
+});
+
+export const stripeCustomers = mysqlTable("stripe_customers", {
+  id: int("id").autoincrement().primaryKey(),
+  tenantId: int("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Stripe identifier
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).notNull().unique(),
+  
+  // Local reference
+  email: varchar("email", { length: 255 }).notNull(),
+  name: varchar("name", { length: 255 }),
+  
+  // Dates
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+});
+
+export type StripeSubscription = typeof stripeSubscriptions.$inferSelect;
+export type InsertStripeSubscription = typeof stripeSubscriptions.$inferInsert;
+
+export type StripePayment = typeof stripePayments.$inferSelect;
+export type InsertStripePayment = typeof stripePayments.$inferInsert;
+
+export type StripeInvoice = typeof stripeInvoices.$inferSelect;
+export type InsertStripeInvoice = typeof stripeInvoices.$inferInsert;
+
+export type StripeCustomer = typeof stripeCustomers.$inferSelect;
+export type InsertStripeCustomer = typeof stripeCustomers.$inferInsert;
