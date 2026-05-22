@@ -72,7 +72,6 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
-          <Toaster richColors position="top-right" />
           <Switch>
             {/* Public catalog route - no auth needed */}
             <Route path="/catalogo" component={Catalog} />
