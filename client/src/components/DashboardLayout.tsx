@@ -149,6 +149,22 @@ function DashboardLayoutContent({
   const { data: settings } = trpc.settings.get.useQuery();
   const activeMenuItem = menuItems.find((item) => item.path === location);
 
+  // Fechar overlays ao navegar para evitar erro de removeChild
+  useEffect(() => {
+    // Fechar todos os Radix overlays enviando Escape
+    const handleNavigation = () => {
+      document.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          key: 'Escape',
+          code: 'Escape',
+          keyCode: 27,
+          bubbles: true,
+        })
+      );
+    };
+    handleNavigation();
+  }, [location]);
+
   useEffect(() => {
     if (isCollapsed) setIsResizing(false);
   }, [isCollapsed]);
@@ -214,7 +230,18 @@ function DashboardLayoutContent({
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton
                       isActive={isActive}
-                      onClick={() => setLocation(item.path)}
+                      onClick={() => {
+                        // Fechar overlays antes de navegar
+                        document.dispatchEvent(
+                          new KeyboardEvent('keydown', {
+                            key: 'Escape',
+                            code: 'Escape',
+                            keyCode: 27,
+                            bubbles: true,
+                          })
+                        );
+                        setLocation(item.path);
+                      }}
                       tooltip={item.label}
                       className={`h-9 transition-all font-normal rounded-lg ${
                         isActive
