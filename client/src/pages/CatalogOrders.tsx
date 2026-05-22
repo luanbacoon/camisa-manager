@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { toast } from "sonner";
+import { toast } from "@/components/SimpleToast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ClipboardList, CheckCircle, XCircle, Eye, Phone, Trash2, MessageCircle } from "lucide-react";

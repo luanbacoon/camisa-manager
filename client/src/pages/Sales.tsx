@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
-import { toast } from "sonner";
+import { toast } from "@/components/SimpleToast";
 import { format, subDays, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Plus, Search, ShoppingCart, X, Trash2, Eye, Edit2, TrendingUp, Shirt } from "lucide-react";

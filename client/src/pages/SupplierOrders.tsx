@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
-import { toast } from "sonner";
+import { toast } from "@/components/SimpleToast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Plus, Search, Truck, CheckCircle, Package, ExternalLink, Edit2, Trash2, X } from "lucide-react";

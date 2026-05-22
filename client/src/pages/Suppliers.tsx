@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
 import { Plus, Edit2, Trash2, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/components/SimpleToast";
 
 export default function Suppliers() {
   const [open, setOpen] = useState(false);

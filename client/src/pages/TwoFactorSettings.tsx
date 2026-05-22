@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Copy, Check, AlertTriangle } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/components/SimpleToast";
 
 export default function TwoFactorSettings() {
   const [showSetupDialog, setShowSetupDialog] = useState(false);

@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
-import { toast } from "sonner";
+import { toast } from "@/components/SimpleToast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Plus, Search, Users, Eye, Edit2, X } from "lucide-react";

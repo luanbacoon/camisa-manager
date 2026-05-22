@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
 import { FileDown, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/components/SimpleToast";
 
 export default function Reports() {
   const [salesFrom, setSalesFrom] = useState<string>(
